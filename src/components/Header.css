@@ -1,0 +1,51 @@
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 2px 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, var(--gold-2), var(--gold));
+  display: grid;
+  place-items: center;
+  color: #20160a;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+}
+
+.brand h1 {
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  margin: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.brand .sub {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sync {
+  font-size: 11px;
+  color: var(--faint);
+  text-align: right;
+  letter-spacing: 0.08em;
+}
+
+.sync-time {
+  color: var(--muted);
+}

@@ -1,0 +1,13 @@
+# Node / build
+node_modules/
+dist/
+build/
+.next/
+.vite/
+
+# Env & secrets
+.env
+.env.local
+
+# OS
+.DS_Store

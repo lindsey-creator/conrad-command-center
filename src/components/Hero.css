@@ -1,0 +1,28 @@
+.hero {
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 16px 14px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+
+.hero .k {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--gold-2);
+  text-transform: uppercase;
+}
+
+.hero h2 {
+  margin: 6px 0 2px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}

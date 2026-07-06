@@ -1,0 +1,28 @@
+footer {
+  margin-top: 22px;
+  text-align: center;
+  color: var(--faint);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sw {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+}
