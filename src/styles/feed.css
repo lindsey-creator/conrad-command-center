@@ -4,14 +4,13 @@
   gap: 4px;
   margin-bottom: 16px;
   padding: 5px;
-  background: rgba(8, 8, 12, 0.75);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: var(--radius);
+  background: rgba(26, 26, 34, 0.85);
+  border: 1px solid rgba(201, 162, 39, 0.12);
+  border-radius: 2px;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow:
-    var(--shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow);
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
 }
 
 .nav-btn {
@@ -19,30 +18,29 @@
   flex: 1;
   min-height: 44px;
   padding: 10px 12px;
-  border-radius: calc(var(--radius-sm) - 2px);
+  border-radius: 2px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-family: var(--font-kicker);
+  font-size: 13px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .nav-btn:hover:not(.active) {
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.04);
+  background: rgba(245, 240, 230, 0.03);
+  border-color: rgba(245, 240, 230, 0.04);
 }
 
 .nav-btn.active {
   color: var(--gold-2);
-  background: rgba(212, 175, 55, 0.08);
-  border-color: rgba(212, 175, 55, 0.22);
+  background: rgba(201, 162, 39, 0.1);
+  border-color: rgba(201, 162, 39, 0.28);
   box-shadow:
-    0 0 28px var(--gold-glow),
-    inset 0 0 20px rgba(212, 175, 55, 0.04);
+    0 0 24px var(--gold-glow),
+    inset 0 0 16px rgba(201, 162, 39, 0.04);
 }
 
 .nav-btn.active::after {
@@ -52,9 +50,9 @@
   left: 18%;
   right: 18%;
   height: 2px;
-  border-radius: 2px;
+  border-radius: 1px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  box-shadow: 0 0 10px var(--gold-glow);
+  box-shadow: 0 0 8px var(--gold-glow);
 }
 
 @media (max-width: 520px) {
@@ -265,23 +263,21 @@
   border-bottom: none;
 }
 
-/* Ask the Room — JARVIS terminal */
+/* Ask the Room — Echo terminal */
 .ask-room {
   position: relative;
   overflow: hidden;
   background: linear-gradient(
     165deg,
-    rgba(10, 10, 16, 0.9) 0%,
-    rgba(5, 5, 8, 0.95) 100%
+    rgba(26, 26, 34, 0.92) 0%,
+    rgba(3, 3, 4, 0.97) 100%
   );
-  border: 1px solid rgba(212, 175, 55, 0.14);
-  border-radius: var(--radius);
+  border: 1px solid rgba(201, 162, 39, 0.14);
+  border-radius: 2px;
   padding: 20px;
-  box-shadow:
-    var(--shadow),
-    inset 0 1px 0 rgba(78, 205, 196, 0.2);
+  box-shadow: var(--shadow);
   margin-bottom: 16px;
-  --bracket-inset: 10px;
+  --bracket-inset: 0;
 }
 
 .ask-room h3 {
@@ -292,12 +288,12 @@
 }
 
 .ask-room h3::before {
-  content: '// JARVIS ';
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--cyan);
-  letter-spacing: 0.14em;
+  content: 'ECHO ';
+  font-family: var(--font-kicker);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.18em;
 }
 
 .ask-room .sub {

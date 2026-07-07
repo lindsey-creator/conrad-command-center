@@ -1,4 +1,5 @@
 import { LiveIndicator } from './LiveIndicator';
+import { RhinoMark } from './RhinoMark';
 import './Header.css';
 
 interface HeaderProps {
@@ -9,14 +10,14 @@ export function Header({ brainOnline }: HeaderProps) {
   return (
     <header className="top">
       <div className="brand">
-        <div className="mark">C</div>
+        <RhinoMark size={40} className="brand-mark" aria-hidden={false} />
         <div>
-          <h1>Conrad Command Center</h1>
-          <div className="sub">Enterprise Operations · 8 Business Units</div>
+          <h1>Rhino Command</h1>
+          <div className="sub">Rhino Capital · Conrad Mortgage · Elite Operator</div>
         </div>
       </div>
       <div className="sync">
-        // SYS v5
+        RHINO v6
         <br />
         <LiveIndicator brainOnline={brainOnline} />
       </div>

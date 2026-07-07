@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type JarvisVoiceState = 'idle' | 'listening' | 'speaking' | 'thinking';
+export type EchoVoiceState = 'idle' | 'listening' | 'speaking' | 'thinking';
 
-interface UseJarvisVoiceOptions {
+interface UseEchoVoiceOptions {
   speakEnabled: boolean;
   onTranscript?: (text: string) => void;
 }
@@ -18,11 +18,11 @@ function getRecognitionCtor():
   return w.SpeechRecognition ?? w.webkitSpeechRecognition;
 }
 
-export function useJarvisVoice({
+export function useEchoVoice({
   speakEnabled,
   onTranscript,
-}: UseJarvisVoiceOptions) {
-  const [voiceState, setVoiceState] = useState<JarvisVoiceState>('idle');
+}: UseEchoVoiceOptions) {
+  const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
   const [speechSupported, setSpeechSupported] = useState(false);
   const [micSupported, setMicSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);

@@ -48,7 +48,7 @@ export function Hero() {
               className={`hero-status-dot${allLive ? ' hero-status-dot--live' : ''}`}
               aria-hidden="true"
             />
-            <span className="hero-status-label">JARVIS online</span>
+            <span className="hero-status-label">ECHO ONLINE</span>
           </div>
           <div className="hero-datetime">
             <span className="hero-time">{timeStr}</span>

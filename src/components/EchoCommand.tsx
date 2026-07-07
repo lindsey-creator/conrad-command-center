@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
-import { useJarvisVoice, type JarvisVoiceState } from '../hooks/useJarvisVoice';
-import { JarvisOrb } from './JarvisOrb';
-import './jarvis-command.css';
+import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
+import { RhinoCore } from './RhinoCore';
+import './echo-command.css';
 
-interface JarvisCommandProps {
-  onVoiceStateChange?: (state: JarvisVoiceState) => void;
+interface EchoCommandProps {
+  onVoiceStateChange?: (state: EchoVoiceState) => void;
 }
 
-export function JarvisCommand({ onVoiceStateChange }: JarvisCommandProps) {
+export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
   const [message, setMessage] = useState('');
   const [wantsDraft, setWantsDraft] = useState(false);
   const [speakEnabled, setSpeakEnabled] = useState(true);
@@ -37,7 +37,7 @@ export function JarvisCommand({ onVoiceStateChange }: JarvisCommandProps) {
     setThinking,
     speechSupported,
     micSupported,
-  } = useJarvisVoice({ speakEnabled, onTranscript: handleTranscript });
+  } = useEchoVoice({ speakEnabled, onTranscript: handleTranscript });
 
   useEffect(() => {
     onVoiceStateChange?.(loading ? 'thinking' : voiceState);
@@ -93,76 +93,79 @@ export function JarvisCommand({ onVoiceStateChange }: JarvisCommandProps) {
     }
   };
 
-  const displayState: JarvisVoiceState = loading ? 'thinking' : voiceState;
+  const displayState: EchoVoiceState = loading ? 'thinking' : voiceState;
 
   return (
-    <section className="jarvis-command hud-corners" aria-label="Ask JARVIS">
-      <div className="jarvis-command__head">
-        <div className="jarvis-command__head-left">
-          <JarvisOrb state={displayState} size="sm" label="JARVIS voice core" />
-          <h3 className="jarvis-command__title">Ask JARVIS</h3>
+    <section className="echo-command hud-corners rhino-metal" aria-label="Ask Echo">
+      <div className="echo-command__head">
+        <div className="echo-command__head-left">
+          <RhinoCore state={displayState} size="sm" label="Echo voice core" />
+          <div>
+            <span className="echo-command__kicker">ECHO ONLINE</span>
+            <h3 className="echo-command__title">Ask Echo</h3>
+          </div>
         </div>
-        <div className="jarvis-command__controls">
+        <div className="echo-command__controls">
           {speechSupported && (
             <button
               type="button"
-              className={`jarvis-command__toggle${speakEnabled ? ' jarvis-command__toggle--on' : ''}`}
+              className={`echo-command__toggle${speakEnabled ? ' echo-command__toggle--on' : ''}`}
               onClick={() => {
                 if (speakEnabled) stopSpeaking();
                 setSpeakEnabled((s) => !s);
               }}
               aria-pressed={speakEnabled}
             >
-              {speakEnabled ? '🔊 Speak on' : '🔇 Speak off'}
+              {speakEnabled ? 'Speak on' : 'Speak off'}
             </button>
           )}
         </div>
       </div>
 
-      <div className="jarvis-command__bar">
-        <div className="jarvis-command__input-wrap">
+      <div className="echo-command__bar">
+        <div className="echo-command__input-wrap">
           <textarea
-            id="jarvis-input"
-            className="jarvis-command__input"
+            id="echo-input"
+            className="echo-command__input"
             rows={2}
-            placeholder="Ask Echo anything…"
+            placeholder="Command the stack — deals, priorities, drafts…"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={onKeyDown}
-            aria-label="Message for JARVIS"
+            aria-label="Message for Echo"
           />
         </div>
-        <div className="jarvis-command__actions">
+        <div className="echo-command__actions">
           {micSupported && (
             <button
               type="button"
-              className={`jarvis-command__btn jarvis-command__btn--mic${voiceState === 'listening' ? ' jarvis-command__btn--active' : ''}`}
+              className={`echo-command__btn echo-command__btn--mic${voiceState === 'listening' ? ' echo-command__btn--active' : ''}`}
               onClick={toggleListening}
               aria-pressed={voiceState === 'listening'}
               title={voiceState === 'listening' ? 'Stop listening' : 'Voice input'}
             >
-              🎙
+              Mic
             </button>
           )}
           <button
             type="button"
-            className="jarvis-command__btn jarvis-command__btn--primary"
+            className="echo-command__btn echo-command__btn--primary"
             disabled={loading || !message.trim()}
             onClick={() => void handleAsk()}
           >
-            {loading ? '…' : 'Ask'}
+            {loading ? '…' : 'Send'}
           </button>
         </div>
       </div>
 
-      <div className="jarvis-command__hint">
+      <div className="echo-command__hint">
         {micSupported
-          ? 'Enter to send · Mic for voice · JARVIS reads responses aloud'
+          ? 'Enter to send · Mic for voice · Echo reads responses aloud · Rhino Robot captures meetings'
           : 'Enter to send · Voice input not supported in this browser'}
       </div>
 
-      <div className="jarvis-command__options">
-        <label className="jarvis-command__checkbox">
+      <div className="echo-command__options">
+        <label className="echo-command__checkbox">
           <input
             type="checkbox"
             checked={wantsDraft}
@@ -180,7 +183,7 @@ export function JarvisCommand({ onVoiceStateChange }: JarvisCommandProps) {
       </div>
 
       {showDeal && (
-        <div className="jarvis-command__deal feed-grid">
+        <div className="echo-command__deal feed-grid">
           <div>
             <label className="feed-label">Purchase price</label>
             <input
@@ -230,7 +233,7 @@ export function JarvisCommand({ onVoiceStateChange }: JarvisCommandProps) {
       )}
 
       {(error || response) && (
-        <div className="jarvis-command__panel">
+        <div className="echo-command__panel">
           {error && <div className="feed-result diverged">{error}</div>}
           {response && (
             <>
@@ -246,7 +249,7 @@ export function JarvisCommand({ onVoiceStateChange }: JarvisCommandProps) {
                 <div className="feed-result diverged">{response.error}</div>
               )}
               {response.answer && (
-                <div className="jarvis-command__response">{response.answer}</div>
+                <div className="echo-command__response">{response.answer}</div>
               )}
               {(response.draft || draftEdit) && (
                 <div className="approval-queue" style={{ marginTop: 12 }}>

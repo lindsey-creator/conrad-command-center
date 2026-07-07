@@ -1,29 +1,74 @@
 .command-header {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius);
   margin-bottom: 12px;
-  border: 1px solid rgba(212, 175, 55, 0.12);
-  background: linear-gradient(
-    165deg,
-    rgba(12, 12, 18, 0.92) 0%,
-    rgba(5, 5, 8, 0.97) 100%
-  );
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(212, 175, 55, 0.06);
-  --bracket-inset: 10px;
+  --bracket-inset: 0;
+}
+
+.command-header__watermark {
+  position: absolute;
+  top: 50%;
+  right: -20px;
+  transform: translateY(-50%);
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .command-header__mesh {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 0;
   background:
-    radial-gradient(ellipse 60% 80% at 10% 30%, rgba(212, 175, 55, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 50% at 90% 70%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+    linear-gradient(135deg, rgba(201, 162, 39, 0.06) 0%, transparent 40%),
+    radial-gradient(ellipse 50% 70% at 0% 50%, rgba(26, 26, 34, 0.8) 0%, transparent 60%);
+}
+
+/* Command strip — RHINO NETWORK | CONRAD MORTGAGE | LIVE */
+.command-strip {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(201, 162, 39, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  flex-wrap: wrap;
+}
+
+.command-strip__item {
+  font-family: var(--font-kicker);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  padding: 0 14px;
+}
+
+.command-strip__item--brand {
+  color: var(--gold);
+}
+
+.command-strip__item--live {
+  color: var(--faint);
+}
+
+.command-strip__item--live.command-strip__item--active {
+  color: var(--go);
+  text-shadow: 0 0 12px var(--go-glow);
+}
+
+.command-strip__sep {
+  width: 1px;
+  height: 14px;
+  background: rgba(201, 162, 39, 0.25);
+  flex-shrink: 0;
 }
 
 .command-header__inner {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -34,7 +79,7 @@
 .command-header__identity {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   flex: 1;
   min-width: 200px;
 }
@@ -46,26 +91,20 @@
 }
 
 .command-header__label {
-  font-family: var(--font-display);
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--cyan);
+  font-family: var(--font-kicker);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--gold);
 }
 
 .command-header__name {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(22px, 4vw, 28px);
-  font-weight: 400;
-  font-style: italic;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  background: linear-gradient(135deg, var(--ink) 0%, var(--gold-2) 110%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  color: var(--ivory);
 }
 
 .command-header__greeting {
@@ -73,6 +112,11 @@
   font-size: 12px;
   color: var(--muted);
   line-height: 1.4;
+}
+
+.command-header__greeting strong {
+  color: var(--gold-2);
+  font-weight: 600;
 }
 
 .command-header__metrics {
@@ -84,25 +128,31 @@
 
 .command-header__metric {
   min-width: 72px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(212, 175, 55, 0.12);
-  background: rgba(0, 0, 0, 0.35);
+  padding: 10px 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(201, 162, 39, 0.14);
+  background: rgba(0, 0, 0, 0.4);
   text-align: center;
+  clip-path: polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0% 100%, 0% 6px);
 }
 
 .command-header__metric-val {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+}
+
+.command-header__metric-dim {
+  font-size: 11px;
+  color: var(--faint);
 }
 
 .command-header__metric-val--live {
-  color: var(--cyan);
-  text-shadow: 0 0 16px var(--cyan-glow);
+  color: var(--go);
+  text-shadow: 0 0 14px var(--go-glow);
 }
 
 .command-header__metric-lbl {
@@ -112,13 +162,14 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--faint);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .command-header__datetime {
   position: absolute;
-  top: 12px;
-  right: 16px;
+  top: 52px;
+  right: 18px;
+  z-index: 2;
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -142,7 +193,7 @@
 @media (max-width: 640px) {
   .command-header__inner {
     padding: 14px;
-    padding-top: 36px;
+    padding-top: 40px;
   }
 
   .command-header__metrics {
@@ -156,7 +207,13 @@
   }
 
   .command-header__datetime {
-    top: 10px;
-    right: 12px;
+    top: 48px;
+    right: 14px;
+  }
+
+  .command-strip__item {
+    font-size: 11px;
+    padding: 0 10px;
+    letter-spacing: 0.14em;
   }
 }

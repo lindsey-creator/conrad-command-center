@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { brain } from '../api/brain';
 import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
-import type { JarvisVoiceState } from '../hooks/useJarvisVoice';
-import { JarvisOrb } from './JarvisOrb';
+import type { EchoVoiceState } from '../hooks/useEchoVoice';
+import { RhinoCore } from './RhinoCore';
+import { RhinoMark } from './RhinoMark';
 import './command-header.css';
 
 interface CommandHeaderProps {
-  voiceState?: JarvisVoiceState;
+  voiceState?: EchoVoiceState;
 }
 
 export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
@@ -40,27 +41,42 @@ export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
     day: 'numeric',
   });
 
-  const orbLabel =
+  const statusLabel =
     voiceState === 'listening'
-      ? 'JARVIS listening'
+      ? 'ECHO LISTENING'
       : voiceState === 'speaking'
-        ? 'JARVIS speaking'
+        ? 'ECHO SPEAKING'
         : voiceState === 'thinking'
-          ? 'JARVIS processing'
-          : 'JARVIS online';
+          ? 'ECHO PROCESSING'
+          : 'ECHO ONLINE';
 
   return (
-    <section className="command-header hud-corners" aria-label="Command status">
+    <section className="command-header hud-corners rhino-metal" aria-label="Command status">
+      <div className="command-header__watermark" aria-hidden="true">
+        <RhinoMark size={200} />
+      </div>
       <div className="command-header__mesh" aria-hidden="true" />
+
+      <div className="command-strip">
+        <span className="command-strip__item command-strip__item--brand">RHINO NETWORK</span>
+        <span className="command-strip__sep" aria-hidden="true" />
+        <span className="command-strip__item">CONRAD MORTGAGE</span>
+        <span className="command-strip__sep" aria-hidden="true" />
+        <span className={`command-strip__item command-strip__item--live${allLive ? ' command-strip__item--active' : ''}`}>
+          {allLive ? 'LIVE' : connected > 0 ? 'SYNC' : 'STANDBY'}
+        </span>
+      </div>
+
       <div className="command-header__datetime">
         <span className="command-header__time">{timeStr}</span>
         <span className="command-header__date">{dateStr}</span>
       </div>
+
       <div className="command-header__inner">
         <div className="command-header__identity">
-          <JarvisOrb state={voiceState} label={orbLabel} />
+          <RhinoCore state={voiceState} label={statusLabel} />
           <div className="command-header__status-block">
-            <span className="command-header__label">{orbLabel}</span>
+            <span className="command-header__label">{statusLabel}</span>
             <h2 className="command-header__name">Lindsey</h2>
             <p className="command-header__greeting">
               {greeting}. Readiness · <strong>{readiness}</strong>
@@ -71,7 +87,7 @@ export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
           <div className="command-header__metrics" role="group" aria-label="Live metrics">
             <div className="command-header__metric">
               <div className="command-header__metric-val">
-                {connected}<span style={{ fontSize: 11, color: 'var(--faint)' }}>/{total}</span>
+                {connected}<span className="command-header__metric-dim">/{total}</span>
               </div>
               <div className="command-header__metric-lbl">Connectors</div>
             </div>

@@ -20,7 +20,7 @@ const CONNECTOR_HELP: Record<
   },
   fieldy: {
     label: 'Fieldy',
-    where: 'fieldy.ai → account API settings',
+    where: 'Mac goldfront-os/.env (FIELDY_API_TOKEN) — copy to Brain .env',
     envVars: ['FIELDY_API_TOKEN'],
   },
   google_calendar: {

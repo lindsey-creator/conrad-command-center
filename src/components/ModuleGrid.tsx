@@ -5,6 +5,7 @@ import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
 import { ConnectSource } from './ConnectSource';
 import { LaneModule } from './LaneModule';
+import { RhinoLaneIcon } from './RhinoLaneIcon';
 import '../styles/intel-lanes.css';
 
 const STATIC_SOURCES = {
@@ -87,8 +88,8 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
   return (
     <>
-      {/* Priority scan row */}
-      <div className="priority-scan" role="group" aria-label="Priority scan">
+      <div className="priority-horns-kicker">PRIORITY HORNS</div>
+      <div className="priority-scan" role="group" aria-label="Priority horns">
         <div className="scan-tile">
           <span className="scan-tile__dot scan-tile__dot--live" />
           <div className="scan-tile__kicker">Money</div>
@@ -140,6 +141,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         {/* CRM lane */}
         <section className="intel-lane" aria-label="CRM intelligence">
           <div className="intel-lane__head">
+            <RhinoLaneIcon variant="crm" />
             <h4 className="intel-lane__title">CRM</h4>
             <span className="intel-lane__count">Revenue · Leads</span>
           </div>
@@ -232,6 +234,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         {/* Tasks lane */}
         <section className="intel-lane" aria-label="Tasks and accountability">
           <div className="intel-lane__head">
+            <RhinoLaneIcon variant="tasks" />
             <h4 className="intel-lane__title">Tasks</h4>
             <span className="intel-lane__count">Pulse · Accountability</span>
           </div>
@@ -320,7 +323,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
             </LaneModule>
 
             <LaneModule title="Issue a Task" icon="✅" pill="On the road" defaultOpen={false}>
-              <p>Voice or text → routed to ClickUp with context.</p>
+              <p>Voice or text → routed via Rhino Robot to ClickUp with context.</p>
               <ConnectSource sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
             </LaneModule>
           </div>
@@ -329,6 +332,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         {/* Audio / Fieldy lane */}
         <section className="intel-lane" aria-label="Audio and field intelligence">
           <div className="intel-lane__head">
+            <RhinoLaneIcon variant="audio" />
             <h4 className="intel-lane__title">Audio / Fieldy</h4>
             <span className="intel-lane__count">Voice · Brief</span>
           </div>
@@ -439,6 +443,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         {/* Calendar lane */}
         <section className="intel-lane" aria-label="Calendar and environment">
           <div className="intel-lane__head">
+            <RhinoLaneIcon variant="calendar" />
             <h4 className="intel-lane__title">Calendar</h4>
             <span className="intel-lane__count">Schedule · Environment</span>
           </div>

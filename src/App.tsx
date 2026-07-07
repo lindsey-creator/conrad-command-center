@@ -5,13 +5,13 @@ import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
 import { CommandHeader } from './components/CommandHeader';
 import { Connections, resolveConnectorKey } from './components/Connections';
 import { ConnectorsBar } from './components/ConnectorsBar';
+import { EchoCommand } from './components/EchoCommand';
 import { FeedTheBrain } from './components/FeedTheBrain';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
-import { JarvisCommand } from './components/JarvisCommand';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
-import type { JarvisVoiceState } from './hooks/useJarvisVoice';
+import type { EchoVoiceState } from './hooks/useEchoVoice';
 import './styles/tokens.css';
 import './styles/layout.css';
 import './styles/feed.css';
@@ -26,7 +26,7 @@ export default function App() {
   const [page, setPageState] = useState<Page>(pageFromHash);
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
-  const [voiceState, setVoiceState] = useState<JarvisVoiceState>('idle');
+  const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
 
   const checkHealth = useCallback(async () => {
     try {
@@ -84,7 +84,7 @@ export default function App() {
       )}
       {page === 'dashboard' ? (
         <>
-          <JarvisCommand onVoiceStateChange={setVoiceState} />
+          <EchoCommand onVoiceStateChange={setVoiceState} />
           <CommandHeader voiceState={voiceState} />
           <ModuleGrid onConnect={openConnections} />
         </>
