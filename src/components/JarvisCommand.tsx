@@ -125,7 +125,7 @@ export function JarvisCommand({ onVoiceStateChange }: JarvisCommandProps) {
             id="jarvis-input"
             className="jarvis-command__input"
             rows={2}
-            placeholder="Ask anything — deals, priorities, drafts…"
+            placeholder="Ask Echo anything…"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={onKeyDown}
