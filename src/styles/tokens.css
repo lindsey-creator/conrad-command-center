@@ -1,30 +1,52 @@
 :root {
-  --bg: #0a0a0b;
-  --bg-elevated: #0f1012;
-  --panel: rgba(18, 18, 20, 0.72);
-  --panel-solid: #121214;
-  --panel-2: rgba(22, 22, 25, 0.85);
-  --line: rgba(255, 255, 255, 0.07);
-  --line-strong: rgba(255, 255, 255, 0.12);
+  /* Void palette */
+  --bg: #050508;
+  --bg-elevated: #0a0a0e;
+  --panel: rgba(10, 10, 14, 0.72);
+  --panel-solid: #0c0c10;
+  --panel-2: rgba(14, 14, 20, 0.88);
+  --line: rgba(255, 255, 255, 0.06);
+  --line-strong: rgba(255, 255, 255, 0.11);
   --ink: #f0f2f5;
   --muted: #8b939e;
   --faint: #5c6570;
-  --gold: #c9a227;
-  --gold-2: #e4c45a;
-  --gold-glow: rgba(201, 162, 39, 0.18);
+
+  /* Arc-reactor gold */
+  --gold: #d4af37;
+  --gold-2: #e8c84a;
+  --gold-glow: rgba(212, 175, 55, 0.22);
+  --gold-dim: rgba(212, 175, 55, 0.08);
+
+  /* System states */
   --go: #3ecf8e;
+  --go-glow: rgba(62, 207, 142, 0.35);
   --warn: #f5b53d;
   --crit: #ff5d5d;
   --info: #5aa9ff;
+  --cyan: #4ecdc4;
+  --cyan-glow: rgba(78, 205, 196, 0.25);
+
+  /* Geometry */
   --radius: 18px;
   --radius-sm: 12px;
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 40px rgba(0, 0, 0, 0.5);
-  --shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 48px rgba(0, 0, 0, 0.55);
-  --glass-blur: blur(16px);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 16px 48px rgba(0, 0, 0, 0.65);
+  --shadow-hover: 0 1px 0 rgba(212, 175, 55, 0.06), 0 24px 56px rgba(0, 0, 0, 0.7);
+  --glass-blur: blur(20px);
+
+  /* Typography */
   --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: 'Orbitron', var(--font-mono);
+
+  /* Motion */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --transition: 180ms var(--ease);
+  --transition: 200ms var(--ease);
+
+  /* HUD */
+  --hud-bracket: var(--gold);
+  --hud-bracket-size: 14px;
+  --hud-bracket-weight: 1.5px;
 }
 
 * {
@@ -37,15 +59,49 @@ body {
   min-height: 100%;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201, 162, 39, 0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(90, 169, 255, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 30% at 0% 100%, rgba(201, 162, 39, 0.03) 0%, transparent 45%);
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 175, 55, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(78, 205, 196, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 30% at 0% 100%, rgba(212, 175, 55, 0.04) 0%, transparent 45%);
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* HUD hex grid overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='1'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-size: 28px 49px;
+}
+
+/* Subtle scan-line */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.018;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(78, 205, 196, 0.15) 2px,
+    rgba(78, 205, 196, 0.15) 3px
+  );
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 a {
@@ -67,10 +123,69 @@ button {
 }
 
 code {
-  font-size: 0.92em;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
   padding: 2px 6px;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.45);
   border: 1px solid var(--line);
   color: var(--gold-2);
+}
+
+/* HUD corner brackets — apply to hero, cards, key panels */
+.hud-corners {
+  --bracket-inset: 10px;
+}
+
+.hud-corners::before,
+.hud-corners::after {
+  content: '';
+  position: absolute;
+  width: var(--hud-bracket-size);
+  height: var(--hud-bracket-size);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.55;
+  transition: opacity var(--transition);
+}
+
+.hud-corners::before {
+  top: var(--bracket-inset);
+  left: var(--bracket-inset);
+  border-top: var(--hud-bracket-weight) solid var(--hud-bracket);
+  border-left: var(--hud-bracket-weight) solid var(--hud-bracket);
+}
+
+.hud-corners::after {
+  bottom: var(--bracket-inset);
+  right: var(--bracket-inset);
+  border-bottom: var(--hud-bracket-weight) solid var(--hud-bracket);
+  border-right: var(--hud-bracket-weight) solid var(--hud-bracket);
+}
+
+.hud-corners:hover::before,
+.hud-corners:hover::after {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(0.85);
+  }
 }

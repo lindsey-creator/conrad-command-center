@@ -72,7 +72,7 @@ export function Connections({ focusSource }: ConnectionsProps) {
 
   return (
     <div className="connections-page">
-      <section className="feed-section">
+      <section className="feed-section hud-corners">
         <h3>Connections</h3>
         <p className="feed-hint">
           Optional — the app works with zero connectors. Add keys in{' '}
@@ -95,7 +95,7 @@ export function Connections({ focusSource }: ConnectionsProps) {
           const focused = focusSource === key;
           return (
             <section
-              className={`feed-section connection-card${focused ? ' connection-focused' : ''}`}
+              className={`feed-section hud-corners connection-card${focused ? ' connection-focused' : ''}`}
               id={`connector-${key}`}
               key={key}
             >

@@ -22,12 +22,17 @@ export function Header({ brainOnline, lastFetched, stale }: HeaderProps) {
         </div>
       </div>
       <div className="sync">
-        SYSTEM v5
+        // SYS v5
         <br />
-        <b style={{ color: brainOnline ? 'var(--go)' : 'var(--crit)' }}>
-          ●
-        </b>{' '}
-        {brainOnline ? 'Brain online' : 'Brain offline'}
+        <span
+          className={`sync-dot${brainOnline ? ' sync-dot--online' : ' sync-dot--offline'}`}
+          aria-hidden="true"
+        />
+        <span
+          className={`sync-label${brainOnline ? ' sync-label--online' : ''}`}
+        >
+          {brainOnline ? 'Brain online' : 'Brain offline'}
+        </span>
         {lastFetched && (
           <>
             <br />

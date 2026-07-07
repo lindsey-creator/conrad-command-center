@@ -19,36 +19,81 @@
   background: linear-gradient(145deg, var(--gold-2), var(--gold));
   display: grid;
   place-items: center;
-  color: #1a1408;
-  font-weight: 800;
-  font-size: 17px;
+  color: #0a0804;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
   box-shadow:
     var(--shadow),
-    0 0 24px rgba(201, 162, 39, 0.2);
+    0 0 28px var(--gold-glow);
+  position: relative;
+}
+
+.mark::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 13px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  pointer-events: none;
 }
 
 .brand h1 {
-  font-size: 13px;
-  letter-spacing: 0.16em;
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  letter-spacing: 0.2em;
   margin: 0;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
 .brand .sub {
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
   color: var(--muted);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .sync {
-  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
   color: var(--faint);
   text-align: right;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  line-height: 1.6;
+}
+
+.sync-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+  animation: status-pulse 2.4s ease-in-out infinite;
+}
+
+.sync-dot--online {
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.sync-dot--offline {
+  background: var(--crit);
+  box-shadow: 0 0 10px rgba(255, 93, 93, 0.35);
+  animation: none;
+}
+
+.sync-label {
+  color: var(--muted);
+}
+
+.sync-label--online {
+  color: var(--cyan);
 }
 
 .sync-time {
@@ -63,13 +108,13 @@
   }
 
   .brand h1 {
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 10px;
+    letter-spacing: 0.14em;
   }
 
   .mark {
     width: 34px;
     height: 34px;
-    font-size: 15px;
+    font-size: 13px;
   }
 }

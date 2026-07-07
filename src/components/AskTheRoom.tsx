@@ -46,7 +46,7 @@ export function AskTheRoom() {
   };
 
   return (
-    <section className="ask-room">
+    <section className="ask-room hud-corners">
       <h3>Ask the room</h3>
       <p className="sub">
         Talk to the Brain. Numbers come from the engine — it narrates, never

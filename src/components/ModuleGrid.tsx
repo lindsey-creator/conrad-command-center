@@ -48,6 +48,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Empire Blind Spots */}
       <ModuleCard
         title="Empire Blind Spots"
+        kicker="INTEL"
         dotColor="var(--crit)"
         pill="Scan"
         pillVariant="crit"
@@ -79,6 +80,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Today's Watch List */}
       <ModuleCard
         title="Today's Watch List"
+        kicker="ALERT"
         dotColor="var(--warn)"
         pill={watchlist.data && hasLiveData(watchlist.data) ? 'Live' : 'Watch'}
         loading={watchlist.loading && !watchlist.data}
@@ -100,6 +102,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Money in Motion */}
       <ModuleCard
         title="Money in Motion"
+        kicker="REVENUE"
         icon="💰"
         pill="Top-3"
         pillVariant="go"
@@ -141,6 +144,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* GoHighLevel CRM */}
       <ModuleCard
         title="GoHighLevel CRM"
+        kicker="CRM"
         icon="📞"
         pill={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'Live' : 'CRM'}
         pillVariant={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'go' : 'default'}
@@ -178,7 +182,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       </ModuleCard>
 
       {/* Meta Ads */}
-      <ModuleCard title="Meta Ads" icon="📈" pill="Loading">
+      <ModuleCard title="Meta Ads" kicker="ADS" icon="📈" pill="Loading">
         <div className="metrics">
           <div className="metric">
             <div className="n">—</div>
@@ -199,6 +203,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Team Pulse */}
       <ModuleCard
         title="Team Pulse"
+        kicker="TEAM"
         icon="👥"
         pill="Accountability"
         pillVariant="warn"
@@ -233,6 +238,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Daily Fieldy Brief */}
       <ModuleCard
         title="Daily Fieldy Brief"
+        kicker="BRIEF"
         icon="🎧"
         pill="Auto"
         pillVariant="go"
@@ -352,6 +358,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Today's Schedule */}
       <ModuleCard
         title="Today's Schedule"
+        kicker="SCHED"
         icon="📅"
         loading={dailyBrief.loading && !dailyBrief.data}
       >
@@ -380,6 +387,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Week Ahead */}
       <ModuleCard
         title="Week Ahead"
+        kicker="WEEK"
         icon="🗓️"
         loading={weekAhead.loading && !weekAhead.data}
       >
@@ -403,7 +411,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       </ModuleCard>
 
       {/* Weather */}
-      <ModuleCard title="Weather · Cleveland" icon="🌤️">
+      <ModuleCard title="Weather · Cleveland" kicker="ENV" icon="🌤️">
         <div className="metrics">
           <div className="metric">
             <div className="n">—</div>
@@ -420,6 +428,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       {/* Health & Performance */}
       <ModuleCard
         title="Health & Performance"
+        kicker="HEALTH"
         icon="❤️"
         pill="Tracks · never prescribes"
         loading={healthMetrics.loading && !healthMetrics.data}
@@ -473,7 +482,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       </ModuleCard>
 
       {/* Calendar Protection */}
-      <ModuleCard title="Calendar Protection" icon="🛡️">
+      <ModuleCard title="Calendar Protection" kicker="GUARD" icon="🛡️">
         <div className="body">
           Training, recovery, and family blocks defended on your calendar.
         </div>
@@ -484,7 +493,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       </ModuleCard>
 
       {/* Wellbeing Check-in */}
-      <ModuleCard title="Wellbeing Check-in" icon="🧠" pill="Support only">
+      <ModuleCard title="Wellbeing Check-in" kicker="WELL" icon="🧠" pill="Support only">
         <div className="body">
           Daily check-in and pattern surfacing — support, not therapy. Routes to
           your real professionals when needed.
@@ -493,7 +502,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       </ModuleCard>
 
       {/* Issue a Task */}
-      <ModuleCard title="Issue a Task" icon="✅" pill="On the road">
+      <ModuleCard title="Issue a Task" kicker="TASK" icon="✅" pill="On the road">
         <div className="body">
           Voice or a line of text → routed to the right person in ClickUp with
           context. Approvals from your phone.
