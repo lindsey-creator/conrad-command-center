@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { brain } from '../api/brain';
+import { POLL_CONNECTORS_MS, POLL_FAST_MS, POLL_MODULE_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
 import { ConnectSource } from './ConnectSource';
@@ -39,15 +40,42 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const fetchWeek = useCallback(() => brain.weekAhead(), []);
   const fetchConnectors = useCallback(() => brain.connectorsStatus(), []);
 
-  const blindspots = useBrainQuery('blindspots', fetchBlindspots);
-  const watchlist = useBrainQuery('watchlist', fetchWatchlist);
-  const topMoves = useBrainQuery('top-moves', fetchTopMoves);
-  const teamPulse = useBrainQuery('team-pulse', fetchTeamPulse);
-  const dailyBrief = useBrainQuery('daily-brief', fetchBrief);
-  const ghlCrm = useBrainQuery('ghl-crm', fetchGhl);
-  const healthMetrics = useBrainQuery('health-metrics', fetchHealth);
-  const weekAhead = useBrainQuery('week-ahead', fetchWeek);
-  const connectors = useBrainQuery('scan-connectors', fetchConnectors);
+  const blindspots = useBrainQuery('blindspots', fetchBlindspots, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: 0,
+  });
+  const watchlist = useBrainQuery('watchlist', fetchWatchlist, {
+    refreshMs: POLL_FAST_MS,
+    staggerMs: POLL_STAGGER_MS,
+  });
+  const topMoves = useBrainQuery('top-moves', fetchTopMoves, {
+    refreshMs: POLL_FAST_MS,
+    staggerMs: POLL_STAGGER_MS * 2,
+  });
+  const teamPulse = useBrainQuery('team-pulse', fetchTeamPulse, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 3,
+  });
+  const dailyBrief = useBrainQuery('daily-brief', fetchBrief, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 4,
+  });
+  const ghlCrm = useBrainQuery('ghl-crm', fetchGhl, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 5,
+  });
+  const healthMetrics = useBrainQuery('health-metrics', fetchHealth, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 6,
+  });
+  const weekAhead = useBrainQuery('week-ahead', fetchWeek, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 7,
+  });
+  const connectors = useBrainQuery('scan-connectors', fetchConnectors, {
+    refreshMs: POLL_CONNECTORS_MS,
+    staggerMs: POLL_STAGGER_MS * 8,
+  });
 
   const moveCount = topMoves.data?.moves?.length ?? 0;
   const watchCount = countItems(watchlist.data);
