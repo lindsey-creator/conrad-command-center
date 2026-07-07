@@ -10,15 +10,14 @@ export function Header({ brainOnline }: HeaderProps) {
   return (
     <header className="top">
       <div className="brand">
-        <RhinoMark size={40} className="brand-mark" aria-hidden={false} />
+        <RhinoMark size={52} className="brand-mark" aria-hidden={false} />
         <div>
-          <h1>Rhino Command</h1>
-          <div className="sub">conradstrong.com · Rhino Capital · Conrad Mortgage</div>
+          <h1 className="wordmark-gold">Echo Command</h1>
+          <div className="sub">conradstrong.com · Rhino Capital · Conrad Mortgage · Rhino Network</div>
         </div>
       </div>
       <div className="sync">
-        RHINO v6
-        <br />
+        <span className="sync-version">RHINO v6</span>
         <LiveIndicator brainOnline={brainOnline} />
       </div>
     </header>

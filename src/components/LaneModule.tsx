@@ -12,6 +12,17 @@ interface LaneModuleProps {
   children: ReactNode;
 }
 
+function PremiumSkeleton() {
+  return (
+    <div className="skeleton-group" aria-hidden="true">
+      <div className="skeleton skeleton--metric" />
+      <div className="skeleton" style={{ width: '90%' }} />
+      <div className="skeleton" style={{ width: '72%' }} />
+      <div className="skeleton skeleton--block" style={{ marginTop: 4 }} />
+    </div>
+  );
+}
+
 export function LaneModule({
   title,
   icon,
@@ -46,14 +57,7 @@ export function LaneModule({
       </button>
       {open && (
         <div className="lane-module__content">
-          {loading ? (
-            <>
-              <div className="skeleton" style={{ width: '80%' }} />
-              <div className="skeleton" style={{ width: '60%', marginTop: 8 }} />
-            </>
-          ) : (
-            children
-          )}
+          {loading ? <PremiumSkeleton /> : children}
         </div>
       )}
     </div>

@@ -2,10 +2,10 @@
 .nav {
   display: flex;
   gap: 4px;
-  margin-bottom: 16px;
-  padding: 5px;
-  background: rgba(26, 26, 34, 0.85);
-  border: 1px solid rgba(201, 162, 39, 0.12);
+  margin-bottom: 12px;
+  padding: 4px;
+  background: rgba(12, 12, 18, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.14);
   border-radius: 2px;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);

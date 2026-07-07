@@ -1,41 +1,43 @@
 :root {
-  /* Rhino Elite palette */
-  --bg: #030304;
-  --bg-elevated: #0d0d12;
-  --panel: rgba(26, 26, 34, 0.78);
-  --panel-solid: #1a1a22;
-  --panel-2: rgba(20, 20, 28, 0.92);
-  --line: rgba(245, 240, 230, 0.07);
-  --line-strong: rgba(245, 240, 230, 0.12);
+  /* Rhino Elite — obsidian command deck */
+  --bg: #020203;
+  --bg-elevated: #0a0a0e;
+  --panel: rgba(18, 18, 24, 0.82);
+  --panel-solid: #14141c;
+  --panel-2: rgba(12, 12, 18, 0.94);
+  --line: rgba(245, 240, 230, 0.06);
+  --line-strong: rgba(245, 240, 230, 0.11);
   --ink: #f5f0e6;
   --muted: #9a9588;
   --faint: #5e5a52;
 
   /* Rhino gold + accents */
-  --gold: #c9a227;
-  --gold-2: #e0b83a;
-  --gold-glow: rgba(201, 162, 39, 0.28);
-  --gold-dim: rgba(201, 162, 39, 0.08);
+  --gold: #d4af37;
+  --gold-2: #e8c84a;
+  --gold-3: #f0d878;
+  --gold-glow: rgba(212, 175, 55, 0.35);
+  --gold-dim: rgba(212, 175, 55, 0.07);
   --ivory: #f5f0e6;
   --ember: #e85d04;
-  --ember-glow: rgba(232, 93, 4, 0.35);
+  --ember-glow: rgba(232, 93, 4, 0.4);
 
   /* System states */
   --go: #2db87a;
-  --go-glow: rgba(45, 184, 122, 0.38);
+  --go-glow: rgba(45, 184, 122, 0.42);
   --warn: #e0b83a;
   --crit: #e85d04;
   --info: #7a9ec4;
 
   /* Geometry — chamfered, armored */
-  --radius: 4px;
-  --radius-sm: 3px;
-  --chamfer: 10px;
-  --shadow: 0 1px 0 rgba(245, 240, 230, 0.04), 0 20px 56px rgba(0, 0, 0, 0.72);
-  --shadow-hover: 0 1px 0 rgba(201, 162, 39, 0.08), 0 28px 64px rgba(0, 0, 0, 0.78);
-  --glass-blur: blur(18px);
+  --radius: 3px;
+  --radius-sm: 2px;
+  --chamfer: 12px;
+  --chamfer-lg: 16px;
+  --shadow: 0 1px 0 rgba(245, 240, 230, 0.03), 0 24px 64px rgba(0, 0, 0, 0.78);
+  --shadow-hover: 0 1px 0 rgba(212, 175, 55, 0.1), 0 32px 72px rgba(0, 0, 0, 0.82);
+  --glass-blur: blur(22px);
 
-  /* Typography — Rhino Elite display stack */
+  /* Typography */
   --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Syne', var(--font-sans);
   --font-kicker: 'Bebas Neue', var(--font-display);
@@ -43,12 +45,12 @@
 
   /* Motion */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --transition: 200ms var(--ease);
+  --transition: 220ms var(--ease);
 
   /* HUD */
   --hud-accent: var(--gold);
   --hud-bracket: var(--gold);
-  --hud-bracket-size: 12px;
+  --hud-bracket-size: 14px;
   --hud-bracket-weight: 1.5px;
 }
 
@@ -61,11 +63,6 @@ body {
   margin: 0;
   min-height: 100%;
   background-color: var(--bg);
-  background-image:
-    linear-gradient(135deg, rgba(201, 162, 39, 0.03) 0%, transparent 40%),
-    radial-gradient(ellipse 70% 45% at 50% -15%, rgba(201, 162, 39, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 100% 80%, rgba(232, 93, 4, 0.03) 0%, transparent 50%);
-  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -73,38 +70,53 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Rhino hide texture — subtle noise */
+/* Animated gradient mesh + vignette */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -20%, rgba(212, 175, 55, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 50%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 45% 35% at 100% 70%, rgba(232, 93, 4, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 120% 80% at 50% 100%, rgba(0, 0, 0, 0.6) 0%, transparent 70%);
+  animation: mesh-drift 18s ease-in-out infinite alternate;
 }
 
-/* Diagonal horn slash overlay */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.025;
-  background: repeating-linear-gradient(
-    -42deg,
-    transparent,
-    transparent 80px,
-    rgba(201, 162, 39, 0.4) 80px,
-    rgba(201, 162, 39, 0.4) 81px
-  );
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
 }
 
 #root {
   position: relative;
   z-index: 1;
+}
+
+/* Rhino silhouette watermark */
+.command-deck::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(80vw, 600px);
+  height: min(80vw, 600px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none'%3E%3Cpath d='M30 150 L50 70 L80 100 L110 50 L140 80 L160 60 L170 150 Z' stroke='%23d4af37' stroke-width='2' fill='rgba(212,175,55,0.03)'/%3E%3Cpath d='M110 50 L120 25 L130 50' fill='%23d4af37'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 a {
@@ -135,6 +147,15 @@ code {
   color: var(--gold-2);
 }
 
+/* Gold gradient wordmark */
+.wordmark-gold {
+  background: linear-gradient(135deg, var(--gold-3) 0%, var(--gold) 45%, var(--gold-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 /* Chamfered HUD panels */
 .hud-corners,
 .rhino-chamfer {
@@ -157,23 +178,21 @@ code {
   position: absolute;
   pointer-events: none;
   z-index: 2;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
-/* Horn accent — top-left */
 .hud-corners::before {
   top: 0;
   left: 0;
-  width: 28px;
+  width: 36px;
   height: 2px;
   background: linear-gradient(90deg, var(--gold), transparent);
 }
 
-/* Horn accent — bottom-right */
 .hud-corners::after {
   bottom: 0;
   right: 0;
-  width: 28px;
+  width: 36px;
   height: 2px;
   background: linear-gradient(270deg, var(--gold), transparent);
 }
@@ -183,19 +202,30 @@ code {
   opacity: 1;
 }
 
-/* Brushed metal panel utility */
+/* Brushed metal panel */
 .rhino-metal {
   background: linear-gradient(
-    168deg,
-    rgba(40, 40, 52, 0.95) 0%,
-    rgba(26, 26, 34, 0.98) 45%,
-    rgba(18, 18, 24, 0.99) 100%
+    165deg,
+    rgba(32, 32, 42, 0.96) 0%,
+    rgba(20, 20, 28, 0.98) 40%,
+    rgba(10, 10, 14, 0.99) 100%
   );
-  border: 1px solid rgba(201, 162, 39, 0.14);
+  border: 1px solid rgba(212, 175, 55, 0.16);
   box-shadow:
     var(--shadow),
-    inset 0 1px 0 rgba(245, 240, 230, 0.06),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 rgba(245, 240, 230, 0.05),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.rhino-metal:hover {
+  border-color: rgba(212, 175, 55, 0.28);
+  box-shadow:
+    var(--shadow-hover),
+    inset 0 1px 0 rgba(212, 175, 55, 0.08),
+    0 0 48px rgba(212, 175, 55, 0.04);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -208,6 +238,17 @@ code {
   }
 }
 
+@keyframes mesh-drift {
+  0% {
+    opacity: 0.85;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02) translateY(-8px);
+  }
+}
+
 @keyframes status-pulse {
   0%,
   100% {
@@ -215,19 +256,42 @@ code {
     transform: scale(1);
   }
   50% {
-    opacity: 0.65;
-    transform: scale(0.85);
+    opacity: 0.6;
+    transform: scale(0.82);
   }
 }
 
 @keyframes horn-pulse {
   0%,
   100% {
-    opacity: 0.6;
+    opacity: 0.65;
     transform: scale(1);
   }
   50% {
     opacity: 1;
-    transform: scale(1.04);
+    transform: scale(1.06);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes particle-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-6px) scale(1.1);
+    opacity: 0.9;
   }
 }

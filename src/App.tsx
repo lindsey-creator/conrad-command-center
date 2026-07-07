@@ -76,18 +76,18 @@ export default function App() {
   }, [setPage]);
 
   return (
-    <div className="wrap">
+    <div className="wrap command-deck">
       <Header brainOnline={brainOnline} />
       <Nav page={page} onChange={setPage} />
       {page === 'dashboard' && (
         <ConnectorsBar onOpenConnections={() => openConnections()} />
       )}
       {page === 'dashboard' ? (
-        <>
+        <div className="command-deck__main">
           <EchoCommand onVoiceStateChange={setVoiceState} />
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <ModuleGrid onConnect={openConnections} />
-        </>
+        </div>
       ) : page === 'feed' ? (
         <FeedTheBrain />
       ) : (

@@ -1,16 +1,17 @@
 .command-header {
   position: relative;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   --bracket-inset: 0;
+  --chamfer: 14px;
 }
 
 .command-header__watermark {
   position: absolute;
   top: 50%;
-  right: -20px;
+  right: -10px;
   transform: translateY(-50%);
-  opacity: 0.03;
+  opacity: 0.05;
   pointer-events: none;
   z-index: 0;
 }
@@ -21,39 +22,33 @@
   pointer-events: none;
   z-index: 0;
   background:
-    linear-gradient(125deg, rgba(201, 162, 39, 0.14) 0%, rgba(224, 184, 58, 0.04) 28%, transparent 55%),
-    radial-gradient(ellipse 60% 80% at 0% 40%, rgba(201, 162, 39, 0.1) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 70% at 100% 80%, rgba(232, 93, 4, 0.05) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(26, 26, 34, 0.5) 0%, transparent 100%);
+    linear-gradient(125deg, rgba(212, 175, 55, 0.12) 0%, rgba(232, 200, 74, 0.03) 30%, transparent 55%),
+    radial-gradient(ellipse 55% 75% at 0% 45%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(18, 18, 24, 0.6) 0%, transparent 100%);
 }
 
-/* Command strip — RHINO CAPITAL | CONRAD MORTGAGE | RHINO NETWORK | ECHO */
 .command-strip {
   position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
   gap: 0;
-  padding: 10px 18px;
-  border-bottom: 1px solid rgba(201, 162, 39, 0.12);
-  background: rgba(0, 0, 0, 0.35);
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  background: rgba(0, 0, 0, 0.4);
   flex-wrap: wrap;
 }
 
 .command-strip__item {
   font-family: var(--font-kicker);
   font-size: 13px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   color: var(--muted);
   padding: 0 14px;
 }
 
 .command-strip__item--brand {
   color: var(--gold);
-}
-
-.command-strip__item--live {
-  color: var(--faint);
 }
 
 .command-strip__item--echo {
@@ -63,22 +58,17 @@
 
 .command-strip__item--echo.command-strip__item--active {
   color: var(--go);
-  text-shadow: 0 0 12px var(--go-glow);
+  text-shadow: 0 0 14px var(--go-glow);
 }
 
 .command-strip__item--echo.command-strip__item--pulse {
   animation: echo-strip-pulse 1.8s ease-in-out infinite;
 }
 
-.command-strip__item--live.command-strip__item--active {
-  color: var(--go);
-  text-shadow: 0 0 12px var(--go-glow);
-}
-
 .command-strip__sep {
   width: 1px;
   height: 14px;
-  background: rgba(201, 162, 39, 0.25);
+  background: rgba(212, 175, 55, 0.22);
   flex-shrink: 0;
 }
 
@@ -87,15 +77,15 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 18px;
+  gap: 20px;
+  padding: 18px 20px;
   flex-wrap: wrap;
 }
 
 .command-header__identity {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   flex: 1;
   min-width: 200px;
 }
@@ -103,29 +93,30 @@
 .command-header__status-block {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .command-header__label {
-  font-family: var(--font-kicker);
-  font-size: 11px;
-  letter-spacing: 0.24em;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   color: var(--gold);
 }
 
 .command-header__name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 32px);
+  font-size: clamp(28px, 5vw, 40px);
   font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.05;
+  letter-spacing: -0.02em;
+  line-height: 1;
   color: var(--ivory);
 }
 
 .command-header__greeting {
-  margin: 0;
-  font-size: 12px;
+  margin: 4px 0 0;
+  font-size: 12.5px;
   color: var(--muted);
   line-height: 1.4;
 }
@@ -136,49 +127,56 @@
 }
 
 .command-header__cadence {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 9px;
   color: var(--faint);
   letter-spacing: 0.04em;
   line-height: 1.45;
-  max-width: 36ch;
+  max-width: 40ch;
 }
 
 .command-header__metrics {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
   margin-left: auto;
 }
 
 .command-header__metric {
-  min-width: 72px;
-  padding: 10px 12px;
-  border-radius: 2px;
-  border: 1px solid rgba(201, 162, 39, 0.14);
-  background: rgba(0, 0, 0, 0.4);
+  min-width: 80px;
+  padding: 12px 14px;
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  background: rgba(0, 0, 0, 0.45);
   text-align: center;
-  clip-path: polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0% 100%, 0% 6px);
+  clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.command-header__metric:hover {
+  border-color: rgba(212, 175, 55, 0.28);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.06);
 }
 
 .command-header__metric-val {
   font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
 
 .command-header__metric-dim {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--faint);
+  font-weight: 600;
 }
 
 .command-header__metric-val--live {
   color: var(--go);
-  text-shadow: 0 0 14px var(--go-glow);
+  text-shadow: 0 0 16px var(--go-glow);
 }
 
 .command-header__metric-lbl {
@@ -188,13 +186,13 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--faint);
-  margin-top: 3px;
+  margin-top: 5px;
 }
 
 .command-header__datetime {
   position: absolute;
-  top: 52px;
-  right: 18px;
+  top: 50px;
+  right: 20px;
   z-index: 2;
   display: flex;
   align-items: baseline;
@@ -203,7 +201,7 @@
 }
 
 .command-header__time {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -218,13 +216,13 @@
 
 @keyframes echo-strip-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.72; }
+  50% { opacity: 0.7; }
 }
 
 @media (max-width: 640px) {
   .command-header__inner {
     padding: 14px;
-    padding-top: 40px;
+    padding-top: 44px;
   }
 
   .command-header__metrics {
@@ -238,7 +236,7 @@
   }
 
   .command-header__datetime {
-    top: 48px;
+    top: 46px;
     right: 14px;
   }
 
@@ -252,7 +250,7 @@
     margin-left: 0;
     width: 100%;
     padding-top: 6px;
-    border-top: 1px solid rgba(201, 162, 39, 0.08);
+    border-top: 1px solid rgba(212, 175, 55, 0.08);
     margin-top: 4px;
   }
 }

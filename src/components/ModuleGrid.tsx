@@ -10,8 +10,8 @@ import {
   type LaneRowSeverity,
 } from '../utils/renderItems';
 import { ConnectSource } from './ConnectSource';
+import { IntelLane } from './IntelLane';
 import { LaneModule } from './LaneModule';
-import { RhinoLaneIcon } from './RhinoLaneIcon';
 import '../styles/intel-lanes.css';
 
 const STATIC_SOURCES = {
@@ -142,13 +142,16 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
   const topMoveDollars = topMoves.data?.moves?.[0]?.dollars ?? '—';
 
+  const revenueBadge = ghlLive ? (ghlLeads ?? 0) + (topMoves.data?.moves?.length ?? 0) : null;
+  const scheduleCount = countItems(dailyBrief.data?.today_schedule);
+
   return (
     <>
       <div className="priority-horns-kicker">PRIORITY HORNS</div>
       <div className="priority-scan" role="group" aria-label="Priority horns">
-        <div className="scan-tile">
+        <div className="scan-tile scan-tile--fire">
           <span
-            className={`scan-tile__dot${ghlLive ? ' scan-tile__dot--live' : ''}`}
+            className={`scan-tile__dot scan-tile__dot--fire${ghlLive ? ' scan-tile__dot--live' : ''}`}
           />
           <div className="scan-tile__kicker">Meta→GHL</div>
           <div className="scan-tile__val scan-tile__val--money">
@@ -207,13 +210,13 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       </div>
 
       <div className="intel-lanes intel-lanes--quad">
-        <section className="intel-lane" aria-label="Revenue intelligence">
-          <div className="intel-lane__head">
-            <RhinoLaneIcon variant="crm" />
-            <h4 className="intel-lane__title">Revenue</h4>
-            <span className="intel-lane__count">GHL · Pipeline · Meta</span>
-          </div>
-          <div className="intel-lane__body">
+        <IntelLane
+          variant="crm"
+          title="Revenue"
+          subtitle="GHL · Pipeline · Meta"
+          badge={revenueBadge}
+          badgeVariant={ghlLive ? 'live' : undefined}
+        >
             <LaneModule
               title="GoHighLevel CRM"
               icon="📞"
@@ -306,16 +309,15 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               </div>
               <ConnectSource sources={[...STATIC_SOURCES.meta]} onConnect={onConnect} />
             </LaneModule>
-          </div>
-        </section>
+        </IntelLane>
 
-        <section className="intel-lane" aria-label="Operations intelligence">
-          <div className="intel-lane__head">
-            <RhinoLaneIcon variant="tasks" />
-            <h4 className="intel-lane__title">Operations</h4>
-            <span className="intel-lane__count">ClickUp · Pulse · Blindspots</span>
-          </div>
-          <div className="intel-lane__body">
+        <IntelLane
+          variant="tasks"
+          title="Operations"
+          subtitle="ClickUp · Pulse · Blindspots"
+          badge={watchTotal > 0 ? watchTotal : null}
+          badgeVariant={overdueCount > 0 ? 'warn' : undefined}
+        >
             <LaneModule
               title="ClickUp · Overdue & Alerts"
               icon="✅"
@@ -400,16 +402,14 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               <p>Voice or text → routed via Rhino Robot to ClickUp with context.</p>
               <ConnectSource sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
             </LaneModule>
-          </div>
-        </section>
+        </IntelLane>
 
-        <section className="intel-lane" aria-label="Echo intelligence">
-          <div className="intel-lane__head">
-            <RhinoLaneIcon variant="audio" />
-            <h4 className="intel-lane__title">Echo Intel</h4>
-            <span className="intel-lane__count">Fieldy · Brief · Rhino Robot</span>
-          </div>
-          <div className="intel-lane__body">
+        <IntelLane
+          variant="audio"
+          title="Echo Intel"
+          subtitle="Fieldy · Brief · Rhino Robot"
+          badge={briefTodayCount > 0 ? briefTodayCount : null}
+        >
             <LaneModule
               title="Daily Fieldy Brief"
               icon="🎧"
@@ -517,16 +517,14 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               <p>Daily check-in — support, not therapy.</p>
               <ConnectSource sources={[...STATIC_SOURCES.wellbeing]} onConnect={onConnect} />
             </LaneModule>
-          </div>
-        </section>
+        </IntelLane>
 
-        <section className="intel-lane" aria-label="Schedule intelligence">
-          <div className="intel-lane__head">
-            <RhinoLaneIcon variant="calendar" />
-            <h4 className="intel-lane__title">Schedule</h4>
-            <span className="intel-lane__count">Calendar · Week · Environment</span>
-          </div>
-          <div className="intel-lane__body">
+        <IntelLane
+          variant="calendar"
+          title="Schedule"
+          subtitle="Calendar · Week · Environment"
+          badge={scheduleCount > 0 ? scheduleCount : null}
+        >
             <LaneModule
               title="Today's Schedule"
               icon="📅"
@@ -593,8 +591,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               </div>
               <ConnectSource sources={[...STATIC_SOURCES.weather]} onConnect={onConnect} />
             </LaneModule>
-          </div>
-        </section>
+        </IntelLane>
       </div>
     </>
   );

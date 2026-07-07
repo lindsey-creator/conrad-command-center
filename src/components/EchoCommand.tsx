@@ -96,93 +96,109 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
   const displayState: EchoVoiceState = loading ? 'thinking' : voiceState;
 
   return (
-    <section className="echo-command hud-corners rhino-metal" aria-label="Ask Echo">
-      <div className="echo-command__head">
-        <div className="echo-command__head-left">
-          <RhinoCore state={displayState} size="sm" label="Echo voice core" />
-          <div>
-            <span className="echo-command__kicker">ECHO ONLINE</span>
-            <h3 className="echo-command__title">Ask Echo</h3>
-            <p className="echo-command__subtitle">
-              Your COO — rigor over cheerleading, priorities first, browser-first execution.
-            </p>
+    <section className="echo-command echo-command--hero hud-corners rhino-metal" aria-label="Ask Echo">
+      <div className="echo-command__mesh" aria-hidden="true" />
+      <div className="echo-command__vignette" aria-hidden="true" />
+
+      <div className="echo-command__hero">
+        <div className="echo-command__core-col">
+          <RhinoCore
+            state={displayState}
+            size="hero"
+            showParticles
+            label="Echo voice core"
+          />
+        </div>
+
+        <div className="echo-command__main-col">
+          <div className="echo-command__head">
+            <div>
+              <span className="echo-command__kicker">OPERATING BRAIN · ECHO COO</span>
+              <h2 className="echo-command__title wordmark-gold">Ask Echo</h2>
+              <p className="echo-command__subtitle">
+                Rigor over cheerleading — priorities first, browser-first execution.
+                Rhino Robot captures meetings · Fieldy feeds the brief.
+              </p>
+            </div>
+            <div className="echo-command__controls">
+              {speechSupported && (
+                <button
+                  type="button"
+                  className={`echo-command__toggle${speakEnabled ? ' echo-command__toggle--on' : ''}`}
+                  onClick={() => {
+                    if (speakEnabled) stopSpeaking();
+                    setSpeakEnabled((s) => !s);
+                  }}
+                  aria-pressed={speakEnabled}
+                >
+                  {speakEnabled ? 'Voice on' : 'Voice off'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="echo-command__bar">
+            <div className="echo-command__input-wrap">
+              <textarea
+                id="echo-input"
+                className="echo-command__input"
+                rows={2}
+                placeholder="Command the stack — deals, priorities, drafts, Fieldy context…"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={onKeyDown}
+                aria-label="Message for Echo"
+              />
+            </div>
+            <div className="echo-command__actions">
+              {micSupported && (
+                <button
+                  type="button"
+                  className={`echo-command__btn echo-command__btn--mic${voiceState === 'listening' ? ' echo-command__btn--active' : ''}`}
+                  onClick={toggleListening}
+                  aria-pressed={voiceState === 'listening'}
+                  title={voiceState === 'listening' ? 'Stop listening' : 'Voice input'}
+                >
+                  <span className="echo-command__btn-icon" aria-hidden="true">◉</span>
+                  Mic
+                </button>
+              )}
+              <button
+                type="button"
+                className="echo-command__btn echo-command__btn--primary"
+                disabled={loading || !message.trim()}
+                onClick={() => void handleAsk()}
+              >
+                {loading ? 'Processing' : 'Send'}
+              </button>
+            </div>
+          </div>
+
+          <div className="echo-command__meta">
+            <div className="echo-command__hint">
+              {micSupported
+                ? 'Enter to send · Mic for STT · Echo speaks TTS · Rhino Robot → ClickUp'
+                : 'Enter to send · Voice input not supported in this browser'}
+            </div>
+            <div className="echo-command__options">
+              <label className="echo-command__checkbox">
+                <input
+                  type="checkbox"
+                  checked={wantsDraft}
+                  onChange={(e) => setWantsDraft(e.target.checked)}
+                />
+                Draft → Approval Queue
+              </label>
+              <button
+                type="button"
+                className="deal-toggle"
+                onClick={() => setShowDeal((s) => !s)}
+              >
+                {showDeal ? '− Deal fields' : '+ Deal numbers'}
+              </button>
+            </div>
           </div>
         </div>
-        <div className="echo-command__controls">
-          {speechSupported && (
-            <button
-              type="button"
-              className={`echo-command__toggle${speakEnabled ? ' echo-command__toggle--on' : ''}`}
-              onClick={() => {
-                if (speakEnabled) stopSpeaking();
-                setSpeakEnabled((s) => !s);
-              }}
-              aria-pressed={speakEnabled}
-            >
-              {speakEnabled ? 'Speak on' : 'Speak off'}
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="echo-command__bar">
-        <div className="echo-command__input-wrap">
-          <textarea
-            id="echo-input"
-            className="echo-command__input"
-            rows={2}
-            placeholder="Command the stack — deals, priorities, drafts…"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={onKeyDown}
-            aria-label="Message for Echo"
-          />
-        </div>
-        <div className="echo-command__actions">
-          {micSupported && (
-            <button
-              type="button"
-              className={`echo-command__btn echo-command__btn--mic${voiceState === 'listening' ? ' echo-command__btn--active' : ''}`}
-              onClick={toggleListening}
-              aria-pressed={voiceState === 'listening'}
-              title={voiceState === 'listening' ? 'Stop listening' : 'Voice input'}
-            >
-              Mic
-            </button>
-          )}
-          <button
-            type="button"
-            className="echo-command__btn echo-command__btn--primary"
-            disabled={loading || !message.trim()}
-            onClick={() => void handleAsk()}
-          >
-            {loading ? '…' : 'Send'}
-          </button>
-        </div>
-      </div>
-
-      <div className="echo-command__hint">
-        {micSupported
-          ? 'Enter to send · Mic for voice · Echo reads responses aloud · Rhino Robot captures meetings'
-          : 'Enter to send · Voice input not supported in this browser'}
-      </div>
-
-      <div className="echo-command__options">
-        <label className="echo-command__checkbox">
-          <input
-            type="checkbox"
-            checked={wantsDraft}
-            onChange={(e) => setWantsDraft(e.target.checked)}
-          />
-          Request draft → Approval Queue
-        </label>
-        <button
-          type="button"
-          className="deal-toggle"
-          onClick={() => setShowDeal((s) => !s)}
-        >
-          {showDeal ? '− Hide deal fields' : '+ Deal numbers'}
-        </button>
       </div>
 
       {showDeal && (
@@ -236,7 +252,7 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
       )}
 
       {(error || response) && (
-        <div className="echo-command__panel">
+        <div className="echo-command__panel echo-command__panel--slide">
           {error && <div className="feed-result diverged">{error}</div>}
           {response && (
             <>
