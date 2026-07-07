@@ -2,37 +2,41 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  margin-bottom: 14px;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
   background: var(--panel);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .connectors-bar-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   white-space: nowrap;
 }
 
 .connectors-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--muted);
   flex-shrink: 0;
+  transition: background var(--transition), box-shadow var(--transition);
 }
 
 .connectors-dot[data-live='true'] {
   background: var(--go);
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.45);
+  box-shadow: 0 0 10px rgba(62, 207, 142, 0.5);
 }
 
 .connectors-chips {
@@ -43,36 +47,50 @@
 }
 
 .connector-chip {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  padding: 3px 8px;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid var(--line);
   color: var(--muted);
   text-transform: capitalize;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
 }
 
 .connector-chip.on {
   color: var(--go);
-  border-color: rgba(74, 222, 128, 0.35);
-  background: rgba(74, 222, 128, 0.08);
+  border-color: rgba(62, 207, 142, 0.35);
+  background: rgba(62, 207, 142, 0.08);
 }
 
 .connectors-manage {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(200, 162, 74, 0.35);
-  background: transparent;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  background: rgba(201, 162, 39, 0.06);
   color: var(--gold-2);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .connectors-manage:hover {
-  border-color: rgba(200, 162, 74, 0.55);
+  border-color: rgba(201, 162, 39, 0.5);
+  background: rgba(201, 162, 39, 0.12);
+  box-shadow: 0 0 16px rgba(201, 162, 39, 0.1);
+}
+
+@media (max-width: 520px) {
+  .connectors-bar {
+    padding: 12px 14px;
+  }
+
+  .connectors-manage {
+    width: 100%;
+    text-align: center;
+  }
 }

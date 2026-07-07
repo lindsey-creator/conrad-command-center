@@ -3,49 +3,73 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 2px 18px;
+  padding: 10px 2px 20px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
   background: linear-gradient(145deg, var(--gold-2), var(--gold));
   display: grid;
   place-items: center;
-  color: #20160a;
+  color: #1a1408;
   font-weight: 800;
-  box-shadow: var(--shadow);
+  font-size: 17px;
+  box-shadow:
+    var(--shadow),
+    0 0 24px rgba(201, 162, 39, 0.2);
 }
 
 .brand h1 {
-  font-size: 15px;
-  letter-spacing: 0.14em;
+  font-size: 13px;
+  letter-spacing: 0.16em;
   margin: 0;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .brand .sub {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  margin-top: 2px;
 }
 
 .sync {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--faint);
   text-align: right;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .sync-time {
   color: var(--muted);
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 520px) {
+  .top {
+    padding: 8px 0 16px;
+  }
+
+  .brand h1 {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+
+  .mark {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
 }

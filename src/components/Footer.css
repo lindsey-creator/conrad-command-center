@@ -1,17 +1,18 @@
 footer {
-  margin-top: 22px;
+  margin-top: 28px;
   text-align: center;
   color: var(--faint);
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .legend {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .legend span {
