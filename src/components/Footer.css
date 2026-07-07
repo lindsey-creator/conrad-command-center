@@ -7,6 +7,20 @@ footer {
   text-transform: uppercase;
 }
 
+.footer__primary {
+  color: var(--muted);
+}
+
+.footer__cadence {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: var(--gold);
+  opacity: 0.85;
+}
+
 .legend {
   display: flex;
   gap: 16px;

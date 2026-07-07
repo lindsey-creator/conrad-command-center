@@ -43,6 +43,14 @@
   color: var(--ivory);
 }
 
+.echo-command__subtitle {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: 42ch;
+}
+
 .echo-command__controls {
   display: flex;
   align-items: center;

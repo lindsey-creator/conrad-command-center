@@ -13,7 +13,7 @@ export function Header({ brainOnline }: HeaderProps) {
         <RhinoMark size={40} className="brand-mark" aria-hidden={false} />
         <div>
           <h1>Rhino Command</h1>
-          <div className="sub">Rhino Capital · Conrad Mortgage · Elite Operator</div>
+          <div className="sub">conradstrong.com · Rhino Capital · Conrad Mortgage</div>
         </div>
       </div>
       <div className="sync">

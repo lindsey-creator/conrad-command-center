@@ -2,7 +2,13 @@ import { useCallback } from 'react';
 import { brain } from '../api/brain';
 import { POLL_CONNECTORS_MS, POLL_FAST_MS, POLL_MODULE_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
-import { hasLiveData, itemLabel } from '../utils/renderItems';
+import {
+  hasLiveData,
+  itemLabel,
+  itemSeverity,
+  itemTime,
+  type LaneRowSeverity,
+} from '../utils/renderItems';
 import { ConnectSource } from './ConnectSource';
 import { LaneModule } from './LaneModule';
 import { RhinoLaneIcon } from './RhinoLaneIcon';
@@ -28,6 +34,48 @@ interface ModuleGridProps {
 
 function countItems(data: { items?: unknown[] } | null | undefined): number {
   return data?.items?.length ?? 0;
+}
+
+function LaneRow({
+  item,
+  fallbackTime,
+}: {
+  item: unknown;
+  fallbackTime?: string;
+}) {
+  const severity = itemSeverity(item);
+  const time = itemTime(item) ?? fallbackTime ?? null;
+
+  return (
+    <div className="lane-row">
+      {time ? (
+        <span className="lane-row__time">{time}</span>
+      ) : (
+        <span className={`lane-row__dot lane-row__dot--${severity}`} aria-hidden="true" />
+      )}
+      <span className="lane-row__text">{itemLabel(item)}</span>
+    </div>
+  );
+}
+
+function OverdueRow({
+  person,
+  task,
+  daysLate,
+}: {
+  person: string;
+  task: string;
+  daysLate: number;
+}) {
+  const severity: LaneRowSeverity = daysLate >= 7 ? 'crit' : 'warn';
+  return (
+    <div className="lane-row">
+      <span className={`lane-row__dot lane-row__dot--${severity}`} aria-hidden="true" />
+      <span className="lane-row__text">
+        <strong>{person}</strong>: {task} ({daysLate}d late)
+      </span>
+    </div>
+  );
 }
 
 export function ModuleGrid({ onConnect }: ModuleGridProps) {
@@ -78,9 +126,17 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
     staggerMs: POLL_STAGGER_MS * 8,
   });
 
-  const moveCount = topMoves.data?.moves?.length ?? 0;
+  const ghlLive = ghlCrm.data && hasLiveData(ghlCrm.data);
+  const ghlLeads = ghlLive ? (ghlCrm.data?.new_leads ?? 0) : null;
+  const ghlUnread = ghlLive ? (ghlCrm.data?.unread_texts ?? 0) : null;
+
+  const briefTodayCount =
+    countItems(dailyBrief.data?.today) + countItems(dailyBrief.data?.today_schedule);
+
   const watchCount = countItems(watchlist.data);
-  const todayCount = countItems(dailyBrief.data?.today_schedule);
+  const overdueCount = teamPulse.data?.overdue?.length ?? 0;
+  const watchTotal = watchCount + overdueCount;
+
   const connected = connectors.data?.connected_count ?? 0;
   const total = connectors.data?.total ?? 7;
 
@@ -91,59 +147,71 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
       <div className="priority-horns-kicker">PRIORITY HORNS</div>
       <div className="priority-scan" role="group" aria-label="Priority horns">
         <div className="scan-tile">
-          <span className="scan-tile__dot scan-tile__dot--live" />
-          <div className="scan-tile__kicker">Money</div>
+          <span
+            className={`scan-tile__dot${ghlLive ? ' scan-tile__dot--live' : ''}`}
+          />
+          <div className="scan-tile__kicker">Meta→GHL</div>
           <div className="scan-tile__val scan-tile__val--money">
-            {topMoves.loading && !topMoves.data ? '…' : moveCount || '—'}
+            {ghlCrm.loading && !ghlCrm.data
+              ? '…'
+              : ghlLeads !== null
+                ? ghlLeads
+                : '—'}
           </div>
           <div className="scan-tile__lbl">
-            {moveCount > 0 ? `Top: ${topMoveDollars}` : 'No moves yet'}
+            {ghlLive
+              ? `Leads · ${ghlUnread ?? 0} unread SMS`
+              : 'Connect GHL — A2P + speed-to-lead'}
           </div>
         </div>
         <div className="scan-tile">
           <span className="scan-tile__dot" />
           <div className="scan-tile__kicker">Today</div>
           <div className="scan-tile__val">
-            {dailyBrief.loading && !dailyBrief.data ? '…' : todayCount || '—'}
+            {dailyBrief.loading && !dailyBrief.data ? '…' : briefTodayCount || '—'}
           </div>
-          <div className="scan-tile__lbl">Schedule items</div>
+          <div className="scan-tile__lbl">Brief · schedule · voice</div>
         </div>
         <div className="scan-tile">
           <span
-            className={`scan-tile__dot${watchCount > 0 ? ' scan-tile__dot--warn' : ''}`}
+            className={`scan-tile__dot${watchTotal > 0 ? ' scan-tile__dot--warn' : ''}`}
           />
           <div className="scan-tile__kicker">Watch</div>
           <div
-            className={`scan-tile__val${watchCount > 0 ? ' scan-tile__val--warn' : ''}`}
+            className={`scan-tile__val${watchTotal > 0 ? ' scan-tile__val--warn' : ''}`}
           >
-            {watchlist.loading && !watchlist.data ? '…' : watchCount || '—'}
+            {watchlist.loading && !watchlist.data && !teamPulse.data
+              ? '…'
+              : watchTotal || '—'}
           </div>
-          <div className="scan-tile__lbl">Alerts today</div>
+          <div className="scan-tile__lbl">
+            {overdueCount > 0
+              ? `${overdueCount} overdue · ${watchCount} alerts`
+              : 'Overdue · tasks · alerts'}
+          </div>
         </div>
         <div className="scan-tile">
           <span
             className={`scan-tile__dot${connected > 0 ? ' scan-tile__dot--live' : ''}`}
           />
-          <div className="scan-tile__kicker">Connectors</div>
+          <div className="scan-tile__kicker">Stack</div>
           <div
             className={`scan-tile__val${connected === total && connected > 0 ? ' scan-tile__val--live' : ''}`}
           >
             {connectors.loading && !connectors.data ? '…' : `${connected}/${total}`}
           </div>
           <div className="scan-tile__lbl">
-            {connected === total && connected > 0 ? 'All live' : 'Sources linked'}
+            {connected === total && connected > 0 ? 'All connectors live' : 'Sources linked'}
           </div>
         </div>
       </div>
 
-      {/* Intel lanes */}
       <div className="intel-lanes intel-lanes--quad">
-        {/* CRM lane */}
-        <section className="intel-lane" aria-label="CRM intelligence">
+        <section className="intel-lane" aria-label="Revenue intelligence">
           <div className="intel-lane__head">
             <RhinoLaneIcon variant="crm" />
-            <h4 className="intel-lane__title">CRM</h4>
-            <span className="intel-lane__count">Revenue · Leads</span>
+            <h4 className="intel-lane__title">Revenue</h4>
+            <span className="intel-lane__count">GHL · Pipeline · Meta</span>
           </div>
           <div className="intel-lane__body">
             <LaneModule
@@ -184,26 +252,8 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               )}
             </LaneModule>
 
-            <LaneModule title="Meta Ads" icon="📈" pill="Pending" defaultOpen={false}>
-              <div className="metrics">
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Daily Spend</div>
-                </div>
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Leads</div>
-                </div>
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Cost / Lead</div>
-                </div>
-              </div>
-              <ConnectSource sources={[...STATIC_SOURCES.meta]} onConnect={onConnect} />
-            </LaneModule>
-
             <LaneModule
-              title="Money in Motion"
+              title="Money Moves"
               icon="💰"
               pill="Top-3"
               pillVariant="go"
@@ -225,48 +275,72 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                   ))}
                 </div>
               ) : (
-                <p>No money moves surfaced yet.</p>
+                <p>No money moves surfaced yet{topMoveDollars !== '—' ? '' : '.'}</p>
               )}
+            </LaneModule>
+
+            <LaneModule
+              title="Meta Ads → GHL"
+              icon="📈"
+              pill="Not wired"
+              pillVariant="warn"
+              defaultOpen={false}
+            >
+              <p>
+                Standing #1 fire: Meta investor leads → GHL capture. A2P 10DLC, speed-to-lead,
+                and qualifying form data in SMS alerts are not yet connected here.
+              </p>
+              <div className="metrics">
+                <div className="metric">
+                  <div className="n">—</div>
+                  <div className="l">Daily Spend</div>
+                </div>
+                <div className="metric">
+                  <div className="n">—</div>
+                  <div className="l">Leads</div>
+                </div>
+                <div className="metric">
+                  <div className="n">—</div>
+                  <div className="l">Cost / Lead</div>
+                </div>
+              </div>
+              <ConnectSource sources={[...STATIC_SOURCES.meta]} onConnect={onConnect} />
             </LaneModule>
           </div>
         </section>
 
-        {/* Tasks lane */}
-        <section className="intel-lane" aria-label="Tasks and accountability">
+        <section className="intel-lane" aria-label="Operations intelligence">
           <div className="intel-lane__head">
             <RhinoLaneIcon variant="tasks" />
-            <h4 className="intel-lane__title">Tasks</h4>
-            <span className="intel-lane__count">Pulse · Accountability</span>
+            <h4 className="intel-lane__title">Operations</h4>
+            <span className="intel-lane__count">ClickUp · Pulse · Blindspots</span>
           </div>
           <div className="intel-lane__body">
             <LaneModule
-              title="Today's Watch List"
-              icon="⚠️"
-              pill={watchCount > 0 ? `${watchCount} alert` : 'Clear'}
-              pillVariant={watchCount > 0 ? 'warn' : 'go'}
+              title="ClickUp · Overdue & Alerts"
+              icon="✅"
+              pill={watchTotal > 0 ? `${watchTotal} open` : 'Clear'}
+              pillVariant={watchTotal > 0 ? 'warn' : 'go'}
               loading={watchlist.loading && !watchlist.data}
             >
               {watchlist.data && hasLiveData(watchlist.data) ? (
                 <div className="item-list">
                   {(watchlist.data.items ?? []).map((item, i) => (
-                    <div key={i} className="lane-row">
-                      <span className="lane-row__dot" />
-                      <span className="lane-row__text">{itemLabel(item)}</span>
-                    </div>
+                    <LaneRow key={i} item={item} />
                   ))}
                 </div>
               ) : watchlist.data ? (
                 <ConnectSource sources={watchlist.data.sources} onConnect={onConnect} />
               ) : (
-                <p>The few things that bite today if ignored.</p>
+                <p>Due-dated priorities and overdue tasks from ClickUp.</p>
               )}
             </LaneModule>
 
             <LaneModule
               title="Team Pulse"
               icon="👥"
-              pill="Accountability"
-              pillVariant="warn"
+              pill={overdueCount > 0 ? `${overdueCount} overdue` : 'Accountability'}
+              pillVariant={overdueCount > 0 ? 'warn' : 'default'}
               loading={teamPulse.loading && !teamPulse.data}
             >
               {teamPulse.data && !hasLiveData(teamPulse.data) ? (
@@ -278,6 +352,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                 <div className="item-list">
                   {teamPulse.data.gaps.map((g, i) => (
                     <div key={i} className="lane-row">
+                      <span className="lane-row__dot lane-row__dot--warn" aria-hidden="true" />
                       <span className="lane-row__text">
                         <strong>{g.person}</strong>: {g.committed} → {g.actual}.{' '}
                         {g.suggested_move}
@@ -285,18 +360,19 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                     </div>
                   ))}
                   {teamPulse.data.overdue.map((o, i) => (
-                    <div key={`o-${i}`} className="lane-row">
-                      <span className="lane-row__text">
-                        <strong>{o.person}</strong>: {o.task} ({o.days_late}d late)
-                      </span>
-                    </div>
+                    <OverdueRow
+                      key={`o-${i}`}
+                      person={o.person}
+                      task={o.task}
+                      daysLate={o.days_late}
+                    />
                   ))}
                 </div>
               ) : null}
             </LaneModule>
 
             <LaneModule
-              title="Empire Blind Spots"
+              title="Blind Spots"
               icon="🔍"
               pill="Scan"
               pillVariant="crit"
@@ -307,9 +383,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                 <div className="item-list">
                   {(blindspots.data.items ?? []).length > 0 ? (
                     (blindspots.data.items ?? []).map((item, i) => (
-                      <div key={i} className="lane-row">
-                        <span className="lane-row__text">{itemLabel(item)}</span>
-                      </div>
+                      <LaneRow key={i} item={item} />
                     ))
                   ) : (
                     <p>No blind spots from connected sources.</p>
@@ -322,19 +396,18 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               )}
             </LaneModule>
 
-            <LaneModule title="Issue a Task" icon="✅" pill="On the road" defaultOpen={false}>
+            <LaneModule title="Issue a Task" icon="📋" pill="Rhino Robot" defaultOpen={false}>
               <p>Voice or text → routed via Rhino Robot to ClickUp with context.</p>
               <ConnectSource sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
             </LaneModule>
           </div>
         </section>
 
-        {/* Audio / Fieldy lane */}
-        <section className="intel-lane" aria-label="Audio and field intelligence">
+        <section className="intel-lane" aria-label="Echo intelligence">
           <div className="intel-lane__head">
             <RhinoLaneIcon variant="audio" />
-            <h4 className="intel-lane__title">Audio / Fieldy</h4>
-            <span className="intel-lane__count">Voice · Brief</span>
+            <h4 className="intel-lane__title">Echo Intel</h4>
+            <span className="intel-lane__count">Fieldy · Brief · Rhino Robot</span>
           </div>
           <div className="intel-lane__body">
             <LaneModule
@@ -350,9 +423,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                     <div className="item-list">
                       <div className="brief-kicker">Yesterday recap</div>
                       {(dailyBrief.data.yesterday.items ?? []).map((item, i) => (
-                        <div key={`y-${i}`} className="lane-row">
-                          <span className="lane-row__text">{itemLabel(item)}</span>
-                        </div>
+                        <LaneRow key={`y-${i}`} item={item} />
                       ))}
                     </div>
                   )}
@@ -365,9 +436,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                           return row.source === 'fieldy' || row.source === 'clickup';
                         })
                         .map((item, i) => (
-                          <div key={`t-${i}`} className="lane-row">
-                            <span className="lane-row__text">{itemLabel(item)}</span>
-                          </div>
+                          <LaneRow key={`t-${i}`} item={item} />
                         ))}
                     </div>
                   )}
@@ -376,9 +445,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                       <div className="item-list">
                         <div className="brief-kicker">Commitments I made</div>
                         {(dailyBrief.data.commitments_i_made.items ?? []).map((item, i) => (
-                          <div key={`c-${i}`} className="lane-row">
-                            <span className="lane-row__text">{itemLabel(item)}</span>
-                          </div>
+                          <LaneRow key={`c-${i}`} item={item} />
                         ))}
                       </div>
                     )}
@@ -397,6 +464,19 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               ) : (
                 <p>Your whole day captured — decisions, commitments, tasks.</p>
               )}
+            </LaneModule>
+
+            <LaneModule
+              title="Rhino Robot · Meetings"
+              icon="🤖"
+              pill="ClickUp"
+              defaultOpen={false}
+            >
+              <p>
+                Plaud captures → Rhino Robot routes meeting output to All Meetings Log.
+                Paste raw transcript when share URLs aren&apos;t fetchable.
+              </p>
+              <ConnectSource sources={[...STATIC_SOURCES.teamFieldy]} onConnect={onConnect} />
             </LaneModule>
 
             <LaneModule
@@ -440,12 +520,11 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
           </div>
         </section>
 
-        {/* Calendar lane */}
-        <section className="intel-lane" aria-label="Calendar and environment">
+        <section className="intel-lane" aria-label="Schedule intelligence">
           <div className="intel-lane__head">
             <RhinoLaneIcon variant="calendar" />
-            <h4 className="intel-lane__title">Calendar</h4>
-            <span className="intel-lane__count">Schedule · Environment</span>
+            <h4 className="intel-lane__title">Schedule</h4>
+            <span className="intel-lane__count">Calendar · Week · Environment</span>
           </div>
           <div className="intel-lane__body">
             <LaneModule
@@ -457,10 +536,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               hasLiveData(dailyBrief.data.today_schedule) ? (
                 <div className="item-list">
                   {(dailyBrief.data.today_schedule.items ?? []).map((item, i) => (
-                    <div key={i} className="lane-row">
-                      <span className="lane-row__time">TODAY</span>
-                      <span className="lane-row__text">{itemLabel(item)}</span>
-                    </div>
+                    <LaneRow key={i} item={item} fallbackTime="TODAY" />
                   ))}
                 </div>
               ) : dailyBrief.data?.today_schedule ? (
@@ -482,9 +558,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               {weekAhead.data && hasLiveData(weekAhead.data) ? (
                 <div className="item-list">
                   {(weekAhead.data.items ?? []).slice(0, 7).map((item, i) => (
-                    <div key={i} className="lane-row">
-                      <span className="lane-row__text">{itemLabel(item)}</span>
-                    </div>
+                    <LaneRow key={i} item={item} />
                   ))}
                 </div>
               ) : (

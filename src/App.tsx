@@ -85,7 +85,7 @@ export default function App() {
       {page === 'dashboard' ? (
         <>
           <EchoCommand onVoiceStateChange={setVoiceState} />
-          <CommandHeader voiceState={voiceState} />
+          <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <ModuleGrid onConnect={openConnections} />
         </>
       ) : page === 'feed' ? (

@@ -9,9 +9,13 @@ import './command-header.css';
 
 interface CommandHeaderProps {
   voiceState?: EchoVoiceState;
+  brainOnline?: boolean;
 }
 
-export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
+export function CommandHeader({
+  voiceState = 'idle',
+  brainOnline = false,
+}: CommandHeaderProps) {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -23,6 +27,7 @@ export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
   const hour = now.getHours();
   const greeting =
     hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const isSunday = now.getDay() === 0;
 
   const fetchStatus = useCallback(() => brain.connectorsStatus(), []);
   const { data } = useBrainQuery('hero-connectors', fetchStatus, {
@@ -48,7 +53,13 @@ export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
         ? 'ECHO SPEAKING'
         : voiceState === 'thinking'
           ? 'ECHO PROCESSING'
-          : 'ECHO ONLINE';
+          : brainOnline
+            ? 'ECHO ONLINE'
+            : 'ECHO STANDBY';
+
+  const echoActive =
+    brainOnline &&
+    (voiceState === 'listening' || voiceState === 'speaking' || voiceState === 'thinking');
 
   return (
     <section className="command-header hud-corners rhino-metal" aria-label="Command status">
@@ -58,12 +69,16 @@ export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
       <div className="command-header__mesh" aria-hidden="true" />
 
       <div className="command-strip">
-        <span className="command-strip__item command-strip__item--brand">RHINO NETWORK</span>
+        <span className="command-strip__item command-strip__item--brand">RHINO CAPITAL</span>
         <span className="command-strip__sep" aria-hidden="true" />
         <span className="command-strip__item">CONRAD MORTGAGE</span>
         <span className="command-strip__sep" aria-hidden="true" />
-        <span className={`command-strip__item command-strip__item--live${allLive ? ' command-strip__item--active' : ''}`}>
-          {allLive ? 'LIVE' : connected > 0 ? 'SYNC' : 'STANDBY'}
+        <span className="command-strip__item">RHINO NETWORK</span>
+        <span className="command-strip__sep" aria-hidden="true" />
+        <span
+          className={`command-strip__item command-strip__item--echo${brainOnline ? ' command-strip__item--active' : ''}${echoActive ? ' command-strip__item--pulse' : ''}`}
+        >
+          {statusLabel}
         </span>
       </div>
 
@@ -81,6 +96,11 @@ export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
             <p className="command-header__greeting">
               {greeting}. Readiness · <strong>{readiness}</strong>
             </p>
+            <p className="command-header__cadence">
+              {isSunday
+                ? 'Sunday compounding review — close the week with 2–3 decisions.'
+                : 'Sunday compounding review cadence · 2–3 decisions daily'}
+            </p>
           </div>
         </div>
         {data && (
@@ -89,7 +109,7 @@ export function CommandHeader({ voiceState = 'idle' }: CommandHeaderProps) {
               <div className="command-header__metric-val">
                 {connected}<span className="command-header__metric-dim">/{total}</span>
               </div>
-              <div className="command-header__metric-lbl">Connectors</div>
+              <div className="command-header__metric-lbl">Stack</div>
             </div>
             <div className="command-header__metric">
               <div

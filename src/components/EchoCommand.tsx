@@ -103,6 +103,9 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
           <div>
             <span className="echo-command__kicker">ECHO ONLINE</span>
             <h3 className="echo-command__title">Ask Echo</h3>
+            <p className="echo-command__subtitle">
+              Your COO — rigor over cheerleading, priorities first, browser-first execution.
+            </p>
           </div>
         </div>
         <div className="echo-command__controls">

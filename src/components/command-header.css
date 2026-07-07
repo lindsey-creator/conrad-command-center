@@ -21,11 +21,13 @@
   pointer-events: none;
   z-index: 0;
   background:
-    linear-gradient(135deg, rgba(201, 162, 39, 0.06) 0%, transparent 40%),
-    radial-gradient(ellipse 50% 70% at 0% 50%, rgba(26, 26, 34, 0.8) 0%, transparent 60%);
+    linear-gradient(125deg, rgba(201, 162, 39, 0.14) 0%, rgba(224, 184, 58, 0.04) 28%, transparent 55%),
+    radial-gradient(ellipse 60% 80% at 0% 40%, rgba(201, 162, 39, 0.1) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 100% 80%, rgba(232, 93, 4, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(26, 26, 34, 0.5) 0%, transparent 100%);
 }
 
-/* Command strip — RHINO NETWORK | CONRAD MORTGAGE | LIVE */
+/* Command strip — RHINO CAPITAL | CONRAD MORTGAGE | RHINO NETWORK | ECHO */
 .command-strip {
   position: relative;
   z-index: 1;
@@ -52,6 +54,20 @@
 
 .command-strip__item--live {
   color: var(--faint);
+}
+
+.command-strip__item--echo {
+  color: var(--faint);
+  margin-left: auto;
+}
+
+.command-strip__item--echo.command-strip__item--active {
+  color: var(--go);
+  text-shadow: 0 0 12px var(--go-glow);
+}
+
+.command-strip__item--echo.command-strip__item--pulse {
+  animation: echo-strip-pulse 1.8s ease-in-out infinite;
 }
 
 .command-strip__item--live.command-strip__item--active {
@@ -117,6 +133,16 @@
 .command-header__greeting strong {
   color: var(--gold-2);
   font-weight: 600;
+}
+
+.command-header__cadence {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  max-width: 36ch;
 }
 
 .command-header__metrics {
@@ -190,6 +216,11 @@
   text-transform: uppercase;
 }
 
+@keyframes echo-strip-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
 @media (max-width: 640px) {
   .command-header__inner {
     padding: 14px;
@@ -215,5 +246,13 @@
     font-size: 11px;
     padding: 0 10px;
     letter-spacing: 0.14em;
+  }
+
+  .command-strip__item--echo {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 6px;
+    border-top: 1px solid rgba(201, 162, 39, 0.08);
+    margin-top: 4px;
   }
 }

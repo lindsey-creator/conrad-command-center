@@ -3,7 +3,10 @@ import './Footer.css';
 export function Footer() {
   return (
     <footer>
-      CONRAD COMMAND CENTER · v5 · built to run from anywhere
+      <div className="footer__primary">CONRAD COMMAND CENTER · conradstrong.com</div>
+      <div className="footer__cadence">
+        Sunday compounding review — patient with results, impatient with actions
+      </div>
       <div className="legend">
         <span>
           <i className="sw" style={{ background: 'var(--go)' }} />
