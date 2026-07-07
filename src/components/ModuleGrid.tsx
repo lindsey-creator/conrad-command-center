@@ -3,7 +3,8 @@ import { brain } from '../api/brain';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
 import { ConnectSource } from './ConnectSource';
-import { ModuleCard } from './ModuleCard';
+import { LaneModule } from './LaneModule';
+import '../styles/intel-lanes.css';
 
 const STATIC_SOURCES = {
   ghl: ['ghl'],
@@ -17,11 +18,14 @@ const STATIC_SOURCES = {
   issueTask: ['clickup'],
   teamFieldy: ['fieldy', 'clickup'],
   briefFieldy: ['fieldy', 'clickup'],
-  briefCalendar: ['google_calendar'],
 } as const;
 
 interface ModuleGridProps {
   onConnect?: (source: string) => void;
+}
+
+function countItems(data: { items?: unknown[] } | null | undefined): number {
+  return data?.items?.length ?? 0;
 }
 
 export function ModuleGrid({ onConnect }: ModuleGridProps) {
@@ -33,6 +37,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const fetchGhl = useCallback(() => brain.ghlCrm(), []);
   const fetchHealth = useCallback(() => brain.healthMetrics(), []);
   const fetchWeek = useCallback(() => brain.weekAhead(), []);
+  const fetchConnectors = useCallback(() => brain.connectorsStatus(), []);
 
   const blindspots = useBrainQuery('blindspots', fetchBlindspots);
   const watchlist = useBrainQuery('watchlist', fetchWatchlist);
@@ -42,476 +47,448 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const ghlCrm = useBrainQuery('ghl-crm', fetchGhl);
   const healthMetrics = useBrainQuery('health-metrics', fetchHealth);
   const weekAhead = useBrainQuery('week-ahead', fetchWeek);
+  const connectors = useBrainQuery('scan-connectors', fetchConnectors);
+
+  const moveCount = topMoves.data?.moves?.length ?? 0;
+  const watchCount = countItems(watchlist.data);
+  const todayCount = countItems(dailyBrief.data?.today_schedule);
+  const connected = connectors.data?.connected_count ?? 0;
+  const total = connectors.data?.total ?? 7;
+
+  const topMoveDollars = topMoves.data?.moves?.[0]?.dollars ?? '—';
 
   return (
-    <div className="grid">
-      {/* Empire Blind Spots */}
-      <ModuleCard
-        title="Empire Blind Spots"
-        kicker="INTEL"
-        dotColor="var(--crit)"
-        pill="Scan"
-        pillVariant="crit"
-        span2
-        loading={blindspots.loading && !blindspots.data}
-      >
-        <div className="body">
-          What you're not seeing across the 8 units. The Brain fills this — the
-          point is you don't have to go looking.
+    <>
+      {/* Priority scan row */}
+      <div className="priority-scan" role="group" aria-label="Priority scan">
+        <div className="scan-tile">
+          <span className="scan-tile__dot scan-tile__dot--live" />
+          <div className="scan-tile__kicker">Money</div>
+          <div className="scan-tile__val scan-tile__val--money">
+            {topMoves.loading && !topMoves.data ? '…' : moveCount || '—'}
+          </div>
+          <div className="scan-tile__lbl">
+            {moveCount > 0 ? `Top: ${topMoveDollars}` : 'No moves yet'}
+          </div>
         </div>
-        {blindspots.data && hasLiveData(blindspots.data) && (
-          <div className="body item-list">
-            {(blindspots.data.items ?? []).length > 0 ? (
-              (blindspots.data.items ?? []).map((item, i) => (
-                <div key={i} className="list-row">
-                  {itemLabel(item)}
+        <div className="scan-tile">
+          <span className="scan-tile__dot" />
+          <div className="scan-tile__kicker">Today</div>
+          <div className="scan-tile__val">
+            {dailyBrief.loading && !dailyBrief.data ? '…' : todayCount || '—'}
+          </div>
+          <div className="scan-tile__lbl">Schedule items</div>
+        </div>
+        <div className="scan-tile">
+          <span
+            className={`scan-tile__dot${watchCount > 0 ? ' scan-tile__dot--warn' : ''}`}
+          />
+          <div className="scan-tile__kicker">Watch</div>
+          <div
+            className={`scan-tile__val${watchCount > 0 ? ' scan-tile__val--warn' : ''}`}
+          >
+            {watchlist.loading && !watchlist.data ? '…' : watchCount || '—'}
+          </div>
+          <div className="scan-tile__lbl">Alerts today</div>
+        </div>
+        <div className="scan-tile">
+          <span
+            className={`scan-tile__dot${connected > 0 ? ' scan-tile__dot--live' : ''}`}
+          />
+          <div className="scan-tile__kicker">Connectors</div>
+          <div
+            className={`scan-tile__val${connected === total && connected > 0 ? ' scan-tile__val--live' : ''}`}
+          >
+            {connectors.loading && !connectors.data ? '…' : `${connected}/${total}`}
+          </div>
+          <div className="scan-tile__lbl">
+            {connected === total && connected > 0 ? 'All live' : 'Sources linked'}
+          </div>
+        </div>
+      </div>
+
+      {/* Intel lanes */}
+      <div className="intel-lanes intel-lanes--quad">
+        {/* CRM lane */}
+        <section className="intel-lane" aria-label="CRM intelligence">
+          <div className="intel-lane__head">
+            <h4 className="intel-lane__title">CRM</h4>
+            <span className="intel-lane__count">Revenue · Leads</span>
+          </div>
+          <div className="intel-lane__body">
+            <LaneModule
+              title="GoHighLevel CRM"
+              icon="📞"
+              pill={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'Live' : 'CRM'}
+              pillVariant={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'go' : 'default'}
+              loading={ghlCrm.loading && !ghlCrm.data}
+            >
+              <div className="metrics">
+                <div className="metric">
+                  <div className="n">
+                    {ghlCrm.data && hasLiveData(ghlCrm.data)
+                      ? ghlCrm.data.new_leads ?? '—'
+                      : '—'}
+                  </div>
+                  <div className="l">New Leads</div>
                 </div>
-              ))
-            ) : (
-              <div className="list-row">No blind spots from connected sources.</div>
-            )}
-          </div>
-        )}
-        {blindspots.data && !hasLiveData(blindspots.data) && (
-          <ConnectSource sources={blindspots.data.sources} onConnect={onConnect} />
-        )}
-      </ModuleCard>
-
-      {/* Today's Watch List */}
-      <ModuleCard
-        title="Today's Watch List"
-        kicker="ALERT"
-        dotColor="var(--warn)"
-        pill={watchlist.data && hasLiveData(watchlist.data) ? 'Live' : 'Watch'}
-        loading={watchlist.loading && !watchlist.data}
-      >
-        <div className="body">The few things that bite today if ignored.</div>
-        {watchlist.data && hasLiveData(watchlist.data) ? (
-          <div className="body item-list">
-            {(watchlist.data.items ?? []).map((item, i) => (
-              <div key={i} className="list-row">
-                {itemLabel(item)}
+                <div className="metric">
+                  <div className="n">
+                    {ghlCrm.data && hasLiveData(ghlCrm.data)
+                      ? ghlCrm.data.missed_calls ?? '—'
+                      : '—'}
+                  </div>
+                  <div className="l">Missed Calls</div>
+                </div>
+                <div className="metric">
+                  <div className="n">
+                    {ghlCrm.data && hasLiveData(ghlCrm.data)
+                      ? ghlCrm.data.unread_texts ?? '—'
+                      : '—'}
+                  </div>
+                  <div className="l">Unread Texts</div>
+                </div>
               </div>
-            ))}
-          </div>
-        ) : watchlist.data ? (
-          <ConnectSource sources={watchlist.data.sources} onConnect={onConnect} />
-        ) : null}
-      </ModuleCard>
+              {ghlCrm.data && !hasLiveData(ghlCrm.data) && (
+                <ConnectSource sources={[...STATIC_SOURCES.ghl]} onConnect={onConnect} />
+              )}
+            </LaneModule>
 
-      {/* Money in Motion */}
-      <ModuleCard
-        title="Money in Motion"
-        kicker="REVENUE"
-        icon="💰"
-        pill="Top-3"
-        pillVariant="go"
-        loading={topMoves.loading && !topMoves.data}
-      >
-        {topMoves.data && !hasLiveData(topMoves.data) ? (
-          <>
-            <div className="body">
-              Active deals + today's highest-value moves, each with the number and
-              a one-tap approve.
-              {topMoves.data.decisions_known > 0 && (
+            <LaneModule title="Meta Ads" icon="📈" pill="Pending" defaultOpen={false}>
+              <div className="metrics">
+                <div className="metric">
+                  <div className="n">—</div>
+                  <div className="l">Daily Spend</div>
+                </div>
+                <div className="metric">
+                  <div className="n">—</div>
+                  <div className="l">Leads</div>
+                </div>
+                <div className="metric">
+                  <div className="n">—</div>
+                  <div className="l">Cost / Lead</div>
+                </div>
+              </div>
+              <ConnectSource sources={[...STATIC_SOURCES.meta]} onConnect={onConnect} />
+            </LaneModule>
+
+            <LaneModule
+              title="Money in Motion"
+              icon="💰"
+              pill="Top-3"
+              pillVariant="go"
+              loading={topMoves.loading && !topMoves.data}
+            >
+              {topMoves.data && !hasLiveData(topMoves.data) ? (
                 <>
-                  {' '}
-                  Brain knows {topMoves.data.decisions_known} trained decision
-                  {topMoves.data.decisions_known === 1 ? '' : 's'}.
+                  <p>Active deals + highest-value moves with one-tap approve.</p>
+                  <ConnectSource sources={topMoves.data.sources} onConnect={onConnect} />
+                </>
+              ) : topMoves.data && topMoves.data.moves.length > 0 ? (
+                <div className="moves-list">
+                  {topMoves.data.moves.map((move, i) => (
+                    <div className="move-item" key={i}>
+                      <div className="dollars">{move.dollars ?? '—'}</div>
+                      <div style={{ fontWeight: 700, fontSize: 13 }}>{move.title}</div>
+                      <div className="why">{move.why}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>No money moves surfaced yet.</p>
+              )}
+            </LaneModule>
+          </div>
+        </section>
+
+        {/* Tasks lane */}
+        <section className="intel-lane" aria-label="Tasks and accountability">
+          <div className="intel-lane__head">
+            <h4 className="intel-lane__title">Tasks</h4>
+            <span className="intel-lane__count">Pulse · Accountability</span>
+          </div>
+          <div className="intel-lane__body">
+            <LaneModule
+              title="Today's Watch List"
+              icon="⚠️"
+              pill={watchCount > 0 ? `${watchCount} alert` : 'Clear'}
+              pillVariant={watchCount > 0 ? 'warn' : 'go'}
+              loading={watchlist.loading && !watchlist.data}
+            >
+              {watchlist.data && hasLiveData(watchlist.data) ? (
+                <div className="item-list">
+                  {(watchlist.data.items ?? []).map((item, i) => (
+                    <div key={i} className="lane-row">
+                      <span className="lane-row__dot" />
+                      <span className="lane-row__text">{itemLabel(item)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : watchlist.data ? (
+                <ConnectSource sources={watchlist.data.sources} onConnect={onConnect} />
+              ) : (
+                <p>The few things that bite today if ignored.</p>
+              )}
+            </LaneModule>
+
+            <LaneModule
+              title="Team Pulse"
+              icon="👥"
+              pill="Accountability"
+              pillVariant="warn"
+              loading={teamPulse.loading && !teamPulse.data}
+            >
+              {teamPulse.data && !hasLiveData(teamPulse.data) ? (
+                <>
+                  <p>Who said they&apos;d do what — and whether it moved.</p>
+                  <ConnectSource sources={teamPulse.data.sources} onConnect={onConnect} />
+                </>
+              ) : teamPulse.data ? (
+                <div className="item-list">
+                  {teamPulse.data.gaps.map((g, i) => (
+                    <div key={i} className="lane-row">
+                      <span className="lane-row__text">
+                        <strong>{g.person}</strong>: {g.committed} → {g.actual}.{' '}
+                        {g.suggested_move}
+                      </span>
+                    </div>
+                  ))}
+                  {teamPulse.data.overdue.map((o, i) => (
+                    <div key={`o-${i}`} className="lane-row">
+                      <span className="lane-row__text">
+                        <strong>{o.person}</strong>: {o.task} ({o.days_late}d late)
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </LaneModule>
+
+            <LaneModule
+              title="Empire Blind Spots"
+              icon="🔍"
+              pill="Scan"
+              pillVariant="crit"
+              defaultOpen={false}
+              loading={blindspots.loading && !blindspots.data}
+            >
+              {blindspots.data && hasLiveData(blindspots.data) ? (
+                <div className="item-list">
+                  {(blindspots.data.items ?? []).length > 0 ? (
+                    (blindspots.data.items ?? []).map((item, i) => (
+                      <div key={i} className="lane-row">
+                        <span className="lane-row__text">{itemLabel(item)}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No blind spots from connected sources.</p>
+                  )}
+                </div>
+              ) : blindspots.data ? (
+                <ConnectSource sources={blindspots.data.sources} onConnect={onConnect} />
+              ) : (
+                <p>What you&apos;re not seeing across the 8 units.</p>
+              )}
+            </LaneModule>
+
+            <LaneModule title="Issue a Task" icon="✅" pill="On the road" defaultOpen={false}>
+              <p>Voice or text → routed to ClickUp with context.</p>
+              <ConnectSource sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
+            </LaneModule>
+          </div>
+        </section>
+
+        {/* Audio / Fieldy lane */}
+        <section className="intel-lane" aria-label="Audio and field intelligence">
+          <div className="intel-lane__head">
+            <h4 className="intel-lane__title">Audio / Fieldy</h4>
+            <span className="intel-lane__count">Voice · Brief</span>
+          </div>
+          <div className="intel-lane__body">
+            <LaneModule
+              title="Daily Fieldy Brief"
+              icon="🎧"
+              pill="Auto"
+              pillVariant="go"
+              loading={dailyBrief.loading && !dailyBrief.data}
+            >
+              {dailyBrief.data ? (
+                <>
+                  {dailyBrief.data.yesterday && hasLiveData(dailyBrief.data.yesterday) && (
+                    <div className="item-list">
+                      <div className="brief-kicker">Yesterday recap</div>
+                      {(dailyBrief.data.yesterday.items ?? []).map((item, i) => (
+                        <div key={`y-${i}`} className="lane-row">
+                          <span className="lane-row__text">{itemLabel(item)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {dailyBrief.data.today && hasLiveData(dailyBrief.data.today) && (
+                    <div className="item-list">
+                      <div className="brief-kicker">Today&apos;s voice highlights</div>
+                      {(dailyBrief.data.today.items ?? [])
+                        .filter((item) => {
+                          const row = item as { source?: string };
+                          return row.source === 'fieldy' || row.source === 'clickup';
+                        })
+                        .map((item, i) => (
+                          <div key={`t-${i}`} className="lane-row">
+                            <span className="lane-row__text">{itemLabel(item)}</span>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                  {dailyBrief.data.commitments_i_made &&
+                    hasLiveData(dailyBrief.data.commitments_i_made) && (
+                      <div className="item-list">
+                        <div className="brief-kicker">Commitments I made</div>
+                        {(dailyBrief.data.commitments_i_made.items ?? []).map((item, i) => (
+                          <div key={`c-${i}`} className="lane-row">
+                            <span className="lane-row__text">{itemLabel(item)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  {dailyBrief.data.yesterday &&
+                    !hasLiveData(dailyBrief.data.yesterday) && (
+                      <ConnectSource
+                        sources={
+                          dailyBrief.data.yesterday.sources?.length
+                            ? dailyBrief.data.yesterday.sources
+                            : [...STATIC_SOURCES.briefFieldy]
+                        }
+                        onConnect={onConnect}
+                      />
+                    )}
+                </>
+              ) : (
+                <p>Your whole day captured — decisions, commitments, tasks.</p>
+              )}
+            </LaneModule>
+
+            <LaneModule
+              title="Health & Performance"
+              icon="❤️"
+              pill="Tracks only"
+              defaultOpen={false}
+              loading={healthMetrics.loading && !healthMetrics.data}
+            >
+              {healthMetrics.data && hasLiveData(healthMetrics.data) ? (
+                <div className="metrics">
+                  {healthMetrics.data.metrics?.whoop && (
+                    <>
+                      <div className="metric">
+                        <div className="n">
+                          {String(healthMetrics.data.metrics.whoop.recovery_score ?? '—')}
+                        </div>
+                        <div className="l">Recovery</div>
+                      </div>
+                      <div className="metric">
+                        <div className="n">
+                          {String(healthMetrics.data.metrics.whoop.hrv ?? '—')}
+                        </div>
+                        <div className="l">HRV</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p>Whoop + Apple Health — tracked, never prescribed.</p>
+              )}
+              {healthMetrics.data?.metrics?.whoop ? null : (
+                <ConnectSource sources={[...STATIC_SOURCES.healthWhoop]} onConnect={onConnect} />
+              )}
+            </LaneModule>
+
+            <LaneModule title="Wellbeing Check-in" icon="🧠" defaultOpen={false}>
+              <p>Daily check-in — support, not therapy.</p>
+              <ConnectSource sources={[...STATIC_SOURCES.wellbeing]} onConnect={onConnect} />
+            </LaneModule>
+          </div>
+        </section>
+
+        {/* Calendar lane */}
+        <section className="intel-lane" aria-label="Calendar and environment">
+          <div className="intel-lane__head">
+            <h4 className="intel-lane__title">Calendar</h4>
+            <span className="intel-lane__count">Schedule · Environment</span>
+          </div>
+          <div className="intel-lane__body">
+            <LaneModule
+              title="Today's Schedule"
+              icon="📅"
+              loading={dailyBrief.loading && !dailyBrief.data}
+            >
+              {dailyBrief.data?.today_schedule &&
+              hasLiveData(dailyBrief.data.today_schedule) ? (
+                <div className="item-list">
+                  {(dailyBrief.data.today_schedule.items ?? []).map((item, i) => (
+                    <div key={i} className="lane-row">
+                      <span className="lane-row__time">TODAY</span>
+                      <span className="lane-row__text">{itemLabel(item)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : dailyBrief.data?.today_schedule ? (
+                <ConnectSource
+                  sources={dailyBrief.data.today_schedule.sources}
+                  onConnect={onConnect}
+                />
+              ) : (
+                <p>Training, recovery, and family blocks protected.</p>
+              )}
+            </LaneModule>
+
+            <LaneModule
+              title="Week Ahead"
+              icon="🗓️"
+              defaultOpen={false}
+              loading={weekAhead.loading && !weekAhead.data}
+            >
+              {weekAhead.data && hasLiveData(weekAhead.data) ? (
+                <div className="item-list">
+                  {(weekAhead.data.items ?? []).slice(0, 7).map((item, i) => (
+                    <div key={i} className="lane-row">
+                      <span className="lane-row__text">{itemLabel(item)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <p>Seven-day view with protected blocks.</p>
+                  <ConnectSource
+                    sources={[...STATIC_SOURCES.weekAhead]}
+                    onConnect={onConnect}
+                  />
                 </>
               )}
-            </div>
-            <ConnectSource sources={topMoves.data.sources} onConnect={onConnect} />
-          </>
-        ) : topMoves.data && topMoves.data.moves.length > 0 ? (
-          <div className="moves-list">
-            {topMoves.data.moves.map((move, i) => (
-              <div className="move-item" key={i}>
-                <div className="dollars">{move.dollars ?? '—'}</div>
-                <div style={{ fontWeight: 700, fontSize: 13 }}>{move.title}</div>
-                <div className="why">{move.why}</div>
-                <button type="button" className="approve-btn" disabled>
-                  Approval Queue · coming
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="body">No money moves surfaced yet.</div>
-        )}
-      </ModuleCard>
+            </LaneModule>
 
-      {/* GoHighLevel CRM */}
-      <ModuleCard
-        title="GoHighLevel CRM"
-        kicker="CRM"
-        icon="📞"
-        pill={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'Live' : 'CRM'}
-        pillVariant={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'go' : 'default'}
-        loading={ghlCrm.loading && !ghlCrm.data}
-      >
-        <div className="metrics">
-          <div className="metric">
-            <div className="n">
-              {ghlCrm.data && hasLiveData(ghlCrm.data)
-                ? ghlCrm.data.new_leads ?? '—'
-                : '—'}
-            </div>
-            <div className="l">New Leads</div>
-          </div>
-          <div className="metric">
-            <div className="n">
-              {ghlCrm.data && hasLiveData(ghlCrm.data)
-                ? ghlCrm.data.missed_calls ?? '—'
-                : '—'}
-            </div>
-            <div className="l">Missed Calls</div>
-          </div>
-          <div className="metric">
-            <div className="n">
-              {ghlCrm.data && hasLiveData(ghlCrm.data)
-                ? ghlCrm.data.unread_texts ?? '—'
-                : '—'}
-            </div>
-            <div className="l">Unread Texts</div>
-          </div>
-        </div>
-        {ghlCrm.data && !hasLiveData(ghlCrm.data) && (
-          <ConnectSource sources={[...STATIC_SOURCES.ghl]} onConnect={onConnect} />
-        )}
-      </ModuleCard>
+            <LaneModule title="Calendar Protection" icon="🛡️" defaultOpen={false}>
+              <p>Training, recovery, and family blocks defended.</p>
+              <ConnectSource
+                sources={[...STATIC_SOURCES.calendarProtection]}
+                onConnect={onConnect}
+              />
+            </LaneModule>
 
-      {/* Meta Ads */}
-      <ModuleCard title="Meta Ads" kicker="ADS" icon="📈" pill="Loading">
-        <div className="metrics">
-          <div className="metric">
-            <div className="n">—</div>
-            <div className="l">Daily Spend</div>
-          </div>
-          <div className="metric">
-            <div className="n">—</div>
-            <div className="l">Leads</div>
-          </div>
-          <div className="metric">
-            <div className="n">—</div>
-            <div className="l">Cost / Lead</div>
-          </div>
-        </div>
-        <ConnectSource sources={[...STATIC_SOURCES.meta]} onConnect={onConnect} />
-      </ModuleCard>
-
-      {/* Team Pulse */}
-      <ModuleCard
-        title="Team Pulse"
-        kicker="TEAM"
-        icon="👥"
-        pill="Accountability"
-        pillVariant="warn"
-        loading={teamPulse.loading && !teamPulse.data}
-      >
-        {teamPulse.data && !hasLiveData(teamPulse.data) ? (
-          <>
-            <div className="body">
-              Who said they'd do what — and whether it moved. The radar that
-              watches for holes so you don't have to.
-            </div>
-            <ConnectSource sources={teamPulse.data.sources} onConnect={onConnect} />
-            <ConnectSource sources={[...STATIC_SOURCES.teamFieldy]} onConnect={onConnect} />
-          </>
-        ) : teamPulse.data ? (
-          <div className="body">
-            {teamPulse.data.gaps.map((g, i) => (
-              <div key={i}>
-                <strong>{g.person}</strong>: {g.committed} → {g.actual}.{' '}
-                {g.suggested_move}
-              </div>
-            ))}
-            {teamPulse.data.overdue.map((o, i) => (
-              <div key={`o-${i}`}>
-                <strong>{o.person}</strong>: {o.task} ({o.days_late}d late)
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </ModuleCard>
-
-      {/* Daily Fieldy Brief */}
-      <ModuleCard
-        title="Daily Fieldy Brief"
-        kicker="BRIEF"
-        icon="🎧"
-        pill="Auto"
-        pillVariant="go"
-        span2
-        loading={dailyBrief.loading && !dailyBrief.data}
-      >
-        {dailyBrief.data ? (
-          <>
-            <div className="body">
-              You wear it all day, so the Brain gets your whole day: decisions
-              made, what you committed to, what others promised you, and what
-              turns into a task. Delivered every morning.
-            </div>
-            {dailyBrief.data.top_money_moves &&
-              hasLiveData(dailyBrief.data.top_money_moves) && (
-                <div className="body item-list">
-                  <div className="brief-kicker">Top money moves</div>
-                  {(dailyBrief.data.top_money_moves.items ?? []).map(
-                    (item, i) => (
-                      <div key={`m-${i}`} className="list-row">
-                        {itemLabel(item)}
-                      </div>
-                    ),
-                  )}
-                </div>
-              )}
-            {dailyBrief.data.yesterday &&
-              hasLiveData(dailyBrief.data.yesterday) && (
-                <div className="body item-list">
-                  <div className="brief-kicker">Audio / meeting recap</div>
-                  {(dailyBrief.data.yesterday.items ?? []).map((item, i) => (
-                    <div key={`y-${i}`} className="list-row">
-                      {itemLabel(item)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            {dailyBrief.data.today && hasLiveData(dailyBrief.data.today) && (
-              <div className="body item-list">
-                <div className="brief-kicker">Today&apos;s voice highlights</div>
-                {(dailyBrief.data.today.items ?? [])
-                  .filter((item) => {
-                    const row = item as { source?: string };
-                    return row.source === 'fieldy' || row.source === 'clickup';
-                  })
-                  .map((item, i) => (
-                    <div key={`t-${i}`} className="list-row">
-                      {itemLabel(item)}
-                    </div>
-                  ))}
-              </div>
-            )}
-            {dailyBrief.data.watch_list &&
-              hasLiveData(dailyBrief.data.watch_list) && (
-                <div className="body item-list">
-                  <div className="brief-kicker">Watch list</div>
-                  {(dailyBrief.data.watch_list.items ?? []).map((item, i) => (
-                    <div key={`w-${i}`} className="list-row">
-                      {itemLabel(item)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            {dailyBrief.data.commitments_i_made &&
-              hasLiveData(dailyBrief.data.commitments_i_made) && (
-                <div className="body item-list">
-                  <div className="brief-kicker">Commitments I made</div>
-                  {(dailyBrief.data.commitments_i_made.items ?? []).map(
-                    (item, i) => (
-                      <div key={`c-${i}`} className="list-row">
-                        {itemLabel(item)}
-                      </div>
-                    ),
-                  )}
-                </div>
-              )}
-            {dailyBrief.data.top_money_moves &&
-              !hasLiveData(dailyBrief.data.top_money_moves) && (
-                <ConnectSource
-                  sources={dailyBrief.data.top_money_moves.sources}
-                  onConnect={onConnect}
-                />
-              )}
-            {dailyBrief.data.watch_list &&
-              !hasLiveData(dailyBrief.data.watch_list) && (
-                <ConnectSource
-                  sources={dailyBrief.data.watch_list.sources}
-                  onConnect={onConnect}
-                />
-              )}
-            {dailyBrief.data.commitments_i_made &&
-              !hasLiveData(dailyBrief.data.commitments_i_made) && (
-                <ConnectSource
-                  sources={
-                    dailyBrief.data.commitments_i_made.sources?.length
-                      ? dailyBrief.data.commitments_i_made.sources
-                      : [...STATIC_SOURCES.briefFieldy]
-                  }
-                  onConnect={onConnect}
-                />
-              )}
-            {dailyBrief.data.yesterday &&
-              !hasLiveData(dailyBrief.data.yesterday) && (
-                <ConnectSource
-                  sources={
-                    dailyBrief.data.yesterday.sources?.length
-                      ? dailyBrief.data.yesterday.sources
-                      : [...STATIC_SOURCES.briefFieldy]
-                  }
-                  onConnect={onConnect}
-                />
-              )}
-          </>
-        ) : null}
-      </ModuleCard>
-
-      {/* Today's Schedule */}
-      <ModuleCard
-        title="Today's Schedule"
-        kicker="SCHED"
-        icon="📅"
-        loading={dailyBrief.loading && !dailyBrief.data}
-      >
-        <div className="body">
-          Schedule with training, recovery, and family blocks protected.
-        </div>
-        {dailyBrief.data?.today_schedule &&
-          hasLiveData(dailyBrief.data.today_schedule) && (
-            <div className="body item-list">
-              {(dailyBrief.data.today_schedule.items ?? []).map((item, i) => (
-                <div key={i} className="list-row">
-                  {itemLabel(item)}
-                </div>
-              ))}
-            </div>
-          )}
-        {dailyBrief.data?.today_schedule &&
-          !hasLiveData(dailyBrief.data.today_schedule) && (
-            <ConnectSource
-              sources={dailyBrief.data.today_schedule.sources}
-              onConnect={onConnect}
-            />
-          )}
-      </ModuleCard>
-
-      {/* Week Ahead */}
-      <ModuleCard
-        title="Week Ahead"
-        kicker="WEEK"
-        icon="🗓️"
-        loading={weekAhead.loading && !weekAhead.data}
-      >
-        {weekAhead.data && hasLiveData(weekAhead.data) ? (
-          <div className="body item-list">
-            {(weekAhead.data.items ?? []).slice(0, 7).map((item, i) => (
-              <div key={i} className="list-row">
-                {itemLabel(item)}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="body">Seven-day view with protected blocks.</div>
-            <ConnectSource
-              sources={[...STATIC_SOURCES.weekAhead]}
-              onConnect={onConnect}
-            />
-          </>
-        )}
-      </ModuleCard>
-
-      {/* Weather */}
-      <ModuleCard title="Weather · Cleveland" kicker="ENV" icon="🌤️">
-        <div className="metrics">
-          <div className="metric">
-            <div className="n">—</div>
-            <div className="l">Temp</div>
-          </div>
-          <div className="metric">
-            <div className="n">—</div>
-            <div className="l">Conditions</div>
-          </div>
-        </div>
-        <ConnectSource sources={[...STATIC_SOURCES.weather]} onConnect={onConnect} />
-      </ModuleCard>
-
-      {/* Health & Performance */}
-      <ModuleCard
-        title="Health & Performance"
-        kicker="HEALTH"
-        icon="❤️"
-        pill="Tracks · never prescribes"
-        loading={healthMetrics.loading && !healthMetrics.data}
-      >
-        {healthMetrics.data && hasLiveData(healthMetrics.data) ? (
-          <div className="metrics">
-            {healthMetrics.data.metrics?.whoop && (
-              <>
+            <LaneModule title="Weather · Cleveland" icon="🌤️" defaultOpen={false}>
+              <div className="metrics">
                 <div className="metric">
-                  <div className="n">
-                    {String(healthMetrics.data.metrics.whoop.recovery_score ?? '—')}
-                  </div>
-                  <div className="l">Recovery</div>
+                  <div className="n">—</div>
+                  <div className="l">Temp</div>
                 </div>
                 <div className="metric">
-                  <div className="n">
-                    {String(healthMetrics.data.metrics.whoop.hrv ?? '—')}
-                  </div>
-                  <div className="l">HRV</div>
+                  <div className="n">—</div>
+                  <div className="l">Conditions</div>
                 </div>
-              </>
-            )}
-            {healthMetrics.data.metrics?.apple_health && (
-              <div className="metric">
-                <div className="n">
-                  {String(healthMetrics.data.metrics.apple_health.sleep_hours ?? '—')}
-                </div>
-                <div className="l">Sleep</div>
               </div>
-            )}
+              <ConnectSource sources={[...STATIC_SOURCES.weather]} onConnect={onConnect} />
+            </LaneModule>
           </div>
-        ) : (
-          <div className="body">
-            Apple Health + Whoop (recovery, HRV, sleep, strain), supplement
-            schedule, peptide protocol, diet — tracked and reminded. Clinical
-            decisions route to your provider.
-          </div>
-        )}
-        {healthMetrics.data?.metrics?.whoop ? null : (
-          <ConnectSource
-            sources={[...STATIC_SOURCES.healthWhoop]}
-            onConnect={onConnect}
-          />
-        )}
-        {healthMetrics.data?.metrics?.apple_health ? null : (
-          <ConnectSource
-            sources={[...STATIC_SOURCES.healthApple]}
-            onConnect={onConnect}
-          />
-        )}
-      </ModuleCard>
-
-      {/* Calendar Protection */}
-      <ModuleCard title="Calendar Protection" kicker="GUARD" icon="🛡️">
-        <div className="body">
-          Training, recovery, and family blocks defended on your calendar.
-        </div>
-        <ConnectSource
-          sources={[...STATIC_SOURCES.calendarProtection]}
-          onConnect={onConnect}
-        />
-      </ModuleCard>
-
-      {/* Wellbeing Check-in */}
-      <ModuleCard title="Wellbeing Check-in" kicker="WELL" icon="🧠" pill="Support only">
-        <div className="body">
-          Daily check-in and pattern surfacing — support, not therapy. Routes to
-          your real professionals when needed.
-        </div>
-        <ConnectSource sources={[...STATIC_SOURCES.wellbeing]} onConnect={onConnect} />
-      </ModuleCard>
-
-      {/* Issue a Task */}
-      <ModuleCard title="Issue a Task" kicker="TASK" icon="✅" pill="On the road">
-        <div className="body">
-          Voice or a line of text → routed to the right person in ClickUp with
-          context. Approvals from your phone.
-        </div>
-        <button type="button" className="approve-btn" disabled>
-          Approval Queue · coming
-        </button>
-        <ConnectSource sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
-      </ModuleCard>
-    </div>
+        </section>
+      </div>
+    </>
   );
 }

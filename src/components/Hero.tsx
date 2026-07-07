@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { brain } from '../api/brain';
+import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import './Hero.css';
 
@@ -17,7 +18,9 @@ export function Hero() {
     hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   const fetchStatus = useCallback(() => brain.connectorsStatus(), []);
-  const { data } = useBrainQuery('hero-connectors', fetchStatus);
+  const { data } = useBrainQuery('hero-connectors', fetchStatus, {
+    refreshMs: POLL_CONNECTORS_MS,
+  });
 
   const connected = data?.connected_count ?? 0;
   const total = data?.total ?? 7;

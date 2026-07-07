@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { brain } from './api/brain';
-import { AskTheRoom } from './components/AskTheRoom';
+import { touchBrainLive } from './hooks/brainLive';
+import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
+import { CommandHeader } from './components/CommandHeader';
 import { Connections, resolveConnectorKey } from './components/Connections';
 import { ConnectorsBar } from './components/ConnectorsBar';
 import { FeedTheBrain } from './components/FeedTheBrain';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
+import { JarvisCommand } from './components/JarvisCommand';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
+import type { JarvisVoiceState } from './hooks/useJarvisVoice';
 import './styles/tokens.css';
 import './styles/layout.css';
 import './styles/feed.css';
@@ -23,13 +26,13 @@ export default function App() {
   const [page, setPageState] = useState<Page>(pageFromHash);
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
-  const [lastFetched, setLastFetched] = useState<Date | null>(null);
+  const [voiceState, setVoiceState] = useState<JarvisVoiceState>('idle');
 
   const checkHealth = useCallback(async () => {
     try {
       const res = await brain.health();
       setBrainOnline(res.status === 'ok');
-      setLastFetched(new Date());
+      touchBrainLive();
     } catch {
       setBrainOnline(false);
     }
@@ -37,8 +40,16 @@ export default function App() {
 
   useEffect(() => {
     void checkHealth();
-    const interval = setInterval(() => void checkHealth(), 60_000);
+    const interval = setInterval(() => void checkHealth(), POLL_CONNECTORS_MS);
     return () => clearInterval(interval);
+  }, [checkHealth]);
+
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void checkHealth();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [checkHealth]);
 
   const setPage = useCallback((next: Page) => {
@@ -66,15 +77,15 @@ export default function App() {
 
   return (
     <div className="wrap">
-      <Header brainOnline={brainOnline} lastFetched={lastFetched} />
+      <Header brainOnline={brainOnline} />
       <Nav page={page} onChange={setPage} />
       {page === 'dashboard' && (
         <ConnectorsBar onOpenConnections={() => openConnections()} />
       )}
       {page === 'dashboard' ? (
         <>
-          <Hero />
-          <AskTheRoom />
+          <JarvisCommand onVoiceStateChange={setVoiceState} />
+          <CommandHeader voiceState={voiceState} />
           <ModuleGrid onConnect={openConnections} />
         </>
       ) : page === 'feed' ? (

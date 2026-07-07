@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { brain, formatSourceLabel } from '../api/brain';
+import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { SOURCE_TO_CONNECTOR } from '../utils/connectors';
 
@@ -58,7 +59,9 @@ interface ConnectionsProps {
 
 export function Connections({ focusSource }: ConnectionsProps) {
   const fetchStatus = useCallback(() => brain.connectorsStatus(), []);
-  const { data, loading, error } = useBrainQuery('connectors-page', fetchStatus);
+  const { data, loading, error } = useBrainQuery('connectors-page', fetchStatus, {
+    refreshMs: POLL_CONNECTORS_MS,
+  });
   const scrolled = useRef(false);
 
   useEffect(() => {

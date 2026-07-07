@@ -8,6 +8,8 @@ import {
   type TrainCounts,
   type VoiceTrainResult,
 } from '../api/brain';
+import { touchBrainLive } from '../hooks/brainLive';
+import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { csvRowsToDeals, parseCsv } from '../utils/csv';
 
 interface VoiceLineResult extends VoiceTrainResult {
@@ -54,6 +56,7 @@ export function FeedTheBrain() {
       ]);
       setCounts(c);
       setClickUpStatus(s);
+      touchBrainLive();
     } catch {
       /* Brain offline — cards still render */
     }
@@ -61,6 +64,15 @@ export function FeedTheBrain() {
 
   useEffect(() => {
     void refreshMemory();
+    const interval = setInterval(() => void refreshMemory(), POLL_CONNECTORS_MS);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void refreshMemory();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [refreshMemory]);
 
   const syncClickUp = async () => {

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { brain } from '../api/brain';
+import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import './ConnectorsBar.css';
 
@@ -9,7 +10,10 @@ interface ConnectorsBarProps {
 
 export function ConnectorsBar({ onOpenConnections }: ConnectorsBarProps) {
   const fetchStatus = useCallback(() => brain.connectorsStatus(), []);
-  const { data, loading } = useBrainQuery('connectors-status', fetchStatus);
+  const { data, loading } = useBrainQuery('connectors-status', fetchStatus, {
+    refreshMs: POLL_CONNECTORS_MS,
+    staggerMs: 200,
+  });
 
   const connected = data?.connected_count ?? 0;
   const total = data?.total ?? 7;

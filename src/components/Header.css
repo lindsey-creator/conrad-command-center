@@ -102,6 +102,15 @@
   letter-spacing: 0.04em;
 }
 
+.live-indicator {
+  display: inline-block;
+  line-height: 1.6;
+}
+
+.live-dot--pulse {
+  animation: status-pulse 2.4s ease-in-out infinite;
+}
+
 @media (max-width: 520px) {
   .top {
     padding: 8px 0 16px;
