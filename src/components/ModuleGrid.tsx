@@ -85,6 +85,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const fetchTeamPulse = useCallback(() => brain.teamPulse(), []);
   const fetchBrief = useCallback(() => brain.dailyBrief(), []);
   const fetchGhl = useCallback(() => brain.ghlCrm(), []);
+  const fetchAudio = useCallback(() => brain.audioRecent(12), []);
   const fetchHealth = useCallback(() => brain.healthMetrics(), []);
   const fetchWeek = useCallback(() => brain.weekAhead(), []);
   const fetchConnectors = useCallback(() => brain.connectorsStatus(), []);
@@ -112,6 +113,10 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const ghlCrm = useBrainQuery('ghl-crm', fetchGhl, {
     refreshMs: POLL_MODULE_MS,
     staggerMs: POLL_STAGGER_MS * 5,
+  });
+  const audioRecent = useBrainQuery('audio-recent', fetchAudio, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 5 + 200,
   });
   const healthMetrics = useBrainQuery('health-metrics', fetchHealth, {
     refreshMs: POLL_MODULE_MS,
@@ -252,6 +257,16 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               </div>
               {ghlCrm.data && !hasLiveData(ghlCrm.data) && (
                 <ConnectSource sources={[...STATIC_SOURCES.ghl]} onConnect={onConnect} />
+              )}
+              {ghlCrm.data?.leads && ghlCrm.data.leads.length > 0 && (
+                <div className="item-list ghl-leads-list">
+                  <div className="brief-kicker">
+                    Recent contacts ({ghlCrm.data.leads.length})
+                  </div>
+                  {ghlCrm.data.leads.map((lead, i) => (
+                    <LaneRow key={`lead-${i}`} item={lead} />
+                  ))}
+                </div>
               )}
             </LaneModule>
 
@@ -410,6 +425,42 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
           subtitle="Fieldy · Brief · Rhino Robot"
           badge={briefTodayCount > 0 ? briefTodayCount : null}
         >
+            <LaneModule
+              title="Fieldy · ClickUp Transcripts"
+              icon="🎙️"
+              pill={
+                audioRecent.data && hasLiveData(audioRecent.data)
+                  ? `${audioRecent.data.items?.length ?? 0} recent`
+                  : 'Audio'
+              }
+              pillVariant={
+                audioRecent.data && hasLiveData(audioRecent.data) ? 'go' : 'default'
+              }
+              loading={audioRecent.loading && !audioRecent.data}
+            >
+              {audioRecent.data && hasLiveData(audioRecent.data) ? (
+                <div className="item-list">
+                  {(audioRecent.data.items ?? []).length > 0 ? (
+                    (audioRecent.data.items ?? []).map((item, i) => (
+                      <LaneRow key={`audio-${i}`} item={item} />
+                    ))
+                  ) : (
+                    <p className="feed-hint">
+                      {(audioRecent.data as { note?: string }).note ??
+                        'No transcripts in the last 7 days.'}
+                    </p>
+                  )}
+                </div>
+              ) : audioRecent.data ? (
+                <ConnectSource
+                  sources={audioRecent.data.sources?.length ? audioRecent.data.sources : [...STATIC_SOURCES.teamFieldy]}
+                  onConnect={onConnect}
+                />
+              ) : (
+                <p>Meeting captures from Fieldy and Rhino Robot / ClickUp.</p>
+              )}
+            </LaneModule>
+
             <LaneModule
               title="Daily Fieldy Brief"
               icon="🎧"

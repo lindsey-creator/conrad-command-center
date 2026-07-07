@@ -301,6 +301,11 @@
 }
 
 @media (max-width: 720px) {
+  .echo-command--hero {
+    scroll-margin-top: 8px;
+    margin-bottom: 16px;
+  }
+
   .echo-command__hero {
     grid-template-columns: 1fr;
   }
@@ -327,6 +332,17 @@
   .echo-command__btn {
     flex: 1;
     min-height: 48px;
+  }
+
+  .echo-command__btn--primary {
+    flex: 1.4;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    min-height: 52px;
+  }
+
+  .echo-command__title {
+    font-size: clamp(36px, 10vw, 48px);
   }
 
   .echo-command__meta {

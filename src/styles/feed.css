@@ -459,6 +459,19 @@
   content: none;
 }
 
+.connection-location {
+  margin-top: 8px;
+  color: var(--gold-2);
+}
+
+.connection-location-note {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-left: 2px solid var(--ember);
+  background: rgba(232, 93, 4, 0.06);
+  font-size: 12px;
+}
+
 /* Status rings with animated sweep */
 .status-ring {
   position: relative;

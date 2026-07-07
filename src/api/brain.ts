@@ -163,7 +163,14 @@ export interface ChatResponse {
 export interface ConnectorsStatusResponse {
   connectors: Record<
     string,
-    { connected: boolean; env_vars: string[] }
+    {
+      connected: boolean;
+      env_vars: string[];
+      active_location_id?: string;
+      team_location_id?: string;
+      location_label?: string;
+      location_note?: string;
+    }
   >;
   connected_count: number;
   total: number;
@@ -176,6 +183,12 @@ export interface GhlCrmResponse {
   missed_calls?: number;
   unread_texts?: number;
   pipeline?: unknown[];
+  leads?: Array<{
+    title?: string;
+    detail?: string;
+    date?: string;
+    source?: string;
+  }>;
 }
 
 export interface ClickUpIngestResult {
@@ -261,6 +274,8 @@ export const brain = {
   chat: (req: ChatRequest) => postJson<ChatResponse>('/chat', req),
   connectorsStatus: () => fetchJson<ConnectorsStatusResponse>('/connectors/status'),
   ghlCrm: () => fetchJson<GhlCrmResponse>('/crm/ghl'),
+  audioRecent: (limit = 12) =>
+    fetchJson<ConnectSourceResponse>(`/audio/recent?limit=${limit}`),
   healthMetrics: () => fetchJson<HealthMetricsResponse>('/health/metrics'),
   weekAhead: () => fetchJson<ConnectSourceResponse>('/calendar/week'),
   trainCounts: () => fetchJson<TrainCounts>('/train/counts'),

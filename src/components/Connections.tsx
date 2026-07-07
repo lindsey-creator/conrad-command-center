@@ -116,6 +116,20 @@ export function Connections({ focusSource }: ConnectionsProps) {
                 </span>
               </div>
               {help && <p className="feed-hint">{help.where}</p>}
+              {info.connected && key === 'ghl' && info.location_label && (
+                <p className="feed-hint connection-location">
+                  Active location: <strong>{info.location_label}</strong>
+                  {info.active_location_id && (
+                    <>
+                      {' '}
+                      (<code>{info.active_location_id}</code>)
+                    </>
+                  )}
+                </p>
+              )}
+              {info.connected && key === 'ghl' && info.location_note && (
+                <p className="feed-hint connection-location-note">{info.location_note}</p>
+              )}
               <div className="env-vars">
                 {(help?.envVars ?? info.env_vars).map((v) => (
                   <code key={v} className="env-chip">
