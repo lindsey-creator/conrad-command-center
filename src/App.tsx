@@ -13,8 +13,14 @@ import './styles/tokens.css';
 import './styles/layout.css';
 import './styles/feed.css';
 
+function pageFromHash(): Page {
+  const id = window.location.hash.replace(/^#/, '').split('/')[0].toLowerCase();
+  if (id === 'feed' || id === 'connections') return id;
+  return 'dashboard';
+}
+
 export default function App() {
-  const [page, setPage] = useState<Page>('dashboard');
+  const [page, setPageState] = useState<Page>(pageFromHash);
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
@@ -35,10 +41,28 @@ export default function App() {
     return () => clearInterval(interval);
   }, [checkHealth]);
 
+  const setPage = useCallback((next: Page) => {
+    setPageState(next);
+    const hash = next === 'dashboard' ? '' : `#${next}`;
+    if (window.location.hash !== hash) {
+      window.history.replaceState(
+        null,
+        '',
+        `${window.location.pathname}${window.location.search}${hash}`,
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    const onHashChange = () => setPageState(pageFromHash());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
   const openConnections = useCallback((source?: string) => {
     if (source) setConnectFocus(resolveConnectorKey(source));
     setPage('connections');
-  }, []);
+  }, [setPage]);
 
   return (
     <div className="wrap">

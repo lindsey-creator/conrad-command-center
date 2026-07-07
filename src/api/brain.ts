@@ -185,6 +185,7 @@ export interface ClickUpIngestResult {
   duplicated?: number;
   records_fetched?: number;
   tasks_fetched?: number;
+  transcripts_fetched?: number;
   synced_at?: number;
   skipped?: boolean;
   reason?: string;

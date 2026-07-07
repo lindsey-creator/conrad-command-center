@@ -202,10 +202,12 @@ export function FeedTheBrain() {
       <section className="feed-section">
         <h3>ClickUp → Brain memory</h3>
         <p className="sub">
-          Pulls your whole ClickUp workspace — tasks, docs, comments — into the
-          Brain. Deal decisions route to <strong>decisions</strong>; playbooks to{' '}
-          <strong>knowledge</strong>; templates to <strong>voice</strong>. Re-syncs
-          automatically every 15 minutes when connected.
+          Pulls your whole ClickUp workspace — tasks, docs, comments, and meeting
+          transcripts (Plaud / Fieldy lists) — into the Brain. Deal decisions route
+          to <strong>decisions</strong>; playbooks to <strong>knowledge</strong>;
+          templates to <strong>voice</strong>; daily audio transcripts to{' '}
+          <strong>conversation_patterns</strong>. Re-syncs automatically every 15
+          minutes when connected.
         </p>
         {counts && (
           <p className="feed-hint">
@@ -235,7 +237,13 @@ export function FeedTheBrain() {
             <p>
               Ingested <strong>{clickUpResult.ingested ?? 0}</strong> items from{' '}
               <strong>{clickUpResult.records_fetched ?? '—'}</strong> records (
-              {clickUpResult.tasks_fetched ?? '—'} tasks).
+              {clickUpResult.tasks_fetched ?? '—'} tasks
+              {(clickUpResult.transcripts_fetched ?? 0) > 0 && (
+                <>
+                  , <strong>{clickUpResult.transcripts_fetched}</strong> transcripts
+                </>
+              )}
+              ).
             </p>
             {clickUpResult.by_collection && (
               <p className="feed-hint">

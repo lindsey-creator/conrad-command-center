@@ -101,8 +101,11 @@ export function Connections({ focusSource }: ConnectionsProps) {
             >
               <div className="connection-head">
                 <h3>{help?.label ?? formatSourceLabel([key])}</h3>
-                <span className={`pill${info.connected ? ' go' : ''}`}>
-                  {info.connected ? 'Live' : 'Not connected'}
+                <span
+                  className={`pill${info.connected ? ' go' : ''}`}
+                  aria-label={info.connected ? 'Connected' : 'Not connected'}
+                >
+                  {info.connected ? '✓ Live' : 'Not connected'}
                 </span>
               </div>
               {help && <p className="feed-hint">{help.where}</p>}

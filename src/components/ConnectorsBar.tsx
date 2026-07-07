@@ -28,6 +28,7 @@ export function ConnectorsBar({ onOpenConnections }: ConnectorsBarProps) {
               className={`connector-chip${info.connected ? ' on' : ''}`}
               title={info.env_vars.join(', ')}
             >
+              {info.connected ? '✓ ' : ''}
               {name.replace(/_/g, ' ')}
             </span>
           ))}

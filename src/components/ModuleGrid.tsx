@@ -15,8 +15,8 @@ const STATIC_SOURCES = {
   calendarProtection: ['google_calendar'],
   wellbeing: ['wellbeing_checkin'],
   issueTask: ['clickup'],
-  teamFieldy: ['fieldy'],
-  briefFieldy: ['fieldy'],
+  teamFieldy: ['fieldy', 'clickup'],
+  briefFieldy: ['fieldy', 'clickup'],
   briefCalendar: ['google_calendar'],
 } as const;
 
@@ -259,6 +259,32 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                   )}
                 </div>
               )}
+            {dailyBrief.data.yesterday &&
+              hasLiveData(dailyBrief.data.yesterday) && (
+                <div className="body item-list">
+                  <div className="brief-kicker">Audio / meeting recap</div>
+                  {(dailyBrief.data.yesterday.items ?? []).map((item, i) => (
+                    <div key={`y-${i}`} className="list-row">
+                      {itemLabel(item)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            {dailyBrief.data.today && hasLiveData(dailyBrief.data.today) && (
+              <div className="body item-list">
+                <div className="brief-kicker">Today&apos;s voice highlights</div>
+                {(dailyBrief.data.today.items ?? [])
+                  .filter((item) => {
+                    const row = item as { source?: string };
+                    return row.source === 'fieldy' || row.source === 'clickup';
+                  })
+                  .map((item, i) => (
+                    <div key={`t-${i}`} className="list-row">
+                      {itemLabel(item)}
+                    </div>
+                  ))}
+              </div>
+            )}
             {dailyBrief.data.watch_list &&
               hasLiveData(dailyBrief.data.watch_list) && (
                 <div className="body item-list">
@@ -300,7 +326,22 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
             {dailyBrief.data.commitments_i_made &&
               !hasLiveData(dailyBrief.data.commitments_i_made) && (
                 <ConnectSource
-                  sources={dailyBrief.data.commitments_i_made.sources}
+                  sources={
+                    dailyBrief.data.commitments_i_made.sources?.length
+                      ? dailyBrief.data.commitments_i_made.sources
+                      : [...STATIC_SOURCES.briefFieldy]
+                  }
+                  onConnect={onConnect}
+                />
+              )}
+            {dailyBrief.data.yesterday &&
+              !hasLiveData(dailyBrief.data.yesterday) && (
+                <ConnectSource
+                  sources={
+                    dailyBrief.data.yesterday.sources?.length
+                      ? dailyBrief.data.yesterday.sources
+                      : [...STATIC_SOURCES.briefFieldy]
+                  }
                   onConnect={onConnect}
                 />
               )}
