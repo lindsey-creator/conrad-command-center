@@ -488,7 +488,7 @@ index 0000000..fb0179f
 +    assert w["status"] == "connect_source"
 +    assert w["sources"] == ["weather"]
 diff --git a/tests/test_cockpit_read.py b/tests/test_cockpit_read.py
-index 2972457..53f0da1 100644
+index 2972457..27bcf98 100644
 --- a/tests/test_cockpit_read.py
 +++ b/tests/test_cockpit_read.py
 @@ -118,6 +118,10 @@ def test_cockpit_http_endpoints_return_200(kb, no_connectors, monkeypatch):
@@ -502,6 +502,13 @@ index 2972457..53f0da1 100644
      ]
      for path in paths:
          resp = client.get(path)
+@@ -125,4 +129,6 @@ def test_cockpit_http_endpoints_return_200(kb, no_connectors, monkeypatch):
+         body = resp.json()
+         if "connectors" in body:
+             continue
++        if "items" in body and "status" not in body:
++            continue
+         assert body.get("status") in ("connect_source", "partial", "ok")
 diff --git a/tests/test_connectors.py b/tests/test_connectors.py
 index f03d0a3..3886981 100644
 --- a/tests/test_connectors.py
