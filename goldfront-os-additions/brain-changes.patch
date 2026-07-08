@@ -1,0 +1,517 @@
+diff --git a/brain/approvals/__init__.py b/brain/approvals/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/brain/approvals/queue.py b/brain/approvals/queue.py
+new file mode 100644
+index 0000000..b3b9762
+--- /dev/null
++++ b/brain/approvals/queue.py
+@@ -0,0 +1,93 @@
++"""In-memory approval queue — human gate before tasks or drafts leave (master spec §3.3)."""
++
++from __future__ import annotations
++
++import uuid
++from datetime import datetime, timezone
++from threading import Lock
++
++from brain.connectors import clickup
++
++_store: dict[str, dict] = {}
++_lock = Lock()
++
++
++def _now() -> str:
++    return datetime.now(timezone.utc).isoformat()
++
++
++def enqueue(kind: str, content: str, meta: dict | None = None) -> str:
++    aid = str(uuid.uuid4())
++    with _lock:
++        _store[aid] = {
++            "id": aid,
++            "kind": kind,
++            "content": content,
++            "meta": meta or {},
++            "status": "pending",
++            "created_at": _now(),
++        }
++    return aid
++
++
++def get(aid: str) -> dict | None:
++    with _lock:
++        item = _store.get(aid)
++        return dict(item) if item else None
++
++
++def pending() -> list[dict]:
++    with _lock:
++        return [dict(v) for v in _store.values() if v["status"] == "pending"]
++
++
++def approve(aid: str, content: str | None = None) -> dict:
++    with _lock:
++        item = _store.get(aid)
++        if not item:
++            return {"status": "error", "error": "Approval not found"}
++        if item["status"] != "pending":
++            return {"status": "error", "error": f"Already {item['status']}"}
++
++        text = (content or item["content"] or "").strip()
++        if item["kind"] == "task":
++            if not clickup.configured():
++                return {"status": "connect_source", "sources": ["clickup"]}
++            try:
++                created = clickup.create_task(
++                    text,
++                    assignee_hint=item["meta"].get("assignee_hint"),
++                )
++            except Exception as e:
++                return {"status": "error", "error": str(e)}
++            item["status"] = "approved"
++            item["resolved_at"] = _now()
++            return {
++                "status": "ok",
++                "kind": "task",
++                "task_id": created.get("id"),
++                "url": created.get("url"),
++                "note": "Created in ClickUp.",
++            }
++
++        item["content"] = text
++        item["status"] = "approved"
++        item["resolved_at"] = _now()
++        return {
++            "status": "ok",
++            "kind": "draft",
++            "content": text,
++            "note": "Draft approved — nothing sends automatically.",
++        }
++
++
++def deny(aid: str) -> dict:
++    with _lock:
++        item = _store.get(aid)
++        if not item:
++            return {"status": "error", "error": "Approval not found"}
++        if item["status"] != "pending":
++            return {"status": "error", "error": f"Already {item['status']}"}
++        item["status"] = "denied"
++        item["resolved_at"] = _now()
++        return {"status": "ok", "kind": item["kind"]}
+diff --git a/brain/cockpit/read.py b/brain/cockpit/read.py
+index b037883..3607f93 100644
+--- a/brain/cockpit/read.py
++++ b/brain/cockpit/read.py
+@@ -9,7 +9,7 @@ from __future__ import annotations
+ 
+ from datetime import date, timedelta
+ 
+-from brain.connectors import apple_health, clickup, fieldy, gcal, ghl, gmail, whoop
++from brain.connectors import apple_health, clickup, fieldy, gcal, ghl, gmail, meta, whoop, weather
+ from brain.connectors.base import ConnectorNotConfigured, section_needs, section_ok
+ from brain.connectors.clickup_sync import maybe_sync
+ from brain.memory.knowledge_base import KnowledgeBase
+@@ -650,6 +650,32 @@ class CockpitRead:
+             }
+         return _needs("fieldy")
+ 
++    def meta_ads(self) -> dict:
++        if not meta.configured():
++            return _needs("meta")
++        try:
++            data = meta.fetch_ads_summary()
++            return {
++                "status": "ok",
++                "sources": ["meta"],
++                **data,
++            }
++        except Exception:
++            return _needs("meta")
++
++    def weather(self) -> dict:
++        if not weather.configured():
++            return _needs("weather")
++        try:
++            data = weather.fetch_cleveland()
++            return {
++                "status": "ok",
++                "sources": ["weather"],
++                **data,
++            }
++        except Exception:
++            return _needs("weather")
++
+     def counts(self) -> dict:
+         return {
+             "voice": self.kb.count("voice"),
+diff --git a/brain/connectors/clickup.py b/brain/connectors/clickup.py
+index 1160fb8..2dc43f6 100644
+--- a/brain/connectors/clickup.py
++++ b/brain/connectors/clickup.py
+@@ -56,6 +56,58 @@ def _get(path: str, params: dict | None = None) -> Any:
+     return resp.json()
+ 
+ 
++def _post(path: str, body: dict) -> Any:
++    url = f"{API_BASE}{path}"
++    resp = httpx.post(url, headers=_headers(), json=body, timeout=60.0)
++    resp.raise_for_status()
++    return resp.json()
++
++
++def _default_list_id() -> str:
++    import os
++
++    explicit = os.getenv("CLICKUP_DEFAULT_LIST_ID", "").strip()
++    if explicit:
++        return explicit
++    team = _team_id()
++    spaces = _get(f"/team/{team}/space", {"archived": "false"})
++    for space in spaces.get("spaces", []):
++        for folder in space.get("folders", []) or []:
++            for lst in folder.get("lists", []) or []:
++                if lst.get("id"):
++                    return str(lst["id"])
++        for lst in space.get("lists", []) or []:
++            if lst.get("id"):
++                return str(lst["id"])
++    raise ConnectorNotConfigured(
++        CONNECTOR,
++        [*ENV_VARS, "CLICKUP_DEFAULT_LIST_ID"],
++    )
++
++
++def create_task(text: str, assignee_hint: str | None = None) -> dict:
++    """Create a ClickUp task — only called after human approval."""
++    if not configured():
++        raise ConnectorNotConfigured(CONNECTOR, ENV_VARS)
++    list_id = _default_list_id()
++    lines = text.strip().split("\n", 1)
++    name = lines[0][:250] or "Task from Command Center"
++    description = lines[1] if len(lines) > 1 else text
++    if assignee_hint:
++        description = f"Route to: {assignee_hint}\n\n{description}".strip()
++    payload = {
++        "name": name,
++        "description": description,
++        "tags": ["echo-command"],
++    }
++    created = _post(f"/list/{list_id}/task", payload)
++    return {
++        "id": created.get("id"),
++        "url": created.get("url"),
++        "name": created.get("name"),
++    }
++
++
+ def _task_context(task: dict) -> dict[str, str]:
+     lst = task.get("list") or {}
+     folder = task.get("folder") or {}
+diff --git a/brain/connectors/meta.py b/brain/connectors/meta.py
+new file mode 100644
+index 0000000..6836121
+--- /dev/null
++++ b/brain/connectors/meta.py
+@@ -0,0 +1,64 @@
++"""Meta Ads read-only connector (spend, leads, CPL)."""
++
++from __future__ import annotations
++
++import os
++from datetime import date, timedelta
++
++import httpx
++
++from brain.connectors.base import ConnectorNotConfigured, env_required, is_configured
++
++API_BASE = "https://graph.facebook.com/v21.0"
++CONNECTOR = "meta"
++ENV_VARS = ["META_ACCESS_TOKEN", "META_AD_ACCOUNT_ID"]
++
++
++def configured() -> bool:
++    return is_configured(*ENV_VARS)
++
++
++def _token() -> str:
++    return env_required("META_ACCESS_TOKEN", CONNECTOR)
++
++
++def _account_id() -> str:
++    raw = env_required("META_AD_ACCOUNT_ID", CONNECTOR)
++    return raw if raw.startswith("act_") else f"act_{raw}"
++
++
++def fetch_ads_summary() -> dict:
++    """Daily spend, leads, cost per lead from Meta Marketing API."""
++    if not configured():
++        raise ConnectorNotConfigured(CONNECTOR, ENV_VARS)
++
++    since = (date.today() - timedelta(days=1)).isoformat()
++    until = date.today().isoformat()
++    params = {
++        "access_token": _token(),
++        "fields": "spend,impressions,clicks,actions,cost_per_action_type",
++        "time_range": f'{{"since":"{since}","until":"{until}"}}',
++        "level": "account",
++    }
++    resp = httpx.get(
++        f"{API_BASE}/{_account_id()}/insights",
++        params=params,
++        timeout=30.0,
++    )
++    resp.raise_for_status()
++    rows = resp.json().get("data", [])
++    if not rows:
++        return {"daily_spend": 0, "leads": 0, "cost_per_lead": None}
++
++    row = rows[0]
++    spend = float(row.get("spend") or 0)
++    leads = 0
++    for action in row.get("actions") or []:
++        if action.get("action_type") in ("lead", "onsite_conversion.lead_grouped"):
++            leads += int(float(action.get("value") or 0))
++    cpl = round(spend / leads, 2) if leads > 0 else None
++    return {
++        "daily_spend": round(spend, 2),
++        "leads": leads,
++        "cost_per_lead": cpl,
++    }
+diff --git a/brain/connectors/status.py b/brain/connectors/status.py
+index bd378ab..99cb9c3 100644
+--- a/brain/connectors/status.py
++++ b/brain/connectors/status.py
+@@ -4,7 +4,7 @@ from __future__ import annotations
+ 
+ import os
+ 
+-from brain.connectors import apple_health, clickup, fieldy, gcal, ghl, gmail, whoop
++from brain.connectors import apple_health, clickup, fieldy, gcal, ghl, gmail, meta, whoop, weather, weather
+ 
+ GHL_TEAM_LOCATION_ID = "FFdZCVGXSQQThtHZEOYx"
+ 
+@@ -18,6 +18,8 @@ def connectors_status() -> dict:
+         ("ghl", ghl.ENV_VARS, ghl.configured()),
+         ("whoop", whoop.ENV_VARS, whoop.configured()),
+         ("apple_health", apple_health.ENV_VARS, apple_health.configured()),
++        ("meta", meta.ENV_VARS, meta.configured()),
++        ("weather", weather.ENV_VARS, weather.configured()),
+     ]
+     connectors = {}
+     for name, env_vars, connected in entries:
+diff --git a/brain/connectors/weather.py b/brain/connectors/weather.py
+new file mode 100644
+index 0000000..598e873
+--- /dev/null
++++ b/brain/connectors/weather.py
+@@ -0,0 +1,42 @@
++"""Weather display for Cleveland (read-only)."""
++
++from __future__ import annotations
++
++import httpx
++
++from brain.connectors.base import ConnectorNotConfigured, env_required, is_configured
++
++CONNECTOR = "weather"
++ENV_VARS = ["WEATHER_API_KEY"]
++CLEVELAND_LAT = 41.4993
++CLEVELAND_LON = -81.6944
++
++
++def configured() -> bool:
++    return is_configured(*ENV_VARS)
++
++
++def fetch_cleveland() -> dict:
++    if not configured():
++        raise ConnectorNotConfigured(CONNECTOR, ENV_VARS)
++
++    key = env_required("WEATHER_API_KEY", CONNECTOR)
++    resp = httpx.get(
++        "https://api.openweathermap.org/data/2.5/weather",
++        params={
++            "lat": CLEVELAND_LAT,
++            "lon": CLEVELAND_LON,
++            "appid": key,
++            "units": "imperial",
++        },
++        timeout=20.0,
++    )
++    resp.raise_for_status()
++    data = resp.json()
++    main = data.get("main", {})
++    weather = (data.get("weather") or [{}])[0]
++    return {
++        "temp_f": round(main.get("temp", 0)),
++        "conditions": weather.get("description", "").title(),
++        "location": "Cleveland, OH",
++    }
+diff --git a/brain/main.py b/brain/main.py
+index 84d50c8..3d026f1 100644
+--- a/brain/main.py
++++ b/brain/main.py
+@@ -26,6 +26,7 @@ from fastapi.staticfiles import StaticFiles
+ from pydantic import BaseModel
+ 
+ from brain.agent import reasoning
++from brain.approvals import queue as approval_queue
+ from brain.cockpit.read import CockpitRead
+ from brain.connectors import clickup, fieldy
+ from brain.connectors.clickup_sync import last_sync_result, maybe_sync
+@@ -165,6 +166,61 @@ def audio_recent(limit: int = 12):
+     return _cockpit.audio_recent(limit=limit)
+ 
+ 
++@app.get("/ads/meta")
++def ads_meta():
++    return _cockpit.meta_ads()
++
++
++@app.get("/weather")
++def weather_cleveland():
++    return _cockpit.weather()
++
++
++class TaskRequest(BaseModel):
++    text: str
++    assignee_hint: str | None = None
++    source: str | None = None
++
++
++@app.post("/tasks")
++def issue_task(req: TaskRequest):
++    """Issue a task — queued for human approval before ClickUp (§3.3)."""
++    if not clickup.configured():
++        return {"status": "connect_source", "sources": ["clickup"]}
++    aid = approval_queue.enqueue(
++        "task",
++        req.text.strip(),
++        {"assignee_hint": req.assignee_hint, "source": req.source},
++    )
++    return {
++        "status": "pending_approval",
++        "approval_id": aid,
++        "requires_approval": True,
++        "routed_to": req.assignee_hint,
++        "note": "Approve from the Command Center to create in ClickUp.",
++    }
++
++
++class ApprovalAction(BaseModel):
++    text: str | None = None
++
++
++@app.get("/approvals/pending")
++def approvals_pending():
++    return {"items": approval_queue.pending()}
++
++
++@app.post("/approvals/{approval_id}/approve")
++def approvals_approve(approval_id: str, body: ApprovalAction | None = None):
++    text = body.text if body else None
++    return approval_queue.approve(approval_id, content=text)
++
++
++@app.post("/approvals/{approval_id}/deny")
++def approvals_deny(approval_id: str):
++    return approval_queue.deny(approval_id)
++
++
+ @app.get("/ingest/clickup/status")
+ def ingest_clickup_status():
+     return last_sync_result()
+@@ -202,9 +258,15 @@ def chat(req: ChatRequest):
+     engine = None
+     if req.deal is not None:
+         engine = evaluate_deal(DealInputs(**req.deal.model_dump()))
+-    return reasoning.answer(
++    result = reasoning.answer(
+         req.message, kb=KnowledgeBase(), engine=engine, wants_draft=req.wants_draft
+     )
++    draft = result.get("draft")
++    if draft:
++        aid = approval_queue.enqueue("draft", draft, {"message": req.message})
++        result["approval_id"] = aid
++        result["requires_approval"] = True
++    return result
+ 
+ 
+ # -- Command Center UI (production: single-port web app) --------------------
+diff --git a/tests/test_approvals.py b/tests/test_approvals.py
+new file mode 100644
+index 0000000..fb0179f
+--- /dev/null
++++ b/tests/test_approvals.py
+@@ -0,0 +1,41 @@
++"""Approval queue tests."""
++
++from brain.approvals import queue as approval_queue
++
++
++def test_enqueue_approve_deny(monkeypatch):
++    monkeypatch.setenv("CLICKUP_API_TOKEN", "")
++    monkeypatch.setenv("CLICKUP_WORKSPACE_ID", "")
++
++    aid = approval_queue.enqueue("draft", "Hello team", {"message": "test"})
++    assert aid
++    pending = approval_queue.pending()
++    assert any(p["id"] == aid for p in pending)
++
++    out = approval_queue.approve(aid, "Hello team — edited")
++    assert out["status"] == "ok"
++    assert out["kind"] == "draft"
++
++    aid2 = approval_queue.enqueue("draft", "Second")
++    denied = approval_queue.deny(aid2)
++    assert denied["status"] == "ok"
++    assert approval_queue.get(aid2)["status"] == "denied"
++
++
++def test_meta_weather_connect_source(monkeypatch):
++    from brain.cockpit.read import CockpitRead
++
++    for key in (
++        "META_ACCESS_TOKEN",
++        "META_AD_ACCOUNT_ID",
++        "WEATHER_API_KEY",
++    ):
++        monkeypatch.delenv(key, raising=False)
++
++    c = CockpitRead()
++    m = c.meta_ads()
++    assert m["status"] == "connect_source"
++    assert m["sources"] == ["meta"]
++    w = c.weather()
++    assert w["status"] == "connect_source"
++    assert w["sources"] == ["weather"]
+diff --git a/tests/test_cockpit_read.py b/tests/test_cockpit_read.py
+index 2972457..53f0da1 100644
+--- a/tests/test_cockpit_read.py
++++ b/tests/test_cockpit_read.py
+@@ -118,6 +118,10 @@ def test_cockpit_http_endpoints_return_200(kb, no_connectors, monkeypatch):
+         "/health/metrics",
+         "/crm/ghl",
+         "/calendar/week",
++        "/ads/meta",
++        "/weather",
++        "/audio/recent",
++        "/approvals/pending",
+     ]
+     for path in paths:
+         resp = client.get(path)
+diff --git a/tests/test_connectors.py b/tests/test_connectors.py
+index f03d0a3..3886981 100644
+--- a/tests/test_connectors.py
++++ b/tests/test_connectors.py
+@@ -34,7 +34,7 @@ def clear_connector_env(monkeypatch):
+ def test_connectors_status_all_disconnected():
+     s = connectors_status()
+     assert s["connected_count"] == 0
+-    assert s["total"] == 7
++    assert s["total"] == 9
+     assert s["connectors"]["clickup"]["connected"] is False
+     assert "CLICKUP_API_TOKEN" in s["connectors"]["clickup"]["env_vars"]
+     # Never expose secret values

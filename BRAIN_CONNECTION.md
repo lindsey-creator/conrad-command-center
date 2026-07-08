@@ -21,6 +21,10 @@ Set the UI's API base to that URL (e.g. `VITE_BRAIN_API=http://127.0.0.1:8000`).
 - `GET  /ads/meta` — Meta Ads spend, leads, CPL (connect_source until wired)
 - `GET  /weather` — Cleveland conditions (connect_source until wired)
 - `POST /tasks` — issue a task → routed into ClickUp (human gate when configured)
+- `GET  /approvals/pending` — drafts and tasks awaiting your approval
+- `POST /approvals/{id}/approve` — approve edited draft or create ClickUp task
+- `POST /approvals/{id}/deny` — discard pending item
+- `POST /chat` drafts return `approval_id` when routed to the Approval Queue
 
 ## Endpoints Fable should add (thin wrappers over the Brain, no new math)
 - `GET /brief/daily` — the morning brief (Fieldy + calendar + pipeline)

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
+import { ApprovalQueuePanel } from './ApprovalQueuePanel';
 
 export function AskTheRoom() {
   const [message, setMessage] = useState('');
@@ -16,6 +17,7 @@ export function AskTheRoom() {
   const [response, setResponse] = useState<ChatResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
+  const [approvalId, setApprovalId] = useState<string | null>(null);
 
   const handleAsk = async () => {
     if (!message.trim()) return;
@@ -23,6 +25,7 @@ export function AskTheRoom() {
     setError(null);
     setResponse(null);
     setDraftEdit(null);
+    setApprovalId(null);
     try {
       const hasDeal =
         showDeal &&
@@ -34,6 +37,7 @@ export function AskTheRoom() {
       });
       setResponse(res);
       if (res.draft) setDraftEdit(res.draft);
+      if (res.approval_id) setApprovalId(res.approval_id);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Request failed');
     } finally {
@@ -165,29 +169,16 @@ export function AskTheRoom() {
             <div className="ask-answer">{response.answer}</div>
           )}
           {(response.draft || draftEdit) && (
-            <div className="approval-queue">
-              <h4>Approval Queue</h4>
-              <textarea
-                className="feed-textarea"
-                style={{ minHeight: 100 }}
-                value={draftEdit ?? response.draft ?? ''}
-                onChange={(e) => setDraftEdit(e.target.value)}
-              />
-              <div className="approval-btns">
-                <button type="button" className="approve" disabled title="Coming soon">
-                  Approve
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDraftEdit(response.draft ?? '')}
-                >
-                  Reset edit
-                </button>
-                <button type="button" className="deny" disabled title="Coming soon">
-                  Deny
-                </button>
-              </div>
-            </div>
+            <ApprovalQueuePanel
+              approvalId={approvalId}
+              draft={draftEdit ?? response.draft ?? ''}
+              originalDraft={response.draft ?? ''}
+              onDraftChange={setDraftEdit}
+              onResolved={() => {
+                setApprovalId(null);
+                setDraftEdit(null);
+              }}
+            />
           )}
         </>
       )}

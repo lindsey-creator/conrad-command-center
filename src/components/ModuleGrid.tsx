@@ -156,7 +156,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const watchTotal = watchCount + overdueCount;
 
   const connected = connectors.data?.connected_count ?? 0;
-  const total = connectors.data?.total ?? 7;
+  const total = connectors.data?.total ?? 9;
 
   const topMoveDollars = topMoves.data?.moves?.[0]?.dollars ?? '—';
 

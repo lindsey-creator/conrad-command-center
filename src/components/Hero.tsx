@@ -23,7 +23,7 @@ export function Hero() {
   });
 
   const connected = data?.connected_count ?? 0;
-  const total = data?.total ?? 7;
+  const total = data?.total ?? 9;
   const allLive = connected > 0 && connected === total;
   const readiness = allLive ? 'OPTIMAL' : connected > 0 ? 'PARTIAL' : 'STANDBY';
 

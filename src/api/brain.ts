@@ -154,6 +154,7 @@ export interface ChatResponse {
   engine?: Record<string, unknown> | null;
   draft?: string | null;
   requires_approval?: boolean;
+  approval_id?: string;
   mode?: string;
   note?: string;
   error?: string;
@@ -254,11 +255,36 @@ export interface IssueTaskRequest {
 export interface IssueTaskResponse {
   status: string;
   sources?: string[];
+  approval_id?: string;
   task_id?: string;
   routed_to?: string;
   requires_approval?: boolean;
   note?: string;
   error?: string;
+}
+
+export interface ApprovalItem {
+  id: string;
+  kind: 'draft' | 'task';
+  content: string;
+  status: string;
+  created_at: string;
+  meta?: Record<string, unknown>;
+}
+
+export interface ApprovalsPendingResponse {
+  items: ApprovalItem[];
+}
+
+export interface ApprovalActionResponse {
+  status: string;
+  kind?: string;
+  task_id?: string;
+  url?: string;
+  content?: string;
+  note?: string;
+  error?: string;
+  sources?: string[];
 }
 
 async function fetchJson<T>(path: string): Promise<T> {
@@ -315,6 +341,11 @@ export const brain = {
   metaAds: () => fetchJson<MetaAdsResponse>('/ads/meta'),
   weather: () => fetchJson<WeatherResponse>('/weather'),
   issueTask: (req: IssueTaskRequest) => postJson<IssueTaskResponse>('/tasks', req),
+  pendingApprovals: () => fetchJson<ApprovalsPendingResponse>('/approvals/pending'),
+  approveApproval: (id: string, text?: string) =>
+    postJson<ApprovalActionResponse>(`/approvals/${id}/approve`, { text }),
+  denyApproval: (id: string) =>
+    postJson<ApprovalActionResponse>(`/approvals/${id}/deny`, {}),
   trainCounts: () => fetchJson<TrainCounts>('/train/counts'),
   clickUpSyncStatus: () => fetchJson<ClickUpSyncStatus>('/ingest/clickup/status'),
   syncClickUp: () => postJson<ClickUpIngestResult>('/ingest/clickup', {}),

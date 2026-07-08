@@ -16,7 +16,7 @@ export function ConnectorsBar({ onOpenConnections }: ConnectorsBarProps) {
   });
 
   const connected = data?.connected_count ?? 0;
-  const total = data?.total ?? 7;
+  const total = data?.total ?? 9;
 
   return (
     <div className="connectors-bar hud-corners">

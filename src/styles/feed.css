@@ -597,3 +597,13 @@
 .issue-task--compact .feed-textarea {
   min-height: 56px;
 }
+
+.pending-approvals {
+  margin-bottom: 16px;
+}
+
+.pending-approval-item + .pending-approval-item {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}

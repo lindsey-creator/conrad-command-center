@@ -11,6 +11,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
+import { PendingApprovals } from './components/PendingApprovals';
 import type { EchoVoiceState } from './hooks/useEchoVoice';
 import './styles/tokens.css';
 import './styles/layout.css';
@@ -85,6 +86,7 @@ export default function App() {
       {page === 'dashboard' ? (
         <div className="command-deck__main">
           <EchoCommand onVoiceStateChange={setVoiceState} />
+          <PendingApprovals />
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <ModuleGrid onConnect={openConnections} />
         </div>

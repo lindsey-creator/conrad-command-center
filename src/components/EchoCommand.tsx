@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
+import { ApprovalQueuePanel } from './ApprovalQueuePanel';
 import { RhinoCore } from './RhinoCore';
 import './echo-command.css';
 
@@ -24,8 +25,11 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<ChatResponse | null>(null);
   const [taskResult, setTaskResult] = useState<string | null>(null);
+  const [taskApprovalId, setTaskApprovalId] = useState<string | null>(null);
+  const [taskDraft, setTaskDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
+  const [approvalId, setApprovalId] = useState<string | null>(null);
 
   const handleTranscript = useCallback((text: string) => {
     setMessage(text);
@@ -54,7 +58,10 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
     setError(null);
     setResponse(null);
     setTaskResult(null);
+    setTaskApprovalId(null);
+    setTaskDraft('');
     setDraftEdit(null);
+    setApprovalId(null);
     stopSpeaking();
 
     try {
@@ -72,6 +79,14 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
         if (taskRes.error) {
           setError(taskRes.error);
           speak(taskRes.error);
+          return;
+        }
+        if (taskRes.approval_id) {
+          setTaskApprovalId(taskRes.approval_id);
+          setTaskDraft(query);
+          const summary = 'Task queued — approve below to create in ClickUp.';
+          setTaskResult(summary);
+          speak(summary);
           return;
         }
         const summary = taskRes.requires_approval
@@ -92,6 +107,7 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
       });
       setResponse(res);
       if (res.draft) setDraftEdit(res.draft);
+      if (res.approval_id) setApprovalId(res.approval_id);
 
       const spoken =
         res.answer ??
@@ -295,7 +311,22 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
       {(error || response || taskResult) && (
         <div className="echo-command__panel echo-command__panel--slide">
           {error && <div className="feed-result diverged">{error}</div>}
-          {taskResult && <div className="echo-command__response">{taskResult}</div>}
+          {taskResult && !taskApprovalId && (
+            <div className="echo-command__response">{taskResult}</div>
+          )}
+          {taskApprovalId && (
+            <ApprovalQueuePanel
+              approvalId={taskApprovalId}
+              draft={taskDraft}
+              originalDraft={taskDraft}
+              onDraftChange={setTaskDraft}
+              onResolved={() => {
+                setTaskApprovalId(null);
+                setTaskDraft('');
+                setTaskResult(null);
+              }}
+            />
+          )}
           {response && (
             <>
               {response.note && (
@@ -313,29 +344,16 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
                 <div className="echo-command__response">{response.answer}</div>
               )}
               {(response.draft || draftEdit) && (
-                <div className="approval-queue" style={{ marginTop: 12 }}>
-                  <h4>Approval Queue</h4>
-                  <textarea
-                    className="feed-textarea"
-                    style={{ minHeight: 100 }}
-                    value={draftEdit ?? response.draft ?? ''}
-                    onChange={(e) => setDraftEdit(e.target.value)}
-                  />
-                  <div className="approval-btns">
-                    <button type="button" className="approve" disabled title="Coming soon">
-                      Approve
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDraftEdit(response.draft ?? '')}
-                    >
-                      Reset edit
-                    </button>
-                    <button type="button" className="deny" disabled title="Coming soon">
-                      Deny
-                    </button>
-                  </div>
-                </div>
+                <ApprovalQueuePanel
+                  approvalId={approvalId}
+                  draft={draftEdit ?? response.draft ?? ''}
+                  originalDraft={response.draft ?? ''}
+                  onDraftChange={setDraftEdit}
+                  onResolved={() => {
+                    setApprovalId(null);
+                    setDraftEdit(null);
+                  }}
+                />
               )}
             </>
           )}

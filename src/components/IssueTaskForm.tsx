@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { brain, type IssueTaskResponse } from '../api/brain';
+import { ApprovalQueuePanel } from './ApprovalQueuePanel';
 import { ConnectSource } from './ConnectSource';
 
 interface IssueTaskFormProps {
@@ -19,6 +20,7 @@ export function IssueTaskForm({ sources = ['clickup'], onConnect, compact }: Iss
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<IssueTaskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [taskDraft, setTaskDraft] = useState('');
 
   const handleSubmit = async () => {
     const trimmed = text.trim();
@@ -36,8 +38,12 @@ export function IssueTaskForm({ sources = ['clickup'], onConnect, compact }: Iss
       });
       setResult(res);
       if (res.status !== 'connect_source' && !res.error) {
-        setText('');
-        setAssigneeHint('');
+        if (res.approval_id) {
+          setTaskDraft(trimmed);
+        } else {
+          setText('');
+          setAssigneeHint('');
+        }
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Task routing failed');
@@ -83,7 +89,21 @@ export function IssueTaskForm({ sources = ['clickup'], onConnect, compact }: Iss
         </button>
       </div>
       {error && <p className="feed-error">{error}</p>}
-      {result && !needsConnect && !result.error && (
+      {result && !needsConnect && !result.error && result.approval_id && (
+        <ApprovalQueuePanel
+          approvalId={result.approval_id}
+          draft={taskDraft}
+          originalDraft={taskDraft}
+          onDraftChange={setTaskDraft}
+          onResolved={() => {
+            setResult(null);
+            setText('');
+            setAssigneeHint('');
+            setTaskDraft('');
+          }}
+        />
+      )}
+      {result && !needsConnect && !result.error && !result.approval_id && (
         <div className="feed-result">
           {result.requires_approval
             ? 'Queued for your approval before it lands in ClickUp.'
