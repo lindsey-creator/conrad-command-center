@@ -1,0 +1,193 @@
+.live-core {
+  --core-size: 56px;
+  position: relative;
+  width: var(--core-size);
+  height: var(--core-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.live-core--sm {
+  --core-size: 36px;
+}
+
+.live-core--lg {
+  --core-size: 72px;
+}
+
+.live-core--hero {
+  --core-size: 128px;
+}
+
+.live-core__field {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+}
+
+.live-core__particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--cyan);
+  opacity: 0;
+  top: 50%;
+  left: 50%;
+  transform: rotate(calc(var(--i) * 36deg)) translateY(calc(var(--core-size) * -0.55));
+  animation: core-orbit 8s linear infinite;
+  animation-delay: calc(var(--i) * -0.7s);
+}
+
+.live-core--particles .live-core__particle {
+  opacity: 0.5;
+}
+
+.live-core__ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  animation: core-spin 24s linear infinite;
+}
+
+.live-core__ring--outer {
+  inset: 0;
+  border-color: rgba(0, 212, 255, 0.18);
+}
+
+.live-core__ring--mid {
+  inset: 14%;
+  animation-direction: reverse;
+  animation-duration: 16s;
+  border-color: rgba(78, 205, 196, 0.3);
+}
+
+.live-core__ring--inner {
+  inset: 28%;
+  animation-duration: 10s;
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+.live-core__core {
+  position: absolute;
+  inset: 38%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, var(--cyan-2), var(--cyan) 55%, rgba(0, 100, 140, 0.6));
+  box-shadow:
+    0 0 20px var(--cyan-glow),
+    inset 0 0 12px rgba(255, 255, 255, 0.15);
+  animation: core-breathe 3s ease-in-out infinite;
+}
+
+.live-core__pulse {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 1px solid var(--cyan);
+  opacity: 0;
+  animation: core-pulse-ring 2.8s ease-out infinite;
+}
+
+.live-core__dot {
+  position: absolute;
+  bottom: 6%;
+  right: 6%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faint);
+  border: 2px solid var(--bg);
+  z-index: 2;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.live-core--online .live-core__dot {
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
+  animation: core-dot-breathe 2.4s ease-in-out infinite;
+}
+
+.live-core__label {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--cyan);
+  white-space: nowrap;
+  text-shadow: 0 0 12px var(--cyan-glow);
+  animation: echo-breathe 3s ease-in-out infinite;
+}
+
+.live-core--listening .live-core__core {
+  background: radial-gradient(circle at 40% 35%, #5eead4, var(--cyan) 50%, rgba(0, 120, 160, 0.7));
+  animation: core-breathe 1.2s ease-in-out infinite;
+}
+
+.live-core--listening .live-core__ring--inner {
+  border-color: var(--cyan-2);
+  box-shadow: 0 0 16px var(--cyan-glow);
+}
+
+.live-core--speaking .live-core__core {
+  background: radial-gradient(circle at 40% 35%, var(--gold-2), var(--gold) 55%, rgba(160, 130, 40, 0.5));
+  box-shadow: 0 0 24px var(--gold-glow);
+  animation: core-breathe 0.9s ease-in-out infinite;
+}
+
+.live-core--thinking .live-core__ring--outer,
+.live-core--thinking .live-core__ring--mid {
+  animation-duration: 4s;
+  opacity: 0.7;
+}
+
+.live-core--thinking .live-core__core {
+  opacity: 0.65;
+  animation: core-breathe 0.7s ease-in-out infinite;
+}
+
+@keyframes core-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes core-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.92; }
+}
+
+@keyframes core-pulse-ring {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes core-orbit {
+  from { transform: rotate(calc(var(--i) * 36deg)) translateY(calc(var(--core-size) * -0.55)) rotate(0deg); }
+  to { transform: rotate(calc(var(--i) * 36deg + 360deg)) translateY(calc(var(--core-size) * -0.55)) rotate(-360deg); }
+}
+
+@keyframes core-dot-breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.85); }
+}
+
+@keyframes echo-breathe {
+  0%, 100% { opacity: 1; text-shadow: 0 0 12px var(--cyan-glow); }
+  50% { opacity: 0.75; text-shadow: 0 0 20px var(--cyan-glow); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-core__ring,
+  .live-core__core,
+  .live-core__pulse,
+  .live-core__particle,
+  .live-core__dot,
+  .live-core__label {
+    animation: none !important;
+  }
+}
