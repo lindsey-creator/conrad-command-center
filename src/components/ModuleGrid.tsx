@@ -171,8 +171,8 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
   return (
     <>
-      <div className="priority-horns-kicker">Today's Numbers</div>
-      <div className="priority-scan" role="group" aria-label="Today's numbers">
+      <div className="priority-horns-kicker">LIVE SIGNALS</div>
+      <div className="priority-scan" role="group" aria-label="Live signals">
         <div className={`scan-tile scan-tile--fire${flashGhl ? ' scan-tile--flash' : ''}`}>
           <span
             className={`scan-tile__dot scan-tile__dot--fire${ghlLive ? ' scan-tile__dot--live' : ''}`}

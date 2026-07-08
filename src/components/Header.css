@@ -18,22 +18,14 @@
   background: linear-gradient(90deg, var(--cyan), transparent);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
+.brand { display: flex; align-items: center; gap: 16px; }
 .brand h1 {
-  font-family: var(--font-display);
   font-size: clamp(18px, 3vw, 22px);
   letter-spacing: 0.04em;
   margin: 0;
   font-weight: 700;
   text-transform: uppercase;
-  line-height: 1;
 }
-
 .brand .sub {
   font-family: var(--font-mono);
   font-size: 8px;
@@ -43,11 +35,7 @@
   margin-top: 5px;
 }
 
-.sync {
-  text-align: right;
-  line-height: 1.5;
-}
-
+.sync { text-align: right; line-height: 1.5; }
 .sync-version {
   display: block;
   font-family: var(--font-mono);
@@ -57,7 +45,6 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-bottom: 2px;
-  text-shadow: 0 0 10px var(--cyan-glow);
   animation: echo-breathe 3s ease-in-out infinite;
 }
 
@@ -68,60 +55,10 @@
   border-radius: 50%;
   margin-right: 5px;
   vertical-align: middle;
-  animation: status-pulse 2.4s ease-in-out infinite;
 }
-
-.sync-dot--online {
-  background: var(--cyan);
-  box-shadow: 0 0 12px var(--cyan-glow);
-}
-
-.sync-dot--offline {
-  background: var(--ember);
-  box-shadow: 0 0 12px var(--ember-glow);
-  animation: none;
-}
-
-.sync-label {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.sync-label--online {
-  color: var(--cyan-2);
-}
-
-.sync-time {
-  color: var(--faint);
-  text-transform: none;
-  letter-spacing: 0.04em;
-  font-size: 8.5px;
-}
-
-.live-indicator {
-  display: inline-block;
-  line-height: 1.5;
-}
-
-.live-dot--pulse {
-  animation: status-pulse 2.4s ease-in-out infinite;
-}
-
-@media (max-width: 520px) {
-  .top {
-    padding: 6px 0 12px;
-  }
-
-  .brand h1 {
-    font-size: 15px;
-    letter-spacing: 0.04em;
-  }
-
-  .brand .sub {
-    font-size: 7px;
-    letter-spacing: 0.1em;
-  }
-}
+.sync-dot--online { background: var(--cyan); box-shadow: 0 0 12px var(--cyan-glow); animation: status-pulse 2.4s ease-in-out infinite; }
+.sync-dot--offline { background: var(--ember); box-shadow: 0 0 12px var(--ember-glow); }
+.sync-label { color: var(--muted); font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; }
+.sync-label--online { color: var(--cyan-2); }
+.sync-time { color: var(--faint); font-size: 8.5px; }
+.live-indicator { display: inline-block; line-height: 1.5; }

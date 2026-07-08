@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
 import { ApprovalQueuePanel } from './ApprovalQueuePanel';
-import { ExecutivePulse } from './ExecutivePulse';
+import { LiveCore } from './LiveCore';
 import './echo-command.css';
 
 interface EchoCommandProps {
@@ -139,10 +139,17 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
   const displayState: EchoVoiceState = loading ? 'thinking' : voiceState;
 
   return (
-    <section className="echo-command echo-command--hero hud-corners rhino-metal" aria-label="Ask Echo">
+    <section className="echo-command echo-command--hero hud-corners jarvis-glass" aria-label="Ask Echo">
+      <div className="echo-command__mesh" aria-hidden="true" />
       <div className="echo-command__hero">
         <div className="echo-command__core-col">
-          <ExecutivePulse state={displayState} size="lg" label="Echo voice status" />
+          <LiveCore
+            state={displayState}
+            size="hero"
+            showParticles
+            online
+            label="Echo voice core"
+          />
         </div>
 
         <div className="echo-command__main-col">
