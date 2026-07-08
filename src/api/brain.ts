@@ -227,6 +227,40 @@ export interface HealthMetricsResponse {
   note?: string;
 }
 
+export interface MetaAdsResponse {
+  status: ConnectSourceStatus;
+  sources: string[];
+  daily_spend?: number | string | null;
+  leads?: number | null;
+  cost_per_lead?: number | string | null;
+  note?: string;
+}
+
+export interface WeatherResponse {
+  status: ConnectSourceStatus;
+  sources: string[];
+  temp_f?: number | string | null;
+  conditions?: string | null;
+  location?: string;
+  note?: string;
+}
+
+export interface IssueTaskRequest {
+  text: string;
+  assignee_hint?: string;
+  source?: string;
+}
+
+export interface IssueTaskResponse {
+  status: string;
+  sources?: string[];
+  task_id?: string;
+  routed_to?: string;
+  requires_approval?: boolean;
+  note?: string;
+  error?: string;
+}
+
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(`${getBase()}${path}`);
   if (!res.ok) {
@@ -278,6 +312,9 @@ export const brain = {
     fetchJson<ConnectSourceResponse>(`/audio/recent?limit=${limit}`),
   healthMetrics: () => fetchJson<HealthMetricsResponse>('/health/metrics'),
   weekAhead: () => fetchJson<ConnectSourceResponse>('/calendar/week'),
+  metaAds: () => fetchJson<MetaAdsResponse>('/ads/meta'),
+  weather: () => fetchJson<WeatherResponse>('/weather'),
+  issueTask: (req: IssueTaskRequest) => postJson<IssueTaskResponse>('/tasks', req),
   trainCounts: () => fetchJson<TrainCounts>('/train/counts'),
   clickUpSyncStatus: () => fetchJson<ClickUpSyncStatus>('/ingest/clickup/status'),
   syncClickUp: () => postJson<ClickUpIngestResult>('/ingest/clickup', {}),

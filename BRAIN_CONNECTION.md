@@ -18,13 +18,15 @@ Set the UI's API base to that URL (e.g. `VITE_BRAIN_API=http://127.0.0.1:8000`).
 - `POST /train/voice`, `/train/deal-decision`, `/train/team-interaction`, `/train/conversation`
 - `GET  /decisions/history` — recency-weighted decision history
 - `GET  /train/counts`
+- `GET  /ads/meta` — Meta Ads spend, leads, CPL (connect_source until wired)
+- `GET  /weather` — Cleveland conditions (connect_source until wired)
+- `POST /tasks` — issue a task → routed into ClickUp (human gate when configured)
 
 ## Endpoints Fable should add (thin wrappers over the Brain, no new math)
 - `GET /brief/daily` — the morning brief (Fieldy + calendar + pipeline)
 - `GET /money/top-moves` — today's Top-3 money moves (from the engine + memory)
 - `GET /blindspots` and `GET /watchlist`
 - `GET /team/pulse` — overdue + accountability radar output
-- `POST /tasks` — issue a task → routed into ClickUp
 
 ## Live connectors (authorize in an interactive Cowork/Claude session)
 ClickUp · Fieldy · GoHighLevel · Gmail · Google Calendar · (Apple Health / Whoop

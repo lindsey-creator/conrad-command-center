@@ -15,8 +15,8 @@ export const SOURCE_TO_CONNECTOR: Record<string, string> = {
 };
 
 export const OPTIONAL_SOURCE_HELP: Record<string, string> = {
-  meta: 'Meta Ads API — not wired yet',
-  weather: 'Weather API — not wired yet',
+  meta: 'Meta Ads API — add META_ACCESS_TOKEN to Brain .env',
+  weather: 'OpenWeather or similar — add WEATHER_API_KEY to Brain .env',
   wellbeing_checkin: 'Wellbeing check-in — in-app, no connector',
   brain_scan: 'Connect any data source below to fill blind spots',
   brain_memory: 'Train decisions in Feed the Brain',

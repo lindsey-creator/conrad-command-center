@@ -11,6 +11,7 @@ interface EchoCommandProps {
 export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
   const [message, setMessage] = useState('');
   const [wantsDraft, setWantsDraft] = useState(false);
+  const [wantsTask, setWantsTask] = useState(false);
   const [speakEnabled, setSpeakEnabled] = useState(true);
   const [showDeal, setShowDeal] = useState(false);
   const [deal, setDeal] = useState<ChatDealFields>({
@@ -22,6 +23,7 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
   });
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<ChatResponse | null>(null);
+  const [taskResult, setTaskResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
 
@@ -51,10 +53,35 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
     setThinking(true);
     setError(null);
     setResponse(null);
+    setTaskResult(null);
     setDraftEdit(null);
     stopSpeaking();
 
     try {
+      if (wantsTask) {
+        const taskRes = await brain.issueTask({
+          text: query,
+          source: 'echo_command',
+        });
+        if (taskRes.status === 'connect_source') {
+          const msg = 'ClickUp not connected — add keys in Connections.';
+          setError(msg);
+          speak(msg);
+          return;
+        }
+        if (taskRes.error) {
+          setError(taskRes.error);
+          speak(taskRes.error);
+          return;
+        }
+        const summary = taskRes.requires_approval
+          ? `Task queued for your approval${taskRes.routed_to ? ` — routed to ${taskRes.routed_to}` : ''}.`
+          : `Task routed to ClickUp${taskRes.routed_to ? ` for ${taskRes.routed_to}` : ''}.`;
+        setTaskResult(summary);
+        speak(summary);
+        return;
+      }
+
       const hasDeal =
         showDeal &&
         (deal.purchase_price > 0 || deal.arv > 0 || deal.rehab_estimate > 0);
@@ -184,8 +211,22 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
               <label className="echo-command__checkbox">
                 <input
                   type="checkbox"
+                  checked={wantsTask}
+                  onChange={(e) => {
+                    setWantsTask(e.target.checked);
+                    if (e.target.checked) setWantsDraft(false);
+                  }}
+                />
+                Route → ClickUp task
+              </label>
+              <label className="echo-command__checkbox">
+                <input
+                  type="checkbox"
                   checked={wantsDraft}
-                  onChange={(e) => setWantsDraft(e.target.checked)}
+                  onChange={(e) => {
+                    setWantsDraft(e.target.checked);
+                    if (e.target.checked) setWantsTask(false);
+                  }}
                 />
                 Draft → Approval Queue
               </label>
@@ -251,9 +292,10 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
         </div>
       )}
 
-      {(error || response) && (
+      {(error || response || taskResult) && (
         <div className="echo-command__panel echo-command__panel--slide">
           {error && <div className="feed-result diverged">{error}</div>}
+          {taskResult && <div className="echo-command__response">{taskResult}</div>}
           {response && (
             <>
               {response.note && (

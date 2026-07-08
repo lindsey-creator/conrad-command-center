@@ -10,6 +10,7 @@ import {
   type LaneRowSeverity,
 } from '../utils/renderItems';
 import { ConnectSource } from './ConnectSource';
+import { formatAdsMetric, IssueTaskForm } from './IssueTaskForm';
 import { IntelLane } from './IntelLane';
 import { LaneModule } from './LaneModule';
 import '../styles/intel-lanes.css';
@@ -88,6 +89,8 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const fetchAudio = useCallback(() => brain.audioRecent(12), []);
   const fetchHealth = useCallback(() => brain.healthMetrics(), []);
   const fetchWeek = useCallback(() => brain.weekAhead(), []);
+  const fetchMetaAds = useCallback(() => brain.metaAds(), []);
+  const fetchWeather = useCallback(() => brain.weather(), []);
   const fetchConnectors = useCallback(() => brain.connectorsStatus(), []);
 
   const blindspots = useBrainQuery('blindspots', fetchBlindspots, {
@@ -126,12 +129,22 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
     refreshMs: POLL_MODULE_MS,
     staggerMs: POLL_STAGGER_MS * 7,
   });
+  const metaAds = useBrainQuery('meta-ads', fetchMetaAds, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 7 + 100,
+  });
+  const weather = useBrainQuery('weather', fetchWeather, {
+    refreshMs: POLL_MODULE_MS,
+    staggerMs: POLL_STAGGER_MS * 7 + 200,
+  });
   const connectors = useBrainQuery('scan-connectors', fetchConnectors, {
     refreshMs: POLL_CONNECTORS_MS,
     staggerMs: POLL_STAGGER_MS * 8,
   });
 
   const ghlLive = ghlCrm.data && hasLiveData(ghlCrm.data);
+  const metaLive = metaAds.data && hasLiveData(metaAds.data);
+  const weatherLive = weather.data && hasLiveData(weather.data);
   const ghlLeads = ghlLive ? (ghlCrm.data?.new_leads ?? 0) : null;
   const ghlUnread = ghlLive ? (ghlCrm.data?.unread_texts ?? 0) : null;
 
@@ -300,29 +313,62 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
             <LaneModule
               title="Meta Ads → GHL"
               icon="📈"
-              pill="Not wired"
-              pillVariant="warn"
+              pill={metaLive ? 'Live' : 'Meta'}
+              pillVariant={metaLive ? 'go' : 'warn'}
               defaultOpen={false}
+              loading={metaAds.loading && !metaAds.data}
             >
-              <p>
-                Standing #1 fire: Meta investor leads → GHL capture. A2P 10DLC, speed-to-lead,
-                and qualifying form data in SMS alerts are not yet connected here.
-              </p>
-              <div className="metrics">
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Daily Spend</div>
-                </div>
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Leads</div>
-                </div>
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Cost / Lead</div>
-                </div>
-              </div>
-              <ConnectSource sources={[...STATIC_SOURCES.meta]} onConnect={onConnect} />
+              {metaAds.data && metaLive ? (
+                <>
+                  <p>
+                    Standing #1 fire: Meta investor leads → GHL capture. A2P 10DLC,
+                    speed-to-lead, and qualifying form data in SMS alerts.
+                  </p>
+                  <div className="metrics">
+                    <div className="metric">
+                      <div className="n">{formatAdsMetric(metaAds.data.daily_spend)}</div>
+                      <div className="l">Daily Spend</div>
+                    </div>
+                    <div className="metric">
+                      <div className="n">{formatAdsMetric(metaAds.data.leads)}</div>
+                      <div className="l">Leads</div>
+                    </div>
+                    <div className="metric">
+                      <div className="n">{formatAdsMetric(metaAds.data.cost_per_lead)}</div>
+                      <div className="l">Cost / Lead</div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>
+                    Standing #1 fire: Meta investor leads → GHL capture. A2P 10DLC, speed-to-lead,
+                    and qualifying form data in SMS alerts are not yet connected here.
+                  </p>
+                  <div className="metrics">
+                    <div className="metric">
+                      <div className="n">—</div>
+                      <div className="l">Daily Spend</div>
+                    </div>
+                    <div className="metric">
+                      <div className="n">—</div>
+                      <div className="l">Leads</div>
+                    </div>
+                    <div className="metric">
+                      <div className="n">—</div>
+                      <div className="l">Cost / Lead</div>
+                    </div>
+                  </div>
+                  <ConnectSource
+                    sources={
+                      metaAds.data?.sources?.length
+                        ? metaAds.data.sources
+                        : [...STATIC_SOURCES.meta]
+                    }
+                    onConnect={onConnect}
+                  />
+                </>
+              )}
             </LaneModule>
         </IntelLane>
 
@@ -334,8 +380,8 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
           badgeVariant={overdueCount > 0 ? 'warn' : undefined}
         >
             <LaneModule
-              title="ClickUp · Overdue & Alerts"
-              icon="✅"
+              title="Today's Watch List (CRITICAL)"
+              icon="🚨"
               pill={watchTotal > 0 ? `${watchTotal} open` : 'Clear'}
               pillVariant={watchTotal > 0 ? 'warn' : 'go'}
               loading={watchlist.loading && !watchlist.data}
@@ -415,7 +461,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule title="Issue a Task" icon="📋" pill="Rhino Robot" defaultOpen={false}>
               <p>Voice or text → routed via Rhino Robot to ClickUp with context.</p>
-              <ConnectSource sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
+              <IssueTaskForm sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
             </LaneModule>
         </IntelLane>
 
@@ -497,6 +543,24 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                         <div className="brief-kicker">Commitments I made</div>
                         {(dailyBrief.data.commitments_i_made.items ?? []).map((item, i) => (
                           <LaneRow key={`c-${i}`} item={item} />
+                        ))}
+                      </div>
+                    )}
+                  {dailyBrief.data.commitments_owed &&
+                    hasLiveData(dailyBrief.data.commitments_owed) && (
+                      <div className="item-list">
+                        <div className="brief-kicker">Promises others made to me</div>
+                        {(dailyBrief.data.commitments_owed.items ?? []).map((item, i) => (
+                          <LaneRow key={`o-${i}`} item={item} />
+                        ))}
+                      </div>
+                    )}
+                  {dailyBrief.data.becomes_tasks &&
+                    hasLiveData(dailyBrief.data.becomes_tasks) && (
+                      <div className="item-list">
+                        <div className="brief-kicker">Should become tasks</div>
+                        {(dailyBrief.data.becomes_tasks.items ?? []).map((item, i) => (
+                          <LaneRow key={`bt-${i}`} item={item} />
                         ))}
                       </div>
                     )}
@@ -629,18 +693,49 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               />
             </LaneModule>
 
-            <LaneModule title="Weather · Cleveland" icon="🌤️" defaultOpen={false}>
-              <div className="metrics">
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Temp</div>
+            <LaneModule
+              title="Weather · Cleveland"
+              icon="🌤️"
+              pill={weatherLive ? 'Live' : 'CLE'}
+              pillVariant={weatherLive ? 'go' : 'default'}
+              defaultOpen={false}
+              loading={weather.loading && !weather.data}
+            >
+              {weather.data && weatherLive ? (
+                <div className="metrics">
+                  <div className="metric">
+                    <div className="n">{formatAdsMetric(weather.data.temp_f)}°</div>
+                    <div className="l">Temp</div>
+                  </div>
+                  <div className="metric">
+                    <div className="n" style={{ fontSize: 14 }}>
+                      {weather.data.conditions ?? '—'}
+                    </div>
+                    <div className="l">Conditions</div>
+                  </div>
                 </div>
-                <div className="metric">
-                  <div className="n">—</div>
-                  <div className="l">Conditions</div>
-                </div>
-              </div>
-              <ConnectSource sources={[...STATIC_SOURCES.weather]} onConnect={onConnect} />
+              ) : (
+                <>
+                  <div className="metrics">
+                    <div className="metric">
+                      <div className="n">—</div>
+                      <div className="l">Temp</div>
+                    </div>
+                    <div className="metric">
+                      <div className="n">—</div>
+                      <div className="l">Conditions</div>
+                    </div>
+                  </div>
+                  <ConnectSource
+                    sources={
+                      weather.data?.sources?.length
+                        ? weather.data.sources
+                        : [...STATIC_SOURCES.weather]
+                    }
+                    onConnect={onConnect}
+                  />
+                </>
+              )}
             </LaneModule>
         </IntelLane>
       </div>

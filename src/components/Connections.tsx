@@ -51,6 +51,16 @@ const CONNECTOR_HELP: Record<
     where: 'Local JSON export path (display only)',
     envVars: ['APPLE_HEALTH_EXPORT_PATH'],
   },
+  meta: {
+    label: 'Meta Ads',
+    where: 'Meta Business → System User token with ads_read',
+    envVars: ['META_ACCESS_TOKEN', 'META_AD_ACCOUNT_ID'],
+  },
+  weather: {
+    label: 'Weather (Cleveland)',
+    where: 'OpenWeather or similar API key in Brain .env',
+    envVars: ['WEATHER_API_KEY'],
+  },
 };
 
 interface ConnectionsProps {
