@@ -1,10 +1,12 @@
-/* Priority horns — glanceable scan strip */
+/* Priority signals — glanceable scan strip */
 .priority-horns-kicker {
-  font-family: var(--font-kicker);
-  font-size: 15px;
-  letter-spacing: 0.26em;
-  color: var(--gold);
-  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
   padding-left: 2px;
 }
 
@@ -24,72 +26,46 @@
 
 .scan-tile {
   position: relative;
-  padding: 16px 18px;
-  border: 1px solid rgba(212, 175, 55, 0.16);
-  background: linear-gradient(
-    150deg,
-    rgba(212, 175, 55, 0.12) 0%,
-    rgba(18, 18, 24, 0.94) 38%,
-    rgba(8, 8, 12, 0.97) 100%
-  );
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), box-shadow var(--transition);
   cursor: default;
-  clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px);
   overflow: hidden;
 }
 
 .scan-tile--fire {
-  border-color: rgba(232, 93, 4, 0.35);
-  background: linear-gradient(
-    150deg,
-    rgba(232, 93, 4, 0.14) 0%,
-    rgba(18, 18, 24, 0.94) 40%,
-    rgba(8, 8, 12, 0.97) 100%
-  );
+  border-color: rgba(196, 92, 42, 0.25);
 }
 
 .scan-tile--fire::before {
-  background: linear-gradient(90deg, var(--ember), transparent);
-  opacity: 0.9;
+  display: none;
 }
 
 .scan-tile::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 28px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--gold), transparent);
-  opacity: 0.75;
+  display: none;
 }
 
 .scan-tile::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 2px;
-  background: linear-gradient(270deg, var(--gold), transparent);
-  opacity: 0.5;
+  display: none;
 }
 
 .scan-tile:hover {
-  border-color: rgba(212, 175, 55, 0.32);
-  box-shadow: 0 0 32px rgba(212, 175, 55, 0.08);
-  transform: translateY(-1px);
+  border-color: var(--line-strong);
+  box-shadow: 0 0 24px var(--cyan-dim);
 }
 
 .scan-tile__kicker {
-  font-family: var(--font-kicker);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  color: var(--gold);
-  opacity: 0.9;
-  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
 }
 
 .scan-tile--fire .scan-tile__kicker {
@@ -97,9 +73,9 @@
 }
 
 .scan-tile__val {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 5vw, 44px);
-  font-weight: 800;
+  font-family: var(--font-sans);
+  font-size: clamp(28px, 5vw, 36px);
+  font-weight: 600;
   color: var(--ivory);
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -108,7 +84,6 @@
 
 .scan-tile__val--money {
   color: var(--gold-2);
-  text-shadow: 0 0 24px rgba(212, 175, 55, 0.2);
 }
 
 .scan-tile__val--warn {
@@ -141,8 +116,8 @@
 }
 
 .scan-tile__dot--live {
-  background: var(--go);
-  box-shadow: 0 0 10px var(--go-glow);
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
   animation: status-pulse 2s ease-in-out infinite;
 }
 
@@ -165,21 +140,12 @@
 }
 
 .intel-lane {
-  border: 1px solid rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--line);
   background: var(--panel);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius);
   overflow: hidden;
-  clip-path: polygon(
-    12px 0%,
-    calc(100% - 12px) 0%,
-    100% 12px,
-    100% calc(100% - 12px),
-    calc(100% - 12px) 100%,
-    12px 100%,
-    0% calc(100% - 12px),
-    0% 12px
-  );
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 
@@ -192,14 +158,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--line);
-  background: linear-gradient(
-    90deg,
-    rgba(212, 175, 55, 0.1) 0%,
-    rgba(0, 0, 0, 0.45) 45%,
-    rgba(0, 0, 0, 0.35) 100%
-  );
+  background: rgba(0, 0, 0, 0.2);
   cursor: default;
 }
 
@@ -214,24 +175,28 @@
 }
 
 .intel-lane__head--toggle:hover {
-  background: linear-gradient(
-    90deg,
-    rgba(212, 175, 55, 0.14) 0%,
-    rgba(0, 0, 0, 0.45) 45%,
-    rgba(0, 0, 0, 0.35) 100%
-  );
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.rhino-lane-icon {
-  color: var(--gold);
+.lane-icon-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
   flex-shrink: 0;
-  opacity: 0.9;
+  background: var(--gold);
+  opacity: 0.7;
 }
+
+.lane-icon-dot--crm { background: var(--gold); }
+.lane-icon-dot--tasks { background: var(--info); }
+.lane-icon-dot--audio { background: var(--warn); }
+.lane-icon-dot--calendar { background: var(--go); }
 
 .intel-lane__title {
-  font-family: var(--font-kicker);
-  font-size: 15px;
-  letter-spacing: 0.16em;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
   color: var(--ivory);
   margin: 0;
   flex: 1;
@@ -470,9 +435,11 @@
 }
 
 .brief-kicker {
-  font-family: var(--font-kicker);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
   margin: 8px 0 4px;
 }

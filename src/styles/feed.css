@@ -1,16 +1,13 @@
-/* Floating command bar nav */
+/* Executive nav */
 .nav {
   display: flex;
-  gap: 4px;
-  margin-bottom: 12px;
-  padding: 4px;
-  background: rgba(12, 12, 18, 0.9);
-  border: 1px solid rgba(212, 175, 55, 0.14);
-  border-radius: 2px;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  gap: 2px;
+  margin-bottom: 14px;
+  padding: 3px;
+  background: var(--panel-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
-  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
 }
 
 .nav-btn {
@@ -18,41 +15,29 @@
   flex: 1;
   min-height: 44px;
   padding: 10px 12px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
-  font-family: var(--font-kicker);
+  font-family: var(--font-sans);
   font-size: 13px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 .nav-btn:hover:not(.active) {
   color: var(--ink);
-  background: rgba(245, 240, 230, 0.03);
-  border-color: rgba(245, 240, 230, 0.04);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .nav-btn.active {
-  color: var(--gold-2);
-  background: rgba(201, 162, 39, 0.1);
-  border-color: rgba(201, 162, 39, 0.28);
-  box-shadow:
-    0 0 24px var(--gold-glow),
-    inset 0 0 16px rgba(201, 162, 39, 0.04);
+  color: var(--ink);
+  background: rgba(184, 150, 62, 0.08);
+  border-color: rgba(184, 150, 62, 0.2);
 }
 
 .nav-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: 3px;
-  left: 18%;
-  right: 18%;
-  height: 2px;
-  border-radius: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  box-shadow: 0 0 8px var(--gold-glow);
+  display: none;
 }
 
 @media (max-width: 520px) {

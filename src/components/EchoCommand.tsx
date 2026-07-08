@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
 import { ApprovalQueuePanel } from './ApprovalQueuePanel';
-import { RhinoCore } from './RhinoCore';
+import { ExecutivePulse } from './ExecutivePulse';
 import './echo-command.css';
 
 interface EchoCommandProps {
@@ -140,27 +140,19 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
 
   return (
     <section className="echo-command echo-command--hero hud-corners rhino-metal" aria-label="Ask Echo">
-      <div className="echo-command__mesh" aria-hidden="true" />
-      <div className="echo-command__vignette" aria-hidden="true" />
-
       <div className="echo-command__hero">
         <div className="echo-command__core-col">
-          <RhinoCore
-            state={displayState}
-            size="hero"
-            showParticles
-            label="Echo voice core"
-          />
+          <ExecutivePulse state={displayState} size="lg" label="Echo voice status" />
         </div>
 
         <div className="echo-command__main-col">
           <div className="echo-command__head">
             <div>
-              <span className="echo-command__kicker">OPERATING BRAIN · ECHO COO</span>
-              <h2 className="echo-command__title wordmark-gold">Ask Echo</h2>
+              <span className="echo-command__kicker">Operating Brain · Echo COO</span>
+              <h2 className="echo-command__title">Ask Echo</h2>
               <p className="echo-command__subtitle">
                 Rigor over cheerleading — priorities first, browser-first execution.
-                Rhino Robot captures meetings · Fieldy feeds the brief.
+                Fieldy feeds the brief · ClickUp routes tasks.
               </p>
             </div>
             <div className="echo-command__controls">
@@ -186,7 +178,7 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
                 id="echo-input"
                 className="echo-command__input"
                 rows={2}
-                placeholder="Command the stack — deals, priorities, drafts, Fieldy context…"
+                placeholder="Deals, priorities, drafts, Fieldy context…"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={onKeyDown}
@@ -202,7 +194,6 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
                   aria-pressed={voiceState === 'listening'}
                   title={voiceState === 'listening' ? 'Stop listening' : 'Voice input'}
                 >
-                  <span className="echo-command__btn-icon" aria-hidden="true">◉</span>
                   Mic
                 </button>
               )}
@@ -220,7 +211,7 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
           <div className="echo-command__meta">
             <div className="echo-command__hint">
               {micSupported
-                ? 'Enter to send · Mic for STT · Echo speaks TTS · Rhino Robot → ClickUp'
+                ? 'Enter to send · Mic for voice · Echo speaks responses'
                 : 'Enter to send · Voice input not supported in this browser'}
             </div>
             <div className="echo-command__options">

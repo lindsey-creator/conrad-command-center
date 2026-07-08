@@ -2,18 +2,6 @@
   position: relative;
   overflow: hidden;
   margin-bottom: 10px;
-  --bracket-inset: 0;
-  --chamfer: 14px;
-}
-
-.command-header__watermark {
-  position: absolute;
-  top: 50%;
-  right: -10px;
-  transform: translateY(-50%);
-  opacity: 0.05;
-  pointer-events: none;
-  z-index: 0;
 }
 
 .command-header__mesh {
@@ -22,9 +10,9 @@
   pointer-events: none;
   z-index: 0;
   background:
-    linear-gradient(125deg, rgba(212, 175, 55, 0.12) 0%, rgba(232, 200, 74, 0.03) 30%, transparent 55%),
-    radial-gradient(ellipse 55% 75% at 0% 45%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(18, 18, 24, 0.6) 0%, transparent 100%);
+    linear-gradient(125deg, rgba(0, 212, 255, 0.1) 0%, rgba(78, 205, 196, 0.04) 30%, transparent 55%),
+    radial-gradient(ellipse 55% 75% at 0% 45%, rgba(0, 212, 255, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(30, 42, 58, 0.5) 0%, transparent 100%);
 }
 
 .command-strip {
@@ -34,15 +22,16 @@
   align-items: center;
   gap: 0;
   padding: 10px 20px;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
   flex-wrap: wrap;
 }
 
 .command-strip__item {
-  font-family: var(--font-kicker);
-  font-size: 13px;
-  letter-spacing: 0.2em;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   color: var(--muted);
   padding: 0 14px;
 }
@@ -57,8 +46,9 @@
 }
 
 .command-strip__item--echo.command-strip__item--active {
-  color: var(--go);
-  text-shadow: 0 0 14px var(--go-glow);
+  color: var(--cyan);
+  text-shadow: 0 0 14px var(--cyan-glow);
+  animation: echo-breathe 3s ease-in-out infinite;
 }
 
 .command-strip__item--echo.command-strip__item--pulse {
@@ -68,7 +58,7 @@
 .command-strip__sep {
   width: 1px;
   height: 14px;
-  background: rgba(212, 175, 55, 0.22);
+  background: rgba(0, 212, 255, 0.2);
   flex-shrink: 0;
 }
 
@@ -101,15 +91,13 @@
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: var(--gold);
+  color: var(--cyan);
 }
 
 .command-header__name {
   margin: 0;
-  font-family: var(--font-display);
   font-size: clamp(28px, 5vw, 40px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   line-height: 1;
   color: var(--ivory);
 }
@@ -122,7 +110,7 @@
 }
 
 .command-header__greeting strong {
-  color: var(--gold-2);
+  color: var(--cyan-2);
   font-weight: 600;
 }
 
@@ -146,22 +134,21 @@
 .command-header__metric {
   min-width: 80px;
   padding: 12px 14px;
-  border: 1px solid rgba(212, 175, 55, 0.14);
-  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(0, 212, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
   text-align: center;
-  clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .command-header__metric:hover {
-  border-color: rgba(212, 175, 55, 0.28);
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.06);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 20px var(--cyan-dim);
 }
 
 .command-header__metric-val {
-  font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
@@ -175,8 +162,8 @@
 }
 
 .command-header__metric-val--live {
-  color: var(--go);
-  text-shadow: 0 0 16px var(--go-glow);
+  color: var(--cyan);
+  text-shadow: 0 0 16px var(--cyan-glow);
 }
 
 .command-header__metric-lbl {
@@ -241,16 +228,16 @@
   }
 
   .command-strip__item {
-    font-size: 11px;
+    font-size: 8px;
     padding: 0 10px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
   }
 
   .command-strip__item--echo {
     margin-left: 0;
     width: 100%;
     padding-top: 6px;
-    border-top: 1px solid rgba(212, 175, 55, 0.08);
+    border-top: 1px solid rgba(0, 212, 255, 0.08);
     margin-top: 4px;
   }
 }

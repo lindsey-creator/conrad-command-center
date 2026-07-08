@@ -19,7 +19,8 @@ import './styles/feed.css';
 
 function pageFromHash(): Page {
   const id = window.location.hash.replace(/^#/, '').split('/')[0].toLowerCase();
-  if (id === 'feed' || id === 'connections') return id;
+  if (id === 'echo' || id === 'feed') return 'echo';
+  if (id === 'connections') return 'connections';
   return 'dashboard';
 }
 
@@ -90,7 +91,7 @@ export default function App() {
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <ModuleGrid onConnect={openConnections} />
         </div>
-      ) : page === 'feed' ? (
+      ) : page === 'echo' ? (
         <FeedTheBrain />
       ) : (
         <Connections focusSource={connectFocus} />

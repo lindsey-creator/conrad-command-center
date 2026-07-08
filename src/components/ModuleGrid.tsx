@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { brain } from '../api/brain';
 import { POLL_CONNECTORS_MS, POLL_FAST_MS, POLL_MODULE_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
+import { useFlashOnUpdate } from '../hooks/useFlashOnUpdate';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import {
   hasLiveData,
@@ -163,11 +164,16 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const revenueBadge = ghlLive ? (ghlLeads ?? 0) + (topMoves.data?.moves?.length ?? 0) : null;
   const scheduleCount = countItems(dailyBrief.data?.today_schedule);
 
+  const flashGhl = useFlashOnUpdate(ghlCrm.lastFetched?.getTime());
+  const flashBrief = useFlashOnUpdate(dailyBrief.lastFetched?.getTime());
+  const flashWatch = useFlashOnUpdate(watchlist.lastFetched?.getTime() ?? teamPulse.lastFetched?.getTime());
+  const flashStack = useFlashOnUpdate(connectors.lastFetched?.getTime());
+
   return (
     <>
-      <div className="priority-horns-kicker">PRIORITY HORNS</div>
-      <div className="priority-scan" role="group" aria-label="Priority horns">
-        <div className="scan-tile scan-tile--fire">
+      <div className="priority-horns-kicker">Today's Numbers</div>
+      <div className="priority-scan" role="group" aria-label="Today's numbers">
+        <div className={`scan-tile scan-tile--fire${flashGhl ? ' scan-tile--flash' : ''}`}>
           <span
             className={`scan-tile__dot scan-tile__dot--fire${ghlLive ? ' scan-tile__dot--live' : ''}`}
           />
@@ -185,7 +191,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               : 'Connect GHL — A2P + speed-to-lead'}
           </div>
         </div>
-        <div className="scan-tile">
+        <div className={`scan-tile${flashBrief ? ' scan-tile--flash' : ''}`}>
           <span className="scan-tile__dot" />
           <div className="scan-tile__kicker">Today</div>
           <div className="scan-tile__val">
@@ -193,7 +199,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
           </div>
           <div className="scan-tile__lbl">Brief · schedule · voice</div>
         </div>
-        <div className="scan-tile">
+        <div className={`scan-tile${flashWatch ? ' scan-tile--flash' : ''}`}>
           <span
             className={`scan-tile__dot${watchTotal > 0 ? ' scan-tile__dot--warn' : ''}`}
           />
@@ -211,7 +217,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               : 'Overdue · tasks · alerts'}
           </div>
         </div>
-        <div className="scan-tile">
+        <div className={`scan-tile${flashStack ? ' scan-tile--flash' : ''}`}>
           <span
             className={`scan-tile__dot${connected > 0 ? ' scan-tile__dot--live' : ''}`}
           />

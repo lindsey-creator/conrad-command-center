@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from 'react';
-import { RhinoLaneIcon } from './RhinoLaneIcon';
 
 type BadgeVariant = 'default' | 'warn' | 'live';
 
@@ -41,7 +40,7 @@ function IntelLane({
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
       >
-        <RhinoLaneIcon variant={variant} />
+        <span className={`lane-icon-dot lane-icon-dot--${variant}`} aria-hidden="true" />
         <h4 className="intel-lane__title">{title}</h4>
         {badge != null && badge !== '' && (
           <span className={`intel-lane__badge${badgeClass}`}>{badge}</span>

@@ -1,4 +1,4 @@
-export type Page = 'dashboard' | 'feed' | 'connections';
+export type Page = 'dashboard' | 'echo' | 'connections';
 
 interface NavProps {
   page: Page;
@@ -13,21 +13,21 @@ export function Nav({ page, onChange }: NavProps) {
         className={`nav-btn${page === 'dashboard' ? ' active' : ''}`}
         onClick={() => onChange('dashboard')}
       >
-        Command
+        Dashboard
       </button>
       <button
         type="button"
-        className={`nav-btn${page === 'feed' ? ' active' : ''}`}
-        onClick={() => onChange('feed')}
+        className={`nav-btn${page === 'echo' ? ' active' : ''}`}
+        onClick={() => onChange('echo')}
       >
-        Feed
+        Echo
       </button>
       <button
         type="button"
         className={`nav-btn${page === 'connections' ? ' active' : ''}`}
         onClick={() => onChange('connections')}
       >
-        Stack
+        Connections
       </button>
     </nav>
   );
