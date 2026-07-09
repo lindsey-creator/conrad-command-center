@@ -75,7 +75,6 @@ function LaneRow({
   const time = itemTime(item) ?? fallbackTime ?? null;
   const taskId = clickupConnected ? clickupTaskId(item) : null;
   const ghlUrl = ghlContactUrl(item);
-  const assignee = clickupConnected ? clickupAssignee(item) : null;
 
   return (
     <div
@@ -102,7 +101,6 @@ function LaneRow({
       {taskId && (
         <ClickUpTaskActions
           taskId={taskId}
-          assignee={assignee}
           onUpdated={onTaskUpdated}
           onCompleted={onTaskCompleted}
           onCompleteFailed={onTaskCompleteFailed}
@@ -150,7 +148,6 @@ function OverdueRow({
       {showActions && taskId && (
         <ClickUpTaskActions
           taskId={taskId}
-          assignee={person !== 'Unassigned' ? person : undefined}
           onUpdated={onTaskUpdated}
           onCompleted={onTaskCompleted}
           onCompleteFailed={onTaskCompleteFailed}
@@ -199,7 +196,6 @@ function GapRow({
       {showActions && taskId && (
         <ClickUpTaskActions
           taskId={taskId}
-          assignee={person !== 'Unassigned' ? person : undefined}
           onUpdated={onTaskUpdated}
           onCompleted={onTaskCompleted}
           onCompleteFailed={onTaskCompleteFailed}
