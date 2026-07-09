@@ -124,6 +124,20 @@
   animation: echo-breathe 3s ease-in-out infinite;
 }
 
+.live-core__label--listening {
+  color: var(--cyan-2);
+}
+
+.live-core__label--speaking {
+  color: var(--gold-2);
+  text-shadow: 0 0 12px var(--gold-glow);
+}
+
+.live-core__label--thinking {
+  color: var(--cyan);
+  animation: echo-breathe 1.2s ease-in-out infinite;
+}
+
 .live-core--listening .live-core__core {
   background: radial-gradient(circle at 40% 35%, #5eead4, var(--cyan) 50%, rgba(0, 120, 160, 0.7));
   animation: core-breathe 1.2s ease-in-out infinite;

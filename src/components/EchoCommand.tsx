@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
 import { ApprovalQueuePanel } from './ApprovalQueuePanel';
@@ -6,10 +6,24 @@ import { LiveCore } from './LiveCore';
 import './echo-command.css';
 
 interface EchoCommandProps {
+  brainOnline?: boolean;
   onVoiceStateChange?: (state: EchoVoiceState) => void;
 }
 
-export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
+function voiceStatusLabel(state: EchoVoiceState): string | null {
+  switch (state) {
+    case 'listening':
+      return 'Listening…';
+    case 'speaking':
+      return 'Echo is speaking…';
+    case 'thinking':
+      return 'Echo is thinking…';
+    default:
+      return null;
+  }
+}
+
+export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCommandProps) {
   const [message, setMessage] = useState('');
   const [wantsDraft, setWantsDraft] = useState(false);
   const [wantsTask, setWantsTask] = useState(false);
@@ -30,31 +44,43 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
   const [error, setError] = useState<string | null>(null);
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
   const [approvalId, setApprovalId] = useState<string | null>(null);
+  const handleAskRef = useRef<(text?: string) => Promise<void>>(async () => {});
 
   const handleTranscript = useCallback((text: string) => {
     setMessage(text);
+  }, []);
+
+  const handleFinalTranscript = useCallback((text: string) => {
+    setMessage(text);
+    void handleAskRef.current(text);
   }, []);
 
   const {
     voiceState,
     speak,
     stopSpeaking,
-    toggleListening,
-    setThinking,
+    startListening,
+    stopListening,
     speechSupported,
     micSupported,
-  } = useEchoVoice({ speakEnabled, onTranscript: handleTranscript });
+  } = useEchoVoice({
+    speakEnabled,
+    onTranscript: handleTranscript,
+    onFinalTranscript: handleFinalTranscript,
+  });
+
+  const displayState: EchoVoiceState = loading ? 'thinking' : voiceState;
+  const statusLabel = voiceStatusLabel(displayState);
 
   useEffect(() => {
-    onVoiceStateChange?.(loading ? 'thinking' : voiceState);
-  }, [voiceState, loading, onVoiceStateChange]);
+    onVoiceStateChange?.(displayState);
+  }, [displayState, onVoiceStateChange]);
 
   const handleAsk = async (text?: string) => {
     const query = (text ?? message).trim();
     if (!query) return;
 
     setLoading(true);
-    setThinking(true);
     setError(null);
     setResponse(null);
     setTaskResult(null);
@@ -121,9 +147,10 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
       speak(msg);
     } finally {
       setLoading(false);
-      setThinking(false);
     }
   };
+
+  handleAskRef.current = handleAsk;
 
   const updateDeal = (field: keyof ChatDealFields, value: string) => {
     setDeal((d) => ({ ...d, [field]: value === '' ? 0 : Number(value) }));
@@ -136,7 +163,14 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
     }
   };
 
-  const displayState: EchoVoiceState = loading ? 'thinking' : voiceState;
+  const onMicPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (voiceState !== 'listening') startListening();
+  };
+
+  const onMicPointerUp = () => {
+    if (voiceState === 'listening') stopListening();
+  };
 
   return (
     <section className="echo-command echo-command--hero hud-corners jarvis-glass" aria-label="Ask Echo">
@@ -147,8 +181,8 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
             state={displayState}
             size="hero"
             showParticles
-            online
-            label="Echo voice core"
+            online={brainOnline}
+            label={statusLabel ?? (brainOnline ? 'Echo live' : 'Echo standby')}
           />
         </div>
 
@@ -158,26 +192,39 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
               <span className="echo-command__kicker">Operating Brain · Echo COO</span>
               <h2 className="echo-command__title">Ask Echo</h2>
               <p className="echo-command__subtitle">
-                Rigor over cheerleading — priorities first, browser-first execution.
-                Fieldy feeds the brief · ClickUp routes tasks.
+                Voice-first priorities and deal rigor — Fieldy feeds the brief, ClickUp routes tasks.
               </p>
             </div>
             <div className="echo-command__controls">
               {speechSupported && (
                 <button
                   type="button"
-                  className={`echo-command__toggle${speakEnabled ? ' echo-command__toggle--on' : ''}`}
+                  className={`echo-command__toggle echo-command__toggle--speaker${speakEnabled ? ' echo-command__toggle--on' : ''}`}
                   onClick={() => {
                     if (speakEnabled) stopSpeaking();
                     setSpeakEnabled((s) => !s);
                   }}
                   aria-pressed={speakEnabled}
+                  title={speakEnabled ? 'Mute Echo voice' : 'Enable Echo voice'}
                 >
-                  {speakEnabled ? 'Voice on' : 'Voice off'}
+                  <span className="echo-command__toggle-icon" aria-hidden="true">
+                    {speakEnabled ? '🔊' : '🔇'}
+                  </span>
+                  {speakEnabled ? 'Speak on' : 'Speak off'}
                 </button>
               )}
             </div>
           </div>
+
+          {statusLabel && (
+            <div
+              className={`echo-command__voice-status echo-command__voice-status--${displayState}`}
+              role="status"
+              aria-live="polite"
+            >
+              {statusLabel}
+            </div>
+          )}
 
           <div className="echo-command__bar">
             <div className="echo-command__input-wrap">
@@ -185,7 +232,7 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
                 id="echo-input"
                 className="echo-command__input"
                 rows={2}
-                placeholder="Deals, priorities, drafts, Fieldy context…"
+                placeholder="Ask about deals, priorities, or today's brief…"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={onKeyDown}
@@ -197,10 +244,14 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
                 <button
                   type="button"
                   className={`echo-command__btn echo-command__btn--mic${voiceState === 'listening' ? ' echo-command__btn--active' : ''}`}
-                  onClick={toggleListening}
+                  onPointerDown={onMicPointerDown}
+                  onPointerUp={onMicPointerUp}
+                  onPointerLeave={onMicPointerUp}
+                  onPointerCancel={onMicPointerUp}
                   aria-pressed={voiceState === 'listening'}
-                  title={voiceState === 'listening' ? 'Stop listening' : 'Voice input'}
+                  title={voiceState === 'listening' ? 'Release to stop' : 'Hold to speak'}
                 >
+                  <span className="echo-command__btn-icon" aria-hidden="true">🎙</span>
                   Mic
                 </button>
               )}
@@ -210,7 +261,7 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
                 disabled={loading || !message.trim()}
                 onClick={() => void handleAsk()}
               >
-                {loading ? 'Processing' : 'Send'}
+                {loading ? 'Thinking…' : 'Send'}
               </button>
             </div>
           </div>
@@ -218,8 +269,8 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
           <div className="echo-command__meta">
             <div className="echo-command__hint">
               {micSupported
-                ? 'Enter to send · Mic for voice · Echo speaks responses'
-                : 'Enter to send · Voice input not supported in this browser'}
+                ? 'Hold mic or type · Enter to send'
+                : 'Type your question · Enter to send'}
             </div>
             <div className="echo-command__options">
               <label className="echo-command__checkbox">
@@ -328,10 +379,10 @@ export function EchoCommand({ onVoiceStateChange }: EchoCommandProps) {
           {response && (
             <>
               {response.note && (
-                <div className="feed-result" style={{ marginBottom: 10 }}>
+                <div className="echo-command__mode-note">
                   <em>{response.note}</em>
                   {response.mode && (
-                    <span style={{ color: 'var(--faint)' }}> (mode: {response.mode})</span>
+                    <span className="echo-command__mode-tag">mode: {response.mode}</span>
                   )}
                 </div>
               )}

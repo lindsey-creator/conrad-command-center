@@ -1,3 +1,10 @@
+.echo-command--hero {
+  border-top: 2px solid rgba(0, 212, 255, 0.55);
+  box-shadow:
+    var(--shadow),
+    inset 0 1px 0 rgba(0, 212, 255, 0.12);
+}
+
 .echo-command {
   position: relative;
   margin-bottom: 14px;
@@ -109,6 +116,76 @@
   transition: border-color var(--transition), color var(--transition);
 }
 
+.echo-command__toggle--speaker.echo-command__toggle--on {
+  color: var(--gold-2);
+  border-color: rgba(201, 162, 39, 0.45);
+  background: var(--gold-dim);
+}
+
+.echo-command__toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.echo-command__voice-status {
+  margin: 0 24px 4px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+}
+
+.echo-command__voice-status--listening {
+  color: var(--cyan);
+  border-color: rgba(0, 212, 255, 0.35);
+  background: var(--cyan-dim);
+}
+
+.echo-command__voice-status--speaking {
+  color: var(--gold-2);
+  border-color: rgba(201, 162, 39, 0.35);
+  background: var(--gold-dim);
+}
+
+.echo-command__voice-status--thinking {
+  color: var(--cyan-2);
+  border-color: rgba(78, 205, 196, 0.35);
+  background: rgba(78, 205, 196, 0.08);
+}
+
+.echo-command__btn-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.echo-command__btn--mic.echo-command__btn--active {
+  border-color: rgba(0, 212, 255, 0.55);
+  background: rgba(0, 212, 255, 0.14);
+  color: var(--cyan);
+  box-shadow: 0 0 20px var(--cyan-dim);
+}
+
+.echo-command__mode-note {
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.echo-command__mode-tag {
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+
 .echo-command__toggle--on {
   color: var(--cyan);
   border-color: rgba(0, 212, 255, 0.35);
@@ -198,9 +275,10 @@
 }
 
 .echo-command__btn--mic.echo-command__btn--active {
-  border-color: rgba(78, 205, 196, 0.5);
-  background: rgba(78, 205, 196, 0.1);
-  color: var(--cyan-2);
+  border-color: rgba(0, 212, 255, 0.55);
+  background: rgba(0, 212, 255, 0.14);
+  color: var(--cyan);
+  box-shadow: 0 0 20px var(--cyan-dim);
 }
 
 .echo-command__btn:disabled {
@@ -255,12 +333,13 @@
 .echo-command__response {
   padding: 16px 18px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  border-left: 3px solid rgba(0, 212, 255, 0.45);
   background: rgba(255, 255, 255, 0.04);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink);
-  line-height: 1.65;
+  line-height: 1.7;
   white-space: pre-wrap;
 }
 
@@ -302,6 +381,12 @@
   .echo-command__btn {
     flex: 1;
     min-height: 48px;
+    min-width: 48px;
+    touch-action: manipulation;
+  }
+
+  .echo-command__voice-status {
+    margin: 0 16px 4px;
   }
 
   .echo-command__meta {

@@ -5,6 +5,7 @@ export type EchoVoiceState = 'idle' | 'listening' | 'speaking' | 'thinking';
 interface UseEchoVoiceOptions {
   speakEnabled: boolean;
   onTranscript?: (text: string) => void;
+  onFinalTranscript?: (text: string) => void;
 }
 
 function getRecognitionCtor():
@@ -21,12 +22,20 @@ function getRecognitionCtor():
 export function useEchoVoice({
   speakEnabled,
   onTranscript,
+  onFinalTranscript,
 }: UseEchoVoiceOptions) {
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
   const [speechSupported, setSpeechSupported] = useState(false);
   const [micSupported, setMicSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const onTranscriptRef = useRef(onTranscript);
+  const onFinalTranscriptRef = useRef(onFinalTranscript);
+
+  useEffect(() => {
+    onTranscriptRef.current = onTranscript;
+    onFinalTranscriptRef.current = onFinalTranscript;
+  }, [onTranscript, onFinalTranscript]);
 
   useEffect(() => {
     setSpeechSupported(typeof window !== 'undefined' && 'speechSynthesis' in window);
@@ -100,8 +109,10 @@ export function useEchoVoice({
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const last = event.results[event.results.length - 1];
       const transcript = last[0]?.transcript?.trim() ?? '';
-      if (last.isFinal && transcript) {
-        onTranscript?.(transcript);
+      if (!transcript) return;
+      onTranscriptRef.current?.(transcript);
+      if (last.isFinal) {
+        onFinalTranscriptRef.current?.(transcript);
       }
     };
 
@@ -117,7 +128,7 @@ export function useEchoVoice({
 
     recognitionRef.current = recognition;
     recognition.start();
-  }, [onTranscript, stopListening, stopSpeaking]);
+  }, [stopListening, stopSpeaking]);
 
   const toggleListening = useCallback(() => {
     if (voiceState === 'listening') {
@@ -128,7 +139,11 @@ export function useEchoVoice({
   }, [voiceState, startListening, stopListening]);
 
   const setThinking = useCallback((thinking: boolean) => {
-    setVoiceState(thinking ? 'thinking' : 'idle');
+    setVoiceState((s) => {
+      if (thinking) return 'thinking';
+      if (s === 'thinking') return 'idle';
+      return s;
+    });
   }, []);
 
   useEffect(() => {

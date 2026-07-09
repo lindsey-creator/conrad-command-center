@@ -55,8 +55,16 @@ export function LiveCore({
       <div className="live-core__pulse" aria-hidden="true" />
       <span className="live-core__dot" aria-hidden="true" />
       {size === 'hero' && (
-        <span className="live-core__label" aria-hidden="true">
-          {online ? 'ECHO LIVE' : 'STANDBY'}
+        <span className={`live-core__label live-core__label--${state}`} aria-hidden="true">
+          {state === 'listening'
+            ? 'LISTENING'
+            : state === 'speaking'
+              ? 'SPEAKING'
+              : state === 'thinking'
+                ? 'THINKING'
+                : online
+                  ? 'ECHO LIVE'
+                  : 'STANDBY'}
         </span>
       )}
     </div>
