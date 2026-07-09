@@ -311,6 +311,11 @@ export interface ClickUpSyncStatus {
   last_result: ClickUpIngestResult | null;
 }
 
+export interface HealthResponse {
+  status: string;
+  service: string;
+}
+
 export interface HealthMetricsResponse {
   status: ConnectSourceStatus;
   sources: string[];
