@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { brain, formatSourceLabel, googleConnectUrl } from '../api/brain';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  brain,
+  formatSourceLabel,
+  googleConnectUrl,
+  type GoogleOAuthStatusResponse,
+} from '../api/brain';
 import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { SOURCE_TO_CONNECTOR } from '../utils/connectors';
@@ -67,6 +72,114 @@ interface ConnectionsProps {
   focusSource?: string | null;
 }
 
+function GoogleConnectWizard() {
+  const [status, setStatus] = useState<GoogleOAuthStatusResponse | null>(null);
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadStatus = useCallback(async () => {
+    try {
+      const data = await brain.googleOAuthStatus();
+      setStatus(data);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not load Google setup status');
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadStatus();
+  }, [loadStatus]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage(null);
+    setError(null);
+    try {
+      const data = await brain.googleOAuthConfig(clientId.trim(), clientSecret.trim());
+      setStatus(data);
+      setClientSecret('');
+      setMessage('Credentials saved. Click Connect Google to sign in.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Save failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const connectHref = `${googleConnectUrl()}${googleConnectUrl().includes('?') ? '&' : '?'}start=1`;
+
+  return (
+    <div className="google-wizard">
+      <p className="feed-hint">
+        <a href={status?.credentials_url ?? 'https://console.cloud.google.com/apis/credentials'} target="_blank" rel="noopener noreferrer">
+          Open Google Cloud Credentials
+        </a>
+        {' '}→ enable Calendar + Gmail APIs → create OAuth client → add redirect URI:
+      </p>
+      {status && (
+        <pre className="google-wizard-uri">{status.redirect_uri}</pre>
+      )}
+      {!status?.has_client_id || !status?.has_client_secret ? (
+        <>
+          <label className="google-wizard-label" htmlFor="google-client-id">
+            Client ID
+          </label>
+          <input
+            id="google-client-id"
+            className="google-wizard-input"
+            type="text"
+            placeholder="….apps.googleusercontent.com"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            autoComplete="off"
+          />
+          <label className="google-wizard-label" htmlFor="google-client-secret">
+            Client secret
+          </label>
+          <input
+            id="google-client-secret"
+            className="google-wizard-input"
+            type="password"
+            placeholder="GOCSPX-…"
+            value={clientSecret}
+            onChange={(e) => setClientSecret(e.target.value)}
+            autoComplete="off"
+          />
+          <div className="feed-actions connection-actions">
+            <button
+              type="button"
+              className="feed-btn"
+              disabled={saving || !clientId.trim() || !clientSecret.trim()}
+              onClick={() => void handleSave()}
+            >
+              {saving ? 'Saving…' : 'Save credentials'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="feed-actions connection-actions">
+          <a className="feed-btn primary" href={connectHref}>
+            Connect Google
+          </a>
+          <button type="button" className="feed-btn secondary" onClick={() => void loadStatus()}>
+            Refresh status
+          </button>
+        </div>
+      )}
+      {message && <p className="feed-hint google-wizard-ok">{message}</p>}
+      {error && <p className="feed-error">{error}</p>}
+      <p className="feed-hint">
+        Or use the full setup page:{' '}
+        <a href={googleConnectUrl()}>{googleConnectUrl()}</a>
+      </p>
+    </div>
+  );
+}
+
 export function Connections({ focusSource }: ConnectionsProps) {
   const fetchStatus = useCallback(() => brain.connectorsStatus(), []);
   const { data, loading, error } = useBrainQuery('connectors-page', fetchStatus, {
@@ -88,9 +201,8 @@ export function Connections({ focusSource }: ConnectionsProps) {
       <section className="feed-section hud-corners">
         <h3>Connections</h3>
         <p className="feed-hint">
-          Optional — the app works with zero connectors. Add keys in{' '}
-          <code>goldfront-os/.env</code> when you want live data, then restart
-          the Brain.
+          Optional — the app works with zero connectors. Google can be connected
+          below without editing <code>.env</code> by hand.
         </p>
         {error && <p className="feed-error">{error}</p>}
         {loading && !data && <p className="feed-hint">Loading…</p>}
@@ -148,18 +260,13 @@ export function Connections({ focusSource }: ConnectionsProps) {
                 ))}
               </div>
               {!info.connected && help && key === 'google_calendar' && (
-                <div className="feed-actions connection-actions">
-                  <a className="feed-btn" href={googleConnectUrl()}>
-                    Connect Google
-                  </a>
-                </div>
+                <GoogleConnectWizard />
               )}
               {!info.connected && help && key !== 'google_calendar' && (
                 <p className="feed-hint connect-instructions">
                   {key === 'gmail' ? (
                     <>
-                      Connect via the Google Calendar card above, or add env vars to{' '}
-                      <code>goldfront-os/.env</code> and restart the Brain.
+                      Connect via the Google Calendar card above.
                     </>
                   ) : (
                     <>

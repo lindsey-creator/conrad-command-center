@@ -130,9 +130,19 @@ export function googleConnectUrl(): string {
   return `${base}/connect/google`;
 }
 
-export interface HealthResponse {
+export interface GoogleOAuthStatusResponse {
+  has_client_id: boolean;
+  has_client_secret: boolean;
+  has_refresh_token: boolean;
+  redirect_uri: string;
+  legacy_redirect_uri: string;
+  ready_to_connect: boolean;
+  connected: boolean;
+  credentials_url: string;
+}
+
+export interface GoogleOAuthConfigResponse extends GoogleOAuthStatusResponse {
   status: string;
-  service: string;
 }
 
 export interface DecisionRecord {
@@ -426,6 +436,12 @@ export const brain = {
     postJson<ShadowValidationResult>('/validation/shadow', { deals }),
   chat: (req: ChatRequest) => postJson<ChatResponse>('/chat', req),
   connectorsStatus: () => fetchJson<ConnectorsStatusResponse>('/connectors/status'),
+  googleOAuthStatus: () => fetchJson<GoogleOAuthStatusResponse>('/connect/google/status'),
+  googleOAuthConfig: (clientId: string, clientSecret: string) =>
+    postJson<GoogleOAuthConfigResponse>('/connect/google/config', {
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
   ghlCrm: () => fetchJson<GhlCrmResponse>('/crm/ghl'),
   audioRecent: (limit = 12) =>
     fetchJson<ConnectSourceResponse>(`/audio/recent?limit=${limit}`),
