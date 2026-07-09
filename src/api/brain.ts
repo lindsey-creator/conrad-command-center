@@ -130,6 +130,14 @@ export function googleConnectUrl(): string {
   return `${base}/connect/google`;
 }
 
+/** Full URL for Brain-hosted Whoop OAuth (same-window redirect). */
+export function whoopConnectUrl(): string {
+  const base = getBase();
+  if (base === '') return '/connect/whoop';
+  if (base === '/api') return 'http://127.0.0.1:8000/connect/whoop';
+  return `${base}/connect/whoop`;
+}
+
 export interface GoogleOAuthStatusResponse {
   has_client_id: boolean;
   has_client_secret: boolean;
@@ -138,10 +146,29 @@ export interface GoogleOAuthStatusResponse {
   legacy_redirect_uri: string;
   ready_to_connect: boolean;
   connected: boolean;
+  credentials_look_placeholder: boolean;
+  needs_sign_in: boolean;
   credentials_url: string;
 }
 
 export interface GoogleOAuthConfigResponse extends GoogleOAuthStatusResponse {
+  status: string;
+}
+
+export interface WhoopOAuthStatusResponse {
+  has_client_id: boolean;
+  has_client_secret: boolean;
+  has_refresh_token: boolean;
+  has_orphaned_refresh_token: boolean;
+  redirect_uri: string;
+  legacy_redirect_uri: string;
+  ready_to_connect: boolean;
+  connected: boolean;
+  credentials_url: string;
+  setup_note?: string | null;
+}
+
+export interface WhoopOAuthConfigResponse extends WhoopOAuthStatusResponse {
   status: string;
 }
 
@@ -259,6 +286,7 @@ export interface ConnectorsStatusResponse {
       team_location_id?: string;
       location_label?: string;
       location_note?: string;
+      setup_note?: string;
     }
   >;
   connected_count: number;
@@ -444,6 +472,12 @@ export const brain = {
   googleOAuthStatus: () => fetchJson<GoogleOAuthStatusResponse>('/connect/google/status'),
   googleOAuthConfig: (clientId: string, clientSecret: string) =>
     postJson<GoogleOAuthConfigResponse>('/connect/google/config', {
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+  whoopOAuthStatus: () => fetchJson<WhoopOAuthStatusResponse>('/connect/whoop/status'),
+  whoopOAuthConfig: (clientId: string, clientSecret: string) =>
+    postJson<WhoopOAuthConfigResponse>('/connect/whoop/config', {
       client_id: clientId,
       client_secret: clientSecret,
     }),
