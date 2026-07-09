@@ -571,6 +571,18 @@
   margin-bottom: 0;
 }
 
+.connection-actions {
+  margin-top: 12px;
+}
+
+.connection-actions .feed-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--ink-deep, #0a0a0a);
+}
+
 .issue-task .feed-label {
   margin-top: 8px;
 }

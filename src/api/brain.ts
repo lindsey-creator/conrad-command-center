@@ -122,6 +122,14 @@ function getBase(): string {
   return '/api';
 }
 
+/** Full URL for Brain-hosted Google OAuth (same-window redirect). */
+export function googleConnectUrl(): string {
+  const base = getBase();
+  if (base === '') return '/connect/google';
+  if (base === '/api') return 'http://127.0.0.1:8000/connect/google';
+  return `${base}/connect/google`;
+}
+
 export interface HealthResponse {
   status: string;
   service: string;

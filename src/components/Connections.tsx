@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { brain, formatSourceLabel } from '../api/brain';
+import { brain, formatSourceLabel, googleConnectUrl } from '../api/brain';
 import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { SOURCE_TO_CONNECTOR } from '../utils/connectors';
@@ -25,7 +25,7 @@ const CONNECTOR_HELP: Record<
   },
   google_calendar: {
     label: 'Google Calendar',
-    where: 'Google Cloud OAuth app + refresh token (Calendar scope)',
+    where: 'Connect Google — Calendar + Gmail read access via OAuth',
     envVars: [
       'GOOGLE_CLIENT_ID',
       'GOOGLE_CLIENT_SECRET',
@@ -34,7 +34,7 @@ const CONNECTOR_HELP: Record<
   },
   gmail: {
     label: 'Gmail',
-    where: 'Same Google OAuth app — add Gmail read scope',
+    where: 'Uses the same Google OAuth connection as Calendar',
     envVars: [
       'GOOGLE_CLIENT_ID',
       'GOOGLE_CLIENT_SECRET',
@@ -147,10 +147,26 @@ export function Connections({ focusSource }: ConnectionsProps) {
                   </code>
                 ))}
               </div>
-              {!info.connected && help && (
+              {!info.connected && help && key === 'google_calendar' && (
+                <div className="feed-actions connection-actions">
+                  <a className="feed-btn" href={googleConnectUrl()}>
+                    Connect Google
+                  </a>
+                </div>
+              )}
+              {!info.connected && help && key !== 'google_calendar' && (
                 <p className="feed-hint connect-instructions">
-                  Add the env vars above to <code>goldfront-os/.env</code> and
-                  restart the Brain.
+                  {key === 'gmail' ? (
+                    <>
+                      Connect via the Google Calendar card above, or add env vars to{' '}
+                      <code>goldfront-os/.env</code> and restart the Brain.
+                    </>
+                  ) : (
+                    <>
+                      Add the env vars above to <code>goldfront-os/.env</code> and
+                      restart the Brain.
+                    </>
+                  )}
                 </p>
               )}
             </section>
