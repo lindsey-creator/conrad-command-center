@@ -908,6 +908,225 @@
   cursor: not-allowed;
 }
 
+/* ClickUp task detail sheet (Open = read + instruct) */
+.clickup-detail-sheet {
+  width: min(480px, 100%);
+  max-height: min(88vh, 680px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+@media (min-width: 560px) {
+  .clickup-detail-sheet {
+    border-radius: var(--radius);
+  }
+}
+
+.clickup-detail-sheet__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 4px;
+}
+
+.clickup-detail-sheet__status {
+  margin: 0;
+  padding: 0 16px 12px;
+}
+
+.clickup-detail-sheet__error-wrap {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.clickup-detail-sheet__retry {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--cyan);
+  cursor: pointer;
+}
+
+.clickup-detail-sheet__empty {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px dashed var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.clickup-detail-sheet__meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.clickup-detail-sheet__pill {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.clickup-detail-sheet__pill--assignee {
+  background: rgba(201, 162, 39, 0.12);
+  color: var(--gold-2);
+  border-color: rgba(201, 162, 39, 0.25);
+}
+
+.clickup-detail-sheet__pill--unassigned {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.clickup-detail-sheet__pill--due {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.clickup-detail-sheet__context {
+  margin: 0;
+  padding: 0 16px 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.clickup-detail-sheet__link-wrap {
+  margin: 0;
+  padding: 0 16px 10px;
+}
+
+.clickup-detail-sheet__link {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.clickup-detail-sheet__link:hover {
+  text-decoration: underline;
+}
+
+.clickup-detail-sheet__section {
+  padding: 0 16px 12px;
+  flex-shrink: 0;
+}
+
+.clickup-detail-sheet__section-title {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.clickup-detail-sheet__body {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.clickup-detail-sheet__comments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clickup-detail-sheet__comment {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.clickup-detail-sheet__comment-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.clickup-detail-sheet__comment-author {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold-2);
+}
+
+.clickup-detail-sheet__comment-time {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.clickup-detail-sheet__comment-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.clickup-detail-sheet__instructions {
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+
+.clickup-detail-sheet__sent {
+  margin: 0;
+  padding: 0 16px 8px;
+  font-size: 12px;
+  color: var(--cyan);
+}
+
+.clickup-detail-sheet__send {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.35);
+  color: var(--cyan);
+}
+
+.clickup-detail-sheet__send:hover:not(:disabled) {
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.25);
+}
+
 @media (max-width: 480px) {
   .lane-row--with-actions {
     gap: 8px;

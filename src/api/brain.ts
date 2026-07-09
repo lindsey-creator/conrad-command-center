@@ -55,6 +55,40 @@ export interface ClickUpTaskResponse {
   error?: string;
 }
 
+export interface ClickUpTaskComment {
+  id: string;
+  text: string;
+  author: string;
+  created_at?: string | null;
+}
+
+export interface ClickUpTaskDetail {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  status_type?: string;
+  assignees: string[];
+  assignee: string;
+  due_date?: string | null;
+  url?: string | null;
+  list_name?: string;
+  space_name?: string;
+  comments: ClickUpTaskComment[];
+}
+
+export interface ClickUpTaskDetailResponse {
+  status: string;
+  sources?: string[];
+  task?: ClickUpTaskDetail;
+}
+
+export interface ClickUpCommentResponse {
+  status: string;
+  sources?: string[];
+  comment?: Record<string, unknown>;
+}
+
 export interface TeamPulseResponse {
   status: ConnectSourceStatus;
   sources: string[];
@@ -411,6 +445,15 @@ export const brain = {
     postJson<ClickUpTaskResponse>(
       `/clickup/tasks/${encodeURIComponent(taskId)}/reopen`,
       {},
+    ),
+  fetchClickUpTaskDetail: (taskId: string) =>
+    fetchJson<ClickUpTaskDetailResponse>(
+      `/clickup/tasks/${encodeURIComponent(taskId)}`,
+    ),
+  postClickUpTaskComment: (taskId: string, text: string) =>
+    postJson<ClickUpCommentResponse>(
+      `/clickup/tasks/${encodeURIComponent(taskId)}/comment`,
+      { text: text.trim() },
     ),
   clickUpMembers: () => fetchJson<ClickUpMembersResponse>('/clickup/members'),
   assignClickUpTask: (taskId: string, memberId: string, note?: string) =>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { brain } from '../api/brain';
+import { TaskDetailSheet } from './TaskDetailSheet';
 import { QuickAssignSheet } from './QuickAssignSheet';
 
 interface ClickUpTaskActionsProps {
@@ -19,30 +20,25 @@ export function ClickUpTaskActions({
   onCompleteFailed,
   compact,
 }: ClickUpTaskActionsProps) {
-  const [loading, setLoading] = useState<'complete' | 'open' | null>(null);
+  const [loading, setLoading] = useState<'complete' | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const run = async (action: 'complete' | 'open') => {
-    setLoading(action);
+  const runComplete = async () => {
+    setLoading('complete');
     setError(null);
-    const optimisticComplete = action === 'complete';
-    if (optimisticComplete) {
-      onCompleted?.(taskId);
-    }
+    onCompleted?.(taskId);
     try {
-      const res =
-        action === 'complete'
-          ? await brain.completeClickUpTask(taskId)
-          : await brain.reopenClickUpTask(taskId);
+      const res = await brain.completeClickUpTask(taskId);
       if (res.status === 'connect_source') {
-        if (optimisticComplete) onCompleteFailed?.(taskId);
+        onCompleteFailed?.(taskId);
         setError('ClickUp not connected');
         return;
       }
       onUpdated?.();
     } catch (e) {
-      if (optimisticComplete) onCompleteFailed?.(taskId);
+      onCompleteFailed?.(taskId);
       setError(e instanceof Error ? e.message : 'Update failed');
     } finally {
       setLoading(null);
@@ -61,7 +57,7 @@ export function ClickUpTaskActions({
           type="button"
           className="clickup-btn clickup-btn--gold"
           disabled={loading !== null}
-          onClick={() => void run('complete')}
+          onClick={() => void runComplete()}
           aria-label="Mark task done"
         >
           {loading === 'complete' ? '…' : 'Done'}
@@ -79,10 +75,10 @@ export function ClickUpTaskActions({
           type="button"
           className="clickup-btn clickup-btn--cyan"
           disabled={loading !== null}
-          onClick={() => void run('open')}
-          aria-label="Reopen task"
+          onClick={() => setDetailOpen(true)}
+          aria-label="View task and send instructions"
         >
-          {loading === 'open' ? '…' : 'Open'}
+          Open
         </button>
         {error && (
           <span className="clickup-actions__error" role="alert">
@@ -95,6 +91,12 @@ export function ClickUpTaskActions({
         open={assignOpen}
         onClose={() => setAssignOpen(false)}
         onAssigned={onUpdated}
+      />
+      <TaskDetailSheet
+        taskId={taskId}
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        onCommentSent={onUpdated}
       />
     </>
   );
