@@ -27,6 +27,7 @@ export interface TeamPulseGap {
   committed: string;
   actual: string;
   suggested_move: string;
+  clickup_task_id?: string;
 }
 
 export interface TeamPulseOverdue {
@@ -34,6 +35,21 @@ export interface TeamPulseOverdue {
   task: string;
   due: string;
   days_late: number;
+  clickup_task_id?: string;
+}
+
+export interface WatchlistItem {
+  title?: string;
+  detail?: string;
+  source?: string;
+  clickup_task_id?: string;
+}
+
+export interface ClickUpTaskResponse {
+  status: string;
+  sources?: string[];
+  task?: Record<string, unknown>;
+  error?: string;
 }
 
 export interface TeamPulseResponse {
@@ -308,6 +324,19 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function patchJson<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${getBase()}${path}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`Brain API ${path}: ${res.status}${detail ? ` — ${detail}` : ''}`);
+  }
+  return res.json() as Promise<T>;
+}
+
 export const brain = {
   health: () => fetchJson<HealthResponse>('/health'),
   blindspots: () => fetchJson<ConnectSourceResponse>('/blindspots'),
@@ -349,6 +378,18 @@ export const brain = {
   trainCounts: () => fetchJson<TrainCounts>('/train/counts'),
   clickUpSyncStatus: () => fetchJson<ClickUpSyncStatus>('/ingest/clickup/status'),
   syncClickUp: () => postJson<ClickUpIngestResult>('/ingest/clickup', {}),
+  updateClickUpTask: (taskId: string, patch: { status?: string; name?: string }) =>
+    patchJson<ClickUpTaskResponse>(`/clickup/tasks/${encodeURIComponent(taskId)}`, patch),
+  completeClickUpTask: (taskId: string) =>
+    postJson<ClickUpTaskResponse>(
+      `/clickup/tasks/${encodeURIComponent(taskId)}/complete`,
+      {},
+    ),
+  reopenClickUpTask: (taskId: string) =>
+    postJson<ClickUpTaskResponse>(
+      `/clickup/tasks/${encodeURIComponent(taskId)}/reopen`,
+      {},
+    ),
 };
 
 export function formatSourceLabel(sources: string[]): string {

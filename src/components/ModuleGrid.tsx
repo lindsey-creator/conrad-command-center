@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { brain } from '../api/brain';
+import { brain, type WatchlistItem } from '../api/brain';
 import { POLL_CONNECTORS_MS, POLL_FAST_MS, POLL_MODULE_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useFlashOnUpdate } from '../hooks/useFlashOnUpdate';
 import { useBrainQuery } from '../hooks/useBrainQuery';
@@ -10,6 +10,7 @@ import {
   itemTime,
   type LaneRowSeverity,
 } from '../utils/renderItems';
+import { ClickUpTaskActions } from './ClickUpTaskActions';
 import { ConnectSource } from './ConnectSource';
 import { formatAdsMetric, IssueTaskForm } from './IssueTaskForm';
 import { IntelLane } from './IntelLane';
@@ -38,24 +39,39 @@ function countItems(data: { items?: unknown[] } | null | undefined): number {
   return data?.items?.length ?? 0;
 }
 
+function clickupTaskId(item: unknown): string | null {
+  const row = item as WatchlistItem;
+  if (row.source !== 'clickup') return null;
+  const id = row.clickup_task_id;
+  return id ? String(id) : null;
+}
+
 function LaneRow({
   item,
   fallbackTime,
+  clickupConnected,
+  onTaskUpdated,
 }: {
   item: unknown;
   fallbackTime?: string;
+  clickupConnected?: boolean;
+  onTaskUpdated?: () => void;
 }) {
   const severity = itemSeverity(item);
   const time = itemTime(item) ?? fallbackTime ?? null;
+  const taskId = clickupConnected ? clickupTaskId(item) : null;
 
   return (
-    <div className="lane-row">
+    <div className={`lane-row${taskId ? ' lane-row--with-actions' : ''}`}>
       {time ? (
         <span className="lane-row__time">{time}</span>
       ) : (
         <span className={`lane-row__dot lane-row__dot--${severity}`} aria-hidden="true" />
       )}
       <span className="lane-row__text">{itemLabel(item)}</span>
+      {taskId && (
+        <ClickUpTaskActions taskId={taskId} onUpdated={onTaskUpdated} compact />
+      )}
     </div>
   );
 }
@@ -64,18 +80,61 @@ function OverdueRow({
   person,
   task,
   daysLate,
+  clickupTaskId: taskId,
+  clickupConnected,
+  onTaskUpdated,
 }: {
   person: string;
   task: string;
   daysLate: number;
+  clickupTaskId?: string;
+  clickupConnected?: boolean;
+  onTaskUpdated?: () => void;
 }) {
   const severity: LaneRowSeverity = daysLate >= 7 ? 'crit' : 'warn';
+  const showActions = clickupConnected && taskId;
+
   return (
-    <div className="lane-row">
+    <div className={`lane-row${showActions ? ' lane-row--with-actions' : ''}`}>
       <span className={`lane-row__dot lane-row__dot--${severity}`} aria-hidden="true" />
       <span className="lane-row__text">
         <strong>{person}</strong>: {task} ({daysLate}d late)
       </span>
+      {showActions && taskId && (
+        <ClickUpTaskActions taskId={taskId} onUpdated={onTaskUpdated} compact />
+      )}
+    </div>
+  );
+}
+
+function GapRow({
+  person,
+  committed,
+  actual,
+  suggestedMove,
+  clickupTaskId: taskId,
+  clickupConnected,
+  onTaskUpdated,
+}: {
+  person: string;
+  committed: string;
+  actual: string;
+  suggestedMove: string;
+  clickupTaskId?: string;
+  clickupConnected?: boolean;
+  onTaskUpdated?: () => void;
+}) {
+  const showActions = clickupConnected && taskId;
+
+  return (
+    <div className={`lane-row${showActions ? ' lane-row--with-actions' : ''}`}>
+      <span className="lane-row__dot lane-row__dot--warn" aria-hidden="true" />
+      <span className="lane-row__text">
+        <strong>{person}</strong>: {committed} → {actual}. {suggestedMove}
+      </span>
+      {showActions && taskId && (
+        <ClickUpTaskActions taskId={taskId} onUpdated={onTaskUpdated} compact />
+      )}
     </div>
   );
 }
@@ -158,6 +217,13 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
   const connected = connectors.data?.connected_count ?? 0;
   const total = connectors.data?.total ?? 9;
+  const clickupConnected = connectors.data?.connectors?.clickup?.connected ?? false;
+
+  const refreshClickUpLanes = useCallback(() => {
+    watchlist.refresh();
+    teamPulse.refresh();
+    dailyBrief.refresh();
+  }, [watchlist, teamPulse, dailyBrief]);
 
   const topMoveDollars = topMoves.data?.moves?.[0]?.dollars ?? '—';
 
@@ -395,7 +461,12 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               {watchlist.data && hasLiveData(watchlist.data) ? (
                 <div className="item-list">
                   {(watchlist.data.items ?? []).map((item, i) => (
-                    <LaneRow key={i} item={item} />
+                    <LaneRow
+                      key={i}
+                      item={item}
+                      clickupConnected={clickupConnected}
+                      onTaskUpdated={refreshClickUpLanes}
+                    />
                   ))}
                 </div>
               ) : watchlist.data ? (
@@ -420,13 +491,16 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               ) : teamPulse.data ? (
                 <div className="item-list">
                   {teamPulse.data.gaps.map((g, i) => (
-                    <div key={i} className="lane-row">
-                      <span className="lane-row__dot lane-row__dot--warn" aria-hidden="true" />
-                      <span className="lane-row__text">
-                        <strong>{g.person}</strong>: {g.committed} → {g.actual}.{' '}
-                        {g.suggested_move}
-                      </span>
-                    </div>
+                    <GapRow
+                      key={i}
+                      person={g.person}
+                      committed={g.committed}
+                      actual={g.actual}
+                      suggestedMove={g.suggested_move}
+                      clickupTaskId={g.clickup_task_id}
+                      clickupConnected={clickupConnected}
+                      onTaskUpdated={refreshClickUpLanes}
+                    />
                   ))}
                   {teamPulse.data.overdue.map((o, i) => (
                     <OverdueRow
@@ -434,6 +508,9 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                       person={o.person}
                       task={o.task}
                       daysLate={o.days_late}
+                      clickupTaskId={o.clickup_task_id}
+                      clickupConnected={clickupConnected}
+                      onTaskUpdated={refreshClickUpLanes}
                     />
                   ))}
                 </div>
@@ -465,8 +542,8 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               )}
             </LaneModule>
 
-            <LaneModule title="Issue a Task" icon="📋" pill="Rhino Robot" defaultOpen={false}>
-              <p>Voice or text → routed via Rhino Robot to ClickUp with context.</p>
+            <LaneModule title="Issue a Task" icon="📋" pill="Echo Route" defaultOpen={false}>
+              <p>Voice or text → routed via Echo to ClickUp with context.</p>
               <IssueTaskForm sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
             </LaneModule>
         </IntelLane>
@@ -474,7 +551,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         <IntelLane
           variant="audio"
           title="Echo Intel"
-          subtitle="Fieldy · Brief · Rhino Robot"
+          subtitle="Fieldy · Brief · Echo"
           badge={briefTodayCount > 0 ? briefTodayCount : null}
         >
             <LaneModule
@@ -509,7 +586,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                   onConnect={onConnect}
                 />
               ) : (
-                <p>Meeting captures from Fieldy and Rhino Robot / ClickUp.</p>
+                <p>Meeting captures from Fieldy and Echo / ClickUp.</p>
               )}
             </LaneModule>
 
@@ -557,7 +634,12 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                       <div className="item-list">
                         <div className="brief-kicker">Promises others made to me</div>
                         {(dailyBrief.data.commitments_owed.items ?? []).map((item, i) => (
-                          <LaneRow key={`o-${i}`} item={item} />
+                          <LaneRow
+                            key={`o-${i}`}
+                            item={item}
+                            clickupConnected={clickupConnected}
+                            onTaskUpdated={refreshClickUpLanes}
+                          />
                         ))}
                       </div>
                     )}
@@ -588,13 +670,13 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
             </LaneModule>
 
             <LaneModule
-              title="Rhino Robot · Meetings"
+              title="Echo · Meetings"
               icon="🤖"
               pill="ClickUp"
               defaultOpen={false}
             >
               <p>
-                Plaud captures → Rhino Robot routes meeting output to All Meetings Log.
+                Plaud captures → Echo routes meeting output to All Meetings Log.
                 Paste raw transcript when share URLs aren&apos;t fetchable.
               </p>
               <ConnectSource sources={[...STATIC_SOURCES.teamFieldy]} onConnect={onConnect} />
