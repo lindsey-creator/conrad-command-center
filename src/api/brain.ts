@@ -175,6 +175,22 @@ export interface ChatResponse {
   note?: string;
   error?: string;
   grounding?: Record<string, unknown>;
+  action?: string;
+  action_status?: string;
+  action_result?: Record<string, unknown>;
+}
+
+export interface ClickUpMember {
+  id: string;
+  username: string;
+  email: string;
+  name: string;
+}
+
+export interface ClickUpMembersResponse {
+  status: ConnectSourceStatus;
+  sources?: string[];
+  members: ClickUpMember[];
 }
 
 export interface ConnectorsStatusResponse {
@@ -205,6 +221,8 @@ export interface GhlCrmResponse {
     detail?: string;
     date?: string;
     source?: string;
+    ghl_contact_id?: string;
+    ghl_url?: string;
   }>;
 }
 
@@ -389,6 +407,12 @@ export const brain = {
     postJson<ClickUpTaskResponse>(
       `/clickup/tasks/${encodeURIComponent(taskId)}/reopen`,
       {},
+    ),
+  clickUpMembers: () => fetchJson<ClickUpMembersResponse>('/clickup/members'),
+  assignClickUpTask: (taskId: string, memberId: string) =>
+    postJson<ClickUpTaskResponse>(
+      `/clickup/tasks/${encodeURIComponent(taskId)}/assign`,
+      { member_id: memberId },
     ),
 };
 

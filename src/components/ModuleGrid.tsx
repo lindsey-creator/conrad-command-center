@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { brain, type WatchlistItem } from '../api/brain';
+import { useBrainRefreshListener } from '../hooks/brainRefresh';
 import { POLL_CONNECTORS_MS, POLL_FAST_MS, POLL_MODULE_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useFlashOnUpdate } from '../hooks/useFlashOnUpdate';
 import { useBrainQuery } from '../hooks/useBrainQuery';
@@ -46,6 +47,12 @@ function clickupTaskId(item: unknown): string | null {
   return id ? String(id) : null;
 }
 
+function ghlContactUrl(item: unknown): string | null {
+  const row = item as { ghl_url?: string; ghl_contact_id?: string };
+  if (row.ghl_url) return row.ghl_url;
+  return null;
+}
+
 function LaneRow({
   item,
   fallbackTime,
@@ -60,15 +67,26 @@ function LaneRow({
   const severity = itemSeverity(item);
   const time = itemTime(item) ?? fallbackTime ?? null;
   const taskId = clickupConnected ? clickupTaskId(item) : null;
+  const ghlUrl = ghlContactUrl(item);
 
   return (
-    <div className={`lane-row${taskId ? ' lane-row--with-actions' : ''}`}>
+    <div className={`lane-row${taskId || ghlUrl ? ' lane-row--with-actions' : ''}`}>
       {time ? (
         <span className="lane-row__time">{time}</span>
       ) : (
         <span className={`lane-row__dot lane-row__dot--${severity}`} aria-hidden="true" />
       )}
       <span className="lane-row__text">{itemLabel(item)}</span>
+      {ghlUrl && (
+        <a
+          className="ghl-open-btn"
+          href={ghlUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open in GHL
+        </a>
+      )}
       {taskId && (
         <ClickUpTaskActions taskId={taskId} onUpdated={onTaskUpdated} compact />
       )}
@@ -224,6 +242,36 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
     teamPulse.refresh();
     dailyBrief.refresh();
   }, [watchlist, teamPulse, dailyBrief]);
+
+  const refreshAllLanes = useCallback(() => {
+    blindspots.refresh();
+    watchlist.refresh();
+    topMoves.refresh();
+    teamPulse.refresh();
+    dailyBrief.refresh();
+    ghlCrm.refresh();
+    audioRecent.refresh();
+    healthMetrics.refresh();
+    weekAhead.refresh();
+    metaAds.refresh();
+    weather.refresh();
+    connectors.refresh();
+  }, [
+    blindspots,
+    watchlist,
+    topMoves,
+    teamPulse,
+    dailyBrief,
+    ghlCrm,
+    audioRecent,
+    healthMetrics,
+    weekAhead,
+    metaAds,
+    weather,
+    connectors,
+  ]);
+
+  useBrainRefreshListener(refreshAllLanes);
 
   const topMoveDollars = topMoves.data?.moves?.[0]?.dollars ?? '—';
 

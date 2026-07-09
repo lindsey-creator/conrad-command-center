@@ -12,6 +12,7 @@ import { Header } from './components/Header';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
 import { PendingApprovals } from './components/PendingApprovals';
+import { QuickRunStrip } from './components/QuickRunStrip';
 import type { EchoVoiceState } from './hooks/useEchoVoice';
 import './styles/tokens.css';
 import './styles/layout.css';
@@ -29,11 +30,16 @@ export default function App() {
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
+  const [clickupConnected, setClickupConnected] = useState(false);
 
   const checkHealth = useCallback(async () => {
     try {
-      const res = await brain.health();
-      setBrainOnline(res.status === 'ok');
+      const [healthRes, connectorsRes] = await Promise.all([
+        brain.health(),
+        brain.connectorsStatus().catch(() => null),
+      ]);
+      setBrainOnline(healthRes.status === 'ok');
+      setClickupConnected(connectorsRes?.connectors?.clickup?.connected ?? false);
       touchBrainLive();
     } catch {
       setBrainOnline(false);
@@ -86,7 +92,8 @@ export default function App() {
       )}
       {page === 'dashboard' ? (
         <div className="command-deck__main">
-          <EchoCommand onVoiceStateChange={setVoiceState} />
+          <EchoCommand brainOnline={brainOnline} onVoiceStateChange={setVoiceState} />
+          <QuickRunStrip clickupConnected={clickupConnected} />
           <PendingApprovals />
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <ModuleGrid onConnect={openConnections} />
