@@ -119,17 +119,7 @@ export function QuickAssignSheet({
           placeholder="Search team…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-        />
-        <label className="quick-assign-sheet__note-label" htmlFor="quick-assign-note">
-          Note <span className="quick-assign-sheet__optional">(optional)</span>
-        </label>
-        <textarea
-          id="quick-assign-note"
-          className="quick-assign-sheet__note feed-textarea"
-          placeholder="Context for the assignee — posted as a ClickUp comment"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={2}
+          autoFocus
         />
         {loading && <p className="quick-assign-sheet__hint">Loading team…</p>}
         {error && (

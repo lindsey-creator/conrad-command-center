@@ -658,6 +658,100 @@
   margin-top: 2px;
 }
 
+.quick-assign-sheet__member--selected {
+  background: var(--cyan-dim);
+  outline: 1px solid rgba(0, 212, 255, 0.35);
+}
+
+.quick-assign-sheet__note-wrap {
+  padding: 0 16px 12px;
+  flex-shrink: 0;
+}
+
+.quick-assign-sheet__note-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.quick-assign-sheet__optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--faint);
+}
+
+.quick-assign-sheet__note {
+  min-height: 72px;
+  margin-bottom: 0;
+  font-size: 13px;
+}
+
+.quick-assign-sheet__footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.quick-assign-sheet__cancel,
+.quick-assign-sheet__confirm {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--line-strong);
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.quick-assign-sheet__cancel {
+  background: transparent;
+  color: var(--muted);
+}
+
+.quick-assign-sheet__confirm {
+  background: var(--gold-dim);
+  border-color: rgba(201, 162, 39, 0.35);
+  color: var(--gold-2);
+}
+
+.quick-assign-sheet__confirm:disabled,
+.quick-assign-sheet__cancel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.quick-assign-sheet__confirm:hover:not(:disabled) {
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.lane-row--removing {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  transform: translateX(8px);
+  transition:
+    opacity 0.25s ease,
+    max-height 0.28s ease,
+    transform 0.25s ease,
+    margin 0.28s ease,
+    padding 0.28s ease;
+}
+
 .clickup-assignee-chip {
   font-family: var(--font-mono);
   font-size: 9px;
@@ -708,6 +802,110 @@
   color: var(--crit);
   flex: 1 1 100%;
   margin-top: 2px;
+}
+
+.lane-row--removing {
+  animation: lane-row-out 0.28s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes lane-row-out {
+  from {
+    opacity: 1;
+    max-height: 80px;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    transform: translateX(12px);
+  }
+}
+
+.quick-assign-sheet__member--selected {
+  background: var(--cyan-dim);
+  border: 1px solid rgba(0, 212, 255, 0.35);
+}
+
+.quick-assign-sheet__note-wrap {
+  padding: 0 16px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.quick-assign-sheet__note-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 10px 0 6px;
+}
+
+.quick-assign-sheet__optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+.quick-assign-sheet__note {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--ivory);
+  font-size: 13px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.quick-assign-sheet__note:focus {
+  outline: none;
+  border-color: rgba(0, 212, 255, 0.45);
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.15);
+}
+
+.quick-assign-sheet__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.quick-assign-sheet__cancel,
+.quick-assign-sheet__confirm {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quick-assign-sheet__cancel {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+}
+
+.quick-assign-sheet__confirm {
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--gold-2);
+}
+
+.quick-assign-sheet__confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {

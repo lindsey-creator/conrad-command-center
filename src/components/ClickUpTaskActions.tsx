@@ -4,6 +4,7 @@ import { QuickAssignSheet } from './QuickAssignSheet';
 
 interface ClickUpTaskActionsProps {
   taskId: string;
+  assignee?: string | null;
   onUpdated?: () => void;
   onCompleted?: (taskId: string) => void;
   onCompleteFailed?: (taskId: string) => void;
@@ -12,6 +13,7 @@ interface ClickUpTaskActionsProps {
 
 export function ClickUpTaskActions({
   taskId,
+  assignee,
   onUpdated,
   onCompleted,
   onCompleteFailed,
@@ -50,6 +52,11 @@ export function ClickUpTaskActions({
   return (
     <>
       <div className={`clickup-actions${compact ? ' clickup-actions--compact' : ''}`}>
+        {assignee && assignee !== 'Unassigned' && (
+          <span className="clickup-assignee-chip" title={`Assigned: ${assignee}`}>
+            {assignee}
+          </span>
+        )}
         <button
           type="button"
           className="clickup-btn clickup-btn--gold"

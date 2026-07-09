@@ -47,14 +47,6 @@ function clickupTaskId(item: unknown): string | null {
   return id ? String(id) : null;
 }
 
-function clickupAssignee(item: unknown): string | null {
-  const row = item as WatchlistItem;
-  const assignee = row.assignee?.trim();
-  if (assignee) return assignee;
-  if (row.source !== 'clickup' || !row.detail) return null;
-  const head = row.detail.split('·')[0]?.trim();
-  return head && head !== 'Unassigned' ? head : null;
-}
 
 function ghlContactUrl(item: unknown): string | null {
   const row = item as { ghl_url?: string; ghl_contact_id?: string };
@@ -67,11 +59,17 @@ function LaneRow({
   fallbackTime,
   clickupConnected,
   onTaskUpdated,
+  onTaskCompleted,
+  onTaskCompleteFailed,
+  removing,
 }: {
   item: unknown;
   fallbackTime?: string;
   clickupConnected?: boolean;
   onTaskUpdated?: () => void;
+  onTaskCompleted?: (taskId: string) => void;
+  onTaskCompleteFailed?: (taskId: string) => void;
+  removing?: boolean;
 }) {
   const severity = itemSeverity(item);
   const time = itemTime(item) ?? fallbackTime ?? null;
@@ -80,7 +78,11 @@ function LaneRow({
   const assignee = clickupConnected ? clickupAssignee(item) : null;
 
   return (
-    <div className={`lane-row${taskId || ghlUrl ? ' lane-row--with-actions' : ''}`}>
+    <div
+      className={`lane-row${taskId || ghlUrl ? ' lane-row--with-actions' : ''}${
+        removing ? ' lane-row--removing' : ''
+      }`}
+    >
       {time ? (
         <span className="lane-row__time">{time}</span>
       ) : (
@@ -102,6 +104,8 @@ function LaneRow({
           taskId={taskId}
           assignee={assignee}
           onUpdated={onTaskUpdated}
+          onCompleted={onTaskCompleted}
+          onCompleteFailed={onTaskCompleteFailed}
           compact
         />
       )}
@@ -116,6 +120,9 @@ function OverdueRow({
   clickupTaskId: taskId,
   clickupConnected,
   onTaskUpdated,
+  onTaskCompleted,
+  onTaskCompleteFailed,
+  removing,
 }: {
   person: string;
   task: string;
@@ -123,12 +130,19 @@ function OverdueRow({
   clickupTaskId?: string;
   clickupConnected?: boolean;
   onTaskUpdated?: () => void;
+  onTaskCompleted?: (taskId: string) => void;
+  onTaskCompleteFailed?: (taskId: string) => void;
+  removing?: boolean;
 }) {
   const severity: LaneRowSeverity = daysLate >= 7 ? 'crit' : 'warn';
   const showActions = clickupConnected && taskId;
 
   return (
-    <div className={`lane-row${showActions ? ' lane-row--with-actions' : ''}`}>
+    <div
+      className={`lane-row${showActions ? ' lane-row--with-actions' : ''}${
+        removing ? ' lane-row--removing' : ''
+      }`}
+    >
       <span className={`lane-row__dot lane-row__dot--${severity}`} aria-hidden="true" />
       <span className="lane-row__text">
         <strong>{person}</strong>: {task} ({daysLate}d late)
@@ -138,6 +152,8 @@ function OverdueRow({
           taskId={taskId}
           assignee={person !== 'Unassigned' ? person : undefined}
           onUpdated={onTaskUpdated}
+          onCompleted={onTaskCompleted}
+          onCompleteFailed={onTaskCompleteFailed}
           compact
         />
       )}
@@ -153,6 +169,9 @@ function GapRow({
   clickupTaskId: taskId,
   clickupConnected,
   onTaskUpdated,
+  onTaskCompleted,
+  onTaskCompleteFailed,
+  removing,
 }: {
   person: string;
   committed: string;
@@ -161,17 +180,31 @@ function GapRow({
   clickupTaskId?: string;
   clickupConnected?: boolean;
   onTaskUpdated?: () => void;
+  onTaskCompleted?: (taskId: string) => void;
+  onTaskCompleteFailed?: (taskId: string) => void;
+  removing?: boolean;
 }) {
   const showActions = clickupConnected && taskId;
 
   return (
-    <div className={`lane-row${showActions ? ' lane-row--with-actions' : ''}`}>
+    <div
+      className={`lane-row${showActions ? ' lane-row--with-actions' : ''}${
+        removing ? ' lane-row--removing' : ''
+      }`}
+    >
       <span className="lane-row__dot lane-row__dot--warn" aria-hidden="true" />
       <span className="lane-row__text">
         <strong>{person}</strong>: {committed} → {actual}. {suggestedMove}
       </span>
       {showActions && taskId && (
-        <ClickUpTaskActions taskId={taskId} onUpdated={onTaskUpdated} compact />
+        <ClickUpTaskActions
+          taskId={taskId}
+          assignee={person !== 'Unassigned' ? person : undefined}
+          onUpdated={onTaskUpdated}
+          onCompleted={onTaskCompleted}
+          onCompleteFailed={onTaskCompleteFailed}
+          compact
+        />
       )}
     </div>
   );
@@ -249,19 +282,102 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
   const briefTodayCount =
     countItems(dailyBrief.data?.today) + countItems(dailyBrief.data?.today_schedule);
 
-  const watchCount = countItems(watchlist.data);
-  const overdueCount = teamPulse.data?.overdue?.length ?? 0;
-  const watchTotal = watchCount + overdueCount;
-
   const connected = connectors.data?.connected_count ?? 0;
   const total = connectors.data?.total ?? 9;
   const clickupConnected = connectors.data?.connectors?.clickup?.connected ?? false;
+
+  const [removedTaskIds, setRemovedTaskIds] = useState<Set<string>>(() => new Set());
+  const [removingTaskIds, setRemovingTaskIds] = useState<Set<string>>(() => new Set());
+  const removeTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
+  useEffect(() => {
+    return () => {
+      for (const timer of removeTimers.current.values()) clearTimeout(timer);
+    };
+  }, []);
 
   const refreshClickUpLanes = useCallback(() => {
     watchlist.refresh();
     teamPulse.refresh();
     dailyBrief.refresh();
   }, [watchlist, teamPulse, dailyBrief]);
+
+  const handleTaskCompleted = useCallback(
+    (taskId: string) => {
+      setRemovingTaskIds((prev) => new Set(prev).add(taskId));
+      const existing = removeTimers.current.get(taskId);
+      if (existing) clearTimeout(existing);
+      const timer = setTimeout(() => {
+        setRemovedTaskIds((prev) => new Set(prev).add(taskId));
+        setRemovingTaskIds((prev) => {
+          const next = new Set(prev);
+          next.delete(taskId);
+          return next;
+        });
+        removeTimers.current.delete(taskId);
+      }, 280);
+      removeTimers.current.set(taskId, timer);
+      refreshClickUpLanes();
+    },
+    [refreshClickUpLanes],
+  );
+
+  const handleTaskCompleteFailed = useCallback((taskId: string) => {
+    const existing = removeTimers.current.get(taskId);
+    if (existing) {
+      clearTimeout(existing);
+      removeTimers.current.delete(taskId);
+    }
+    setRemovingTaskIds((prev) => {
+      const next = new Set(prev);
+      next.delete(taskId);
+      return next;
+    });
+    setRemovedTaskIds((prev) => {
+      const next = new Set(prev);
+      next.delete(taskId);
+      return next;
+    });
+  }, []);
+
+  const isTaskVisible = useCallback(
+    (taskId?: string) => !taskId || !removedTaskIds.has(taskId),
+    [removedTaskIds],
+  );
+
+  const isTaskRemoving = useCallback(
+    (taskId?: string) => !!taskId && removingTaskIds.has(taskId),
+    [removingTaskIds],
+  );
+
+  const visibleWatchItems = useMemo(
+    () =>
+      (watchlist.data?.items ?? []).filter((item) => {
+        const id = clickupConnected ? clickupTaskId(item) : null;
+        return isTaskVisible(id ?? undefined);
+      }),
+    [watchlist.data, clickupConnected, isTaskVisible],
+  );
+
+  const visibleOverdue = useMemo(
+    () =>
+      (teamPulse.data?.overdue ?? []).filter((o) =>
+        isTaskVisible(o.clickup_task_id),
+      ),
+    [teamPulse.data, isTaskVisible],
+  );
+
+  const visibleGaps = useMemo(
+    () =>
+      (teamPulse.data?.gaps ?? []).filter((g) =>
+        isTaskVisible(g.clickup_task_id),
+      ),
+    [teamPulse.data, isTaskVisible],
+  );
+
+  const watchCount = visibleWatchItems.length;
+  const overdueCount = visibleOverdue.length;
+  const watchTotal = watchCount + overdueCount;
 
   const refreshAllLanes = useCallback(() => {
     blindspots.refresh();
@@ -528,14 +644,20 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
             >
               {watchlist.data && hasLiveData(watchlist.data) ? (
                 <div className="item-list">
-                  {(watchlist.data.items ?? []).map((item, i) => (
-                    <LaneRow
-                      key={i}
-                      item={item}
-                      clickupConnected={clickupConnected}
-                      onTaskUpdated={refreshClickUpLanes}
-                    />
-                  ))}
+                  {visibleWatchItems.map((item, i) => {
+                    const taskId = clickupConnected ? clickupTaskId(item) : null;
+                    return (
+                      <LaneRow
+                        key={taskId ?? i}
+                        item={item}
+                        clickupConnected={clickupConnected}
+                        onTaskUpdated={refreshClickUpLanes}
+                        onTaskCompleted={handleTaskCompleted}
+                        onTaskCompleteFailed={handleTaskCompleteFailed}
+                        removing={isTaskRemoving(taskId ?? undefined)}
+                      />
+                    );
+                  })}
                 </div>
               ) : watchlist.data ? (
                 <ConnectSource sources={watchlist.data.sources} onConnect={onConnect} />
@@ -558,7 +680,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                 </>
               ) : teamPulse.data ? (
                 <div className="item-list">
-                  {teamPulse.data.gaps.map((g, i) => (
+                  {visibleGaps.map((g, i) => (
                     <GapRow
                       key={i}
                       person={g.person}
@@ -568,17 +690,23 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                       clickupTaskId={g.clickup_task_id}
                       clickupConnected={clickupConnected}
                       onTaskUpdated={refreshClickUpLanes}
+                      onTaskCompleted={handleTaskCompleted}
+                      onTaskCompleteFailed={handleTaskCompleteFailed}
+                      removing={isTaskRemoving(g.clickup_task_id)}
                     />
                   ))}
-                  {teamPulse.data.overdue.map((o, i) => (
+                  {visibleOverdue.map((o, i) => (
                     <OverdueRow
-                      key={`o-${i}`}
+                      key={`o-${o.clickup_task_id ?? i}`}
                       person={o.person}
                       task={o.task}
                       daysLate={o.days_late}
                       clickupTaskId={o.clickup_task_id}
                       clickupConnected={clickupConnected}
                       onTaskUpdated={refreshClickUpLanes}
+                      onTaskCompleted={handleTaskCompleted}
+                      onTaskCompleteFailed={handleTaskCompleteFailed}
+                      removing={isTaskRemoving(o.clickup_task_id)}
                     />
                   ))}
                 </div>
@@ -701,14 +829,25 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                     hasLiveData(dailyBrief.data.commitments_owed) && (
                       <div className="item-list">
                         <div className="brief-kicker">Promises others made to me</div>
-                        {(dailyBrief.data.commitments_owed.items ?? []).map((item, i) => (
-                          <LaneRow
-                            key={`o-${i}`}
-                            item={item}
-                            clickupConnected={clickupConnected}
-                            onTaskUpdated={refreshClickUpLanes}
-                          />
-                        ))}
+                        {(dailyBrief.data.commitments_owed.items ?? [])
+                          .filter((item) => {
+                            const id = clickupConnected ? clickupTaskId(item) : null;
+                            return isTaskVisible(id ?? undefined);
+                          })
+                          .map((item, i) => {
+                            const taskId = clickupConnected ? clickupTaskId(item) : null;
+                            return (
+                              <LaneRow
+                                key={`o-${taskId ?? i}`}
+                                item={item}
+                                clickupConnected={clickupConnected}
+                                onTaskUpdated={refreshClickUpLanes}
+                                onTaskCompleted={handleTaskCompleted}
+                                onTaskCompleteFailed={handleTaskCompleteFailed}
+                                removing={isTaskRemoving(taskId ?? undefined)}
+                              />
+                            );
+                          })}
                       </div>
                     )}
                   {dailyBrief.data.becomes_tasks &&
