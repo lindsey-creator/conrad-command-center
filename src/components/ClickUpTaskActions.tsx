@@ -5,12 +5,16 @@ import { QuickAssignSheet } from './QuickAssignSheet';
 interface ClickUpTaskActionsProps {
   taskId: string;
   onUpdated?: () => void;
+  onCompleted?: (taskId: string) => void;
+  onCompleteFailed?: (taskId: string) => void;
   compact?: boolean;
 }
 
 export function ClickUpTaskActions({
   taskId,
   onUpdated,
+  onCompleted,
+  onCompleteFailed,
   compact,
 }: ClickUpTaskActionsProps) {
   const [loading, setLoading] = useState<'complete' | 'open' | null>(null);
@@ -20,17 +24,23 @@ export function ClickUpTaskActions({
   const run = async (action: 'complete' | 'open') => {
     setLoading(action);
     setError(null);
+    const optimisticComplete = action === 'complete';
+    if (optimisticComplete) {
+      onCompleted?.(taskId);
+    }
     try {
       const res =
         action === 'complete'
           ? await brain.completeClickUpTask(taskId)
           : await brain.reopenClickUpTask(taskId);
       if (res.status === 'connect_source') {
+        if (optimisticComplete) onCompleteFailed?.(taskId);
         setError('ClickUp not connected');
         return;
       }
       onUpdated?.();
     } catch (e) {
+      if (optimisticComplete) onCompleteFailed?.(taskId);
       setError(e instanceof Error ? e.message : 'Update failed');
     } finally {
       setLoading(null);

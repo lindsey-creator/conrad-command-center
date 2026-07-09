@@ -28,6 +28,7 @@ export interface TeamPulseGap {
   actual: string;
   suggested_move: string;
   clickup_task_id?: string;
+  assignee?: string;
 }
 
 export interface TeamPulseOverdue {
@@ -36,6 +37,7 @@ export interface TeamPulseOverdue {
   due: string;
   days_late: number;
   clickup_task_id?: string;
+  assignee?: string;
 }
 
 export interface WatchlistItem {
@@ -43,6 +45,7 @@ export interface WatchlistItem {
   detail?: string;
   source?: string;
   clickup_task_id?: string;
+  assignee?: string;
 }
 
 export interface ClickUpTaskResponse {
@@ -184,6 +187,7 @@ export interface ClickUpMember {
   id: string;
   username: string;
   email: string;
+  initials: string;
   name: string;
 }
 
@@ -409,10 +413,10 @@ export const brain = {
       {},
     ),
   clickUpMembers: () => fetchJson<ClickUpMembersResponse>('/clickup/members'),
-  assignClickUpTask: (taskId: string, memberId: string) =>
+  assignClickUpTask: (taskId: string, memberId: string, note?: string) =>
     postJson<ClickUpTaskResponse>(
       `/clickup/tasks/${encodeURIComponent(taskId)}/assign`,
-      { member_id: memberId },
+      { member_id: memberId, ...(note?.trim() ? { note: note.trim() } : {}) },
     ),
 };
 

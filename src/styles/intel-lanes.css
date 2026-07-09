@@ -658,6 +658,51 @@
   margin-top: 2px;
 }
 
+.clickup-assignee-chip {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  max-width: 88px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-assign-sheet__hint--rule {
+  margin: 6px 0 0;
+  color: var(--gold-2);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.quick-assign-sheet__member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quick-assign-sheet__initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cyan-dim);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .clickup-actions__error {
   font-size: 10px;
   color: var(--crit);

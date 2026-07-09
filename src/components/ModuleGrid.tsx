@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { brain, type WatchlistItem } from '../api/brain';
 import { useBrainRefreshListener } from '../hooks/brainRefresh';
 import { POLL_CONNECTORS_MS, POLL_FAST_MS, POLL_MODULE_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
@@ -47,6 +47,15 @@ function clickupTaskId(item: unknown): string | null {
   return id ? String(id) : null;
 }
 
+function clickupAssignee(item: unknown): string | null {
+  const row = item as WatchlistItem;
+  const assignee = row.assignee?.trim();
+  if (assignee) return assignee;
+  if (row.source !== 'clickup' || !row.detail) return null;
+  const head = row.detail.split('·')[0]?.trim();
+  return head && head !== 'Unassigned' ? head : null;
+}
+
 function ghlContactUrl(item: unknown): string | null {
   const row = item as { ghl_url?: string; ghl_contact_id?: string };
   if (row.ghl_url) return row.ghl_url;
@@ -68,6 +77,7 @@ function LaneRow({
   const time = itemTime(item) ?? fallbackTime ?? null;
   const taskId = clickupConnected ? clickupTaskId(item) : null;
   const ghlUrl = ghlContactUrl(item);
+  const assignee = clickupConnected ? clickupAssignee(item) : null;
 
   return (
     <div className={`lane-row${taskId || ghlUrl ? ' lane-row--with-actions' : ''}`}>
@@ -88,7 +98,12 @@ function LaneRow({
         </a>
       )}
       {taskId && (
-        <ClickUpTaskActions taskId={taskId} onUpdated={onTaskUpdated} compact />
+        <ClickUpTaskActions
+          taskId={taskId}
+          assignee={assignee}
+          onUpdated={onTaskUpdated}
+          compact
+        />
       )}
     </div>
   );
@@ -119,7 +134,12 @@ function OverdueRow({
         <strong>{person}</strong>: {task} ({daysLate}d late)
       </span>
       {showActions && taskId && (
-        <ClickUpTaskActions taskId={taskId} onUpdated={onTaskUpdated} compact />
+        <ClickUpTaskActions
+          taskId={taskId}
+          assignee={person !== 'Unassigned' ? person : undefined}
+          onUpdated={onTaskUpdated}
+          compact
+        />
       )}
     </div>
   );
