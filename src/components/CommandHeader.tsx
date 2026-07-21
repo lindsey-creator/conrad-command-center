@@ -65,11 +65,11 @@ export function CommandHeader({
       <div className="command-header__mesh" aria-hidden="true" />
 
       <div className="command-strip">
-        <span className="command-strip__item command-strip__item--brand">OPERATING BRAIN</span>
+        <span className="command-strip__item command-strip__item--brand">CONRAD COMMAND CENTER</span>
         <span className="command-strip__sep" aria-hidden="true" />
-        <span className="command-strip__item">CONRAD MORTGAGE</span>
+        <span className="command-strip__item">GOLDFRONT OS</span>
         <span className="command-strip__sep" aria-hidden="true" />
-        <span className="command-strip__item">ECHO COO</span>
+        <span className="command-strip__item">JARVIS · ECHO</span>
         <span className="command-strip__sep" aria-hidden="true" />
         <span
           className={`command-strip__item command-strip__item--echo${brainOnline ? ' command-strip__item--active' : ''}${echoActive ? ' command-strip__item--pulse' : ''}`}
@@ -95,7 +95,7 @@ export function CommandHeader({
             <p className="command-header__cadence">
               {isSunday
                 ? 'Sunday compounding review — close the week with 2–3 decisions.'
-                : 'Sunday compounding review cadence · 2–3 decisions daily'}
+                : 'One screen · eight units · approvals gated · nothing sends without you'}
             </p>
           </div>
         </div>

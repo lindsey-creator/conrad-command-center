@@ -8,6 +8,9 @@ import './echo-command.css';
 interface EchoCommandProps {
   brainOnline?: boolean;
   onVoiceStateChange?: (state: EchoVoiceState) => void;
+  /** Prefill from Jarvis quick actions / deal cards */
+  injectMessage?: string | null;
+  onInjectMessageConsumed?: () => void;
 }
 
 function voiceStatusLabel(state: EchoVoiceState): string | null {
@@ -23,7 +26,12 @@ function voiceStatusLabel(state: EchoVoiceState): string | null {
   }
 }
 
-export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCommandProps) {
+export function EchoCommand({
+  brainOnline = false,
+  onVoiceStateChange,
+  injectMessage = null,
+  onInjectMessageConsumed,
+}: EchoCommandProps) {
   const [message, setMessage] = useState('');
   const [wantsDraft, setWantsDraft] = useState(false);
   const [wantsTask, setWantsTask] = useState(false);
@@ -75,6 +83,15 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
   useEffect(() => {
     onVoiceStateChange?.(displayState);
   }, [displayState, onVoiceStateChange]);
+
+  useEffect(() => {
+    if (!injectMessage?.trim()) return;
+    setMessage(injectMessage.trim());
+    onInjectMessageConsumed?.();
+    const el = document.getElementById('echo-input');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    (el as HTMLTextAreaElement | null)?.focus();
+  }, [injectMessage, onInjectMessageConsumed]);
 
   const handleAsk = async (text?: string) => {
     const query = (text ?? message).trim();
@@ -173,7 +190,11 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
   };
 
   return (
-    <section className="echo-command echo-command--hero hud-corners jarvis-glass" aria-label="Ask Echo">
+    <section
+      className="echo-command echo-command--hero hud-corners jarvis-glass"
+      aria-label="Jarvis command interface"
+      id="jarvis-console"
+    >
       <div className="echo-command__mesh" aria-hidden="true" />
       <div className="echo-command__hero">
         <div className="echo-command__core-col">
@@ -189,10 +210,11 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
         <div className="echo-command__main-col">
           <div className="echo-command__head">
             <div>
-              <span className="echo-command__kicker">Operating Brain · Echo COO</span>
-              <h2 className="echo-command__title">Ask Echo</h2>
+              <span className="echo-command__kicker">Jarvis · Echo COO · Operating Brain</span>
+              <h2 className="echo-command__title">Command Interface</h2>
               <p className="echo-command__subtitle">
-                Voice-first priorities and deal rigor — Fieldy feeds the brief, ClickUp routes tasks.
+                Run the empire from here — voice or text, deal math, drafts, tasks, and briefs with
+                full Brain context.
               </p>
             </div>
             <div className="echo-command__controls">

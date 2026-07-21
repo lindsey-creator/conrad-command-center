@@ -417,7 +417,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
   return (
     <>
-      <div className="priority-horns-kicker">LIVE SIGNALS</div>
+      <div className="priority-horns-kicker">JARVIS · LIVE SIGNALS</div>
       <div className="priority-scan" role="group" aria-label="Live signals">
         <div className={`scan-tile scan-tile--fire${flashGhl ? ' scan-tile--flash' : ''}`}>
           <span

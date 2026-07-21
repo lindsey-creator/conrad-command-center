@@ -12,6 +12,8 @@ import { Header } from './components/Header';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
 import { PendingApprovals } from './components/PendingApprovals';
+import { DealCommandCenter } from './components/DealCommandCenter';
+import { BrainDeployBanner, JarvisBriefBar } from './components/JarvisBriefBar';
 import { QuickRunStrip } from './components/QuickRunStrip';
 import type { EchoVoiceState } from './hooks/useEchoVoice';
 import './styles/tokens.css';
@@ -31,6 +33,9 @@ export default function App() {
   const [brainOnline, setBrainOnline] = useState(false);
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
   const [clickupConnected, setClickupConnected] = useState(false);
+  const [jarvisInject, setJarvisInject] = useState<string | null>(null);
+
+  const consumeJarvisInject = useCallback(() => setJarvisInject(null), []);
 
   const checkHealth = useCallback(async () => {
     try {
@@ -92,10 +97,21 @@ export default function App() {
       )}
       {page === 'dashboard' ? (
         <div className="command-deck__main">
-          <EchoCommand brainOnline={brainOnline} onVoiceStateChange={setVoiceState} />
-          <QuickRunStrip clickupConnected={clickupConnected} />
-          <PendingApprovals />
+          {!brainOnline && <BrainDeployBanner />}
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
+          <JarvisBriefBar
+            brainOnline={brainOnline}
+            onJarvisPrompt={({ text }) => setJarvisInject(text)}
+          />
+          <PendingApprovals />
+          <EchoCommand
+            brainOnline={brainOnline}
+            onVoiceStateChange={setVoiceState}
+            injectMessage={jarvisInject}
+            onInjectMessageConsumed={consumeJarvisInject}
+          />
+          <DealCommandCenter onAskDeal={(text) => setJarvisInject(text)} />
+          <QuickRunStrip clickupConnected={clickupConnected} />
           <ModuleGrid onConnect={openConnections} />
         </div>
       ) : page === 'echo' ? (
