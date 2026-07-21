@@ -29,6 +29,41 @@ export interface CouncilScanResponse extends TopMoneyMovesResponse {
   watch_count?: number;
 }
 
+export interface HorizonSignal {
+  horizon: string;
+  title: string;
+  insight: string;
+  recommended_move: string;
+  council_seat?: string;
+}
+
+export interface ContrarianEdge {
+  title: string;
+  what_most_operators_do: string;
+  contrarian_edge: string;
+  your_move: string;
+  council_seat?: string;
+}
+
+export interface OperatorHorizonResponse {
+  status: ConnectSourceStatus;
+  sources: string[];
+  readiness_score?: number;
+  attention_budget?: {
+    active_fires?: number;
+    connector_gaps?: number;
+    scan_headline?: string;
+  };
+  signals: {
+    now: HorizonSignal[];
+    edge_72h: HorizonSignal[];
+    horizon_30d: HorizonSignal[];
+  };
+  contrarian: ContrarianEdge[];
+  operator_mantra?: string;
+  narration?: string;
+}
+
 export interface PipelineDeal {
   id: string;
   name: string;
@@ -477,6 +512,10 @@ export const brain = {
     fetchJson<TopMoneyMovesResponse>(`/money/top-moves?limit=${limit}`),
   councilScan: (limit = 3) =>
     fetchJson<CouncilScanResponse>(`/council/scan?limit=${limit}`),
+  operatorHorizon: (narrate = false) =>
+    fetchJson<OperatorHorizonResponse>(
+      `/intel/horizon${narrate ? '?narrate=1' : ''}`,
+    ),
   dealsPipeline: () => fetchJson<DealsPipelineResponse>('/deals/pipeline'),
   evaluateDeal: (deal: ChatDealFields & { other_costs?: number }) =>
     postJson<Record<string, unknown>>('/evaluate-deal', {

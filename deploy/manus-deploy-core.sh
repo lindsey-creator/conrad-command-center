@@ -42,6 +42,13 @@ if [ -f "$COUNCIL_PATCH" ] && ! grep -q '/council/scan' brain/main.py 2>/dev/nul
 elif grep -q '/council/scan' brain/main.py 2>/dev/null; then
   echo "    Executive Council endpoints already present"
 fi
+HORIZON_PATCH="$UI_DIR/goldfront-os-additions/patches/0002-Operator-horizon-ten-steps-ahead.patch"
+if [ -f "$HORIZON_PATCH" ] && ! grep -q '/intel/horizon' brain/main.py 2>/dev/null; then
+  echo "    Applying Operator horizon patch …"
+  git apply "$HORIZON_PATCH" || die "Horizon patch failed"
+elif grep -q '/intel/horizon' brain/main.py 2>/dev/null; then
+  echo "    Operator horizon already present"
+fi
 
 step 4 "systemd superman-brain (always-on on :8000)"
 systemd_ok=false

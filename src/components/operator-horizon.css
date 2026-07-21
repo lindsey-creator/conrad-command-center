@@ -1,0 +1,254 @@
+.operator-horizon {
+  margin: 14px 0 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.operator-horizon__frame {
+  position: relative;
+  padding: 16px 16px 12px;
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(0, 212, 255, 0.07) 0%, transparent 42%),
+    linear-gradient(90deg, rgba(201, 162, 39, 0.05), transparent 55%),
+    rgba(10, 16, 28, 0.55);
+  overflow: hidden;
+}
+
+.operator-horizon__frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 212, 255, 0.03) 2px,
+    rgba(0, 212, 255, 0.03) 3px
+  );
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.operator-horizon__head {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.operator-horizon__kicker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.operator-horizon__title {
+  margin: 4px 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ivory);
+}
+
+.operator-horizon__readiness {
+  text-align: right;
+}
+
+.operator-horizon__score {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gold-2);
+  line-height: 1;
+}
+
+.operator-horizon__score-lbl {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.operator-horizon__mantra {
+  position: relative;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0 0 12px;
+  max-width: 52rem;
+}
+
+.operator-horizon__narration {
+  position: relative;
+  font-size: 13px;
+  color: var(--ivory);
+  line-height: 1.5;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-left: 2px solid var(--gold);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.operator-horizon__lanes {
+  position: relative;
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 900px) {
+  .operator-horizon__lanes {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.operator-horizon__lane {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.2);
+  min-height: 140px;
+}
+
+.operator-horizon__lane--now {
+  border-color: rgba(224, 122, 74, 0.35);
+}
+
+.operator-horizon__lane--edge {
+  border-color: rgba(0, 212, 255, 0.28);
+}
+
+.operator-horizon__lane--30d {
+  border-color: rgba(201, 162, 39, 0.28);
+}
+
+.operator-horizon__lane-kicker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.operator-horizon__signal {
+  margin-bottom: 10px;
+}
+
+.operator-horizon__signal-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ivory);
+  margin-bottom: 3px;
+}
+
+.operator-horizon__signal-insight {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+
+.operator-horizon__signal-move {
+  font-size: 11px;
+  color: var(--cyan);
+}
+
+.operator-horizon__contrarian {
+  position: relative;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.operator-horizon__contrarian-kicker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+  margin-bottom: 8px;
+}
+
+.operator-horizon__cards {
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 720px) {
+  .operator-horizon__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.operator-horizon__card {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(201, 162, 39, 0.35);
+  background: rgba(201, 162, 39, 0.04);
+}
+
+.operator-horizon__card-title {
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.operator-horizon__card-row {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.operator-horizon__card-row strong {
+  color: var(--faint);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 9px;
+}
+
+.operator-horizon__card-move {
+  font-size: 11px;
+  color: var(--gold-2);
+  margin-top: 6px;
+}
+
+.operator-horizon__ask {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.operator-horizon__chip {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: rgba(0, 212, 255, 0.06);
+  color: var(--cyan);
+  cursor: pointer;
+}
+
+.operator-horizon__chip:hover {
+  background: rgba(0, 212, 255, 0.14);
+  color: var(--ivory);
+}
+
+.operator-horizon__offline {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+}

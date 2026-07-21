@@ -27,6 +27,12 @@ elif rg -q '/council/scan' brain/main.py 2>/dev/null; then
   echo "Executive Council already installed."
 fi
 
+HORIZON_PATCH="$ROOT/goldfront-os-additions/patches/0002-Operator-horizon-ten-steps-ahead.patch"
+if [[ -f "$HORIZON_PATCH" ]] && ! rg -q '/intel/horizon' brain/main.py 2>/dev/null; then
+  echo "Applying Operator horizon patch …"
+  git apply "$HORIZON_PATCH"
+fi
+
 echo "Running tests …"
 python3 -m pytest tests/test_council.py tests/test_live_context.py -q
 echo "Done. Restart: uvicorn brain.main:app --host 0.0.0.0 --port 8000"

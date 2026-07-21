@@ -12,6 +12,7 @@ import { Header } from './components/Header';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
 import { PendingApprovals } from './components/PendingApprovals';
+import { OperatorHorizon } from './components/OperatorHorizon';
 import { DealCommandCenter } from './components/DealCommandCenter';
 import { BrainDeployBanner, JarvisBriefBar } from './components/JarvisBriefBar';
 import { QuickRunStrip } from './components/QuickRunStrip';
@@ -88,6 +89,19 @@ export default function App() {
     setPage('connections');
   }, [setPage]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'j' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA' || t?.isContentEditable) return;
+      e.preventDefault();
+      document.getElementById('echo-input')?.focus();
+      document.getElementById('jarvis-console')?.scrollIntoView({ behavior: 'smooth' });
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   return (
     <div className="wrap command-deck">
       <Header brainOnline={brainOnline} />
@@ -102,6 +116,10 @@ export default function App() {
           <JarvisBriefBar
             brainOnline={brainOnline}
             onJarvisPrompt={({ text }) => setJarvisInject(text)}
+          />
+          <OperatorHorizon
+            brainOnline={brainOnline}
+            onJarvisPrompt={(text) => setJarvisInject(text)}
           />
           <PendingApprovals />
           <EchoCommand

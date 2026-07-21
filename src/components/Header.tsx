@@ -13,7 +13,7 @@ export function Header({ brainOnline }: HeaderProps) {
         <LiveCore size="sm" online={brainOnline} label="Echo live core" />
         <div>
           <h1 className="wordmark-gold">Conrad Command Center</h1>
-          <div className="sub">Jarvis · Echo COO · Goldfront OS · conradstrong.com</div>
+          <div className="sub">Elite operator · Jarvis · Echo COO · Goldfront OS</div>
         </div>
       </div>
       <div className="sync">

@@ -1,0 +1,448 @@
+From 18180eed79ff105cf8ff0d4d7d2ab0302a3221b7 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Tue, 21 Jul 2026 14:12:50 +0000
+Subject: [PATCH] Operator horizon: 10-steps-ahead intel, contrarian edge,
+ /intel/horizon
+
+---
+ brain/agent/reasoning.py |  28 ++++
+ brain/council/horizon.py | 309 +++++++++++++++++++++++++++++++++++++++
+ brain/main.py            |  15 ++
+ tests/test_council.py    |   3 +
+ tests/test_horizon.py    |  15 ++
+ 5 files changed, 370 insertions(+)
+ create mode 100644 brain/council/horizon.py
+ create mode 100644 tests/test_horizon.py
+
+diff --git a/brain/agent/reasoning.py b/brain/agent/reasoning.py
+index 6f9fd41..d563196 100644
+--- a/brain/agent/reasoning.py
++++ b/brain/agent/reasoning.py
+@@ -25,6 +25,32 @@ from brain.council.seats import route_seats, seat_prompt_block
+ from brain.agent.live_context import build_live_context, format_context_for_model
+ 
+ 
++_OPERATOR_AHEAD_BLOCK = """\
++OPERATOR MODE (10-steps-ahead):
++- Surface what the market has NOT priced in yet — second-order effects, flywheel touches left idle,
++  speed-to-lead gaps, and decisions Lindsey's own history might reflex-skip but math supports.
++- Separate: what matters in the next 24h vs 72h vs 30 days.
++- Name the contrarian move vs what a typical operator would do — she still decides.
++- Never invent dollar amounts; use engine_output when present."""
++
++
++def _operator_mode_query(message: str) -> bool:
++    q = (message or "").lower()
++    triggers = (
++        "10 step",
++        "ten step",
++        "ahead",
++        "contrarian",
++        "edge",
++        "what am i missing",
++        "what are they missing",
++        "horizon",
++        "future",
++        "corner",
++    )
++    return any(t in q for t in triggers)
++
++
+ def _retrieve(kb, message: str) -> dict:
+     """Pull relevant memory for grounding. Safe if kb is None or empty."""
+     out = {"voice": [], "decisions": [], "knowledge": [], "conversation_patterns": []}
+@@ -180,6 +206,8 @@ def answer(
+     system = build_persona_prompt(kb=kb, query=user_message)
+     if seats:
+         system = system + "\n\n" + seat_prompt_block(seats)
++    if _operator_mode_query(user_message):
++        system = system + "\n\n" + _OPERATOR_AHEAD_BLOCK
+     return reason(
+         user_message,
+         {
+diff --git a/brain/council/horizon.py b/brain/council/horizon.py
+new file mode 100644
+index 0000000..aebe79b
+--- /dev/null
++++ b/brain/council/horizon.py
+@@ -0,0 +1,309 @@
++"""
++Operator horizon — time-layered intel + contrarian edge (10-steps-ahead operator mode).
++
++Heuristic synthesis from live connectors + pipeline + memory. Never invents deal math.
++Optional Claude polish via /intel/horizon?narrate=1 when ANTHROPIC_API_KEY is set.
++"""
++
++from __future__ import annotations
++
++from datetime import date, timedelta
++
++from brain.cockpit.seed_pipeline import SEED_DEALS
++from brain.council.orchestrator import daily_money_scan
++
++
++def _signal(
++    horizon: str,
++    title: str,
++    insight: str,
++    move: str,
++    *,
++    seat: str,
++    urgency: int = 50,
++) -> dict:
++    return {
++        "horizon": horizon,
++        "title": title,
++        "insight": insight,
++        "recommended_move": move,
++        "council_seat": seat,
++        "urgency": urgency,
++    }
++
++
++def _contrarian(
++    title: str,
++    crowd: str,
++    edge: str,
++    move: str,
++    *,
++    seat: str,
++) -> dict:
++    return {
++        "title": title,
++        "what_most_operators_do": crowd,
++        "contrarian_edge": edge,
++        "your_move": move,
++        "council_seat": seat,
++    }
++
++
++def operator_horizon(cockpit_read) -> dict:
++    """
++    Three lenses + contrarian board + attention budget.
++    """
++    scan = daily_money_scan(cockpit_read)
++    sources = list(scan.get("sources") or [])
++    signals: list[dict] = []
++    contrarian: list[dict] = []
++
++    # --- NOW (0–24h) ---
++    for m in (scan.get("moves") or [])[:2]:
++        signals.append(
++            _signal(
++                "now",
++                m.get("title", "Priority"),
++                m.get("why", ""),
++                m.get("recommended_action", "Act today."),
++                seat=m.get("council_seat", "chief_of_staff"),
++                urgency=90,
++            )
++        )
++
++    try:
++        wl = cockpit_read.watchlist()
++        if wl.get("status") == "ok":
++            sources.append("brain_scan")
++            for item in (wl.get("items") or [])[:2]:
++                signals.append(
++                    _signal(
++                        "now",
++                        str(item.get("title", "Watch item")),
++                        str(item.get("detail", "")),
++                        "Clear or delegate before EOD — attention is capital.",
++                        seat="chief_of_staff",
++                        urgency=85,
++                    )
++                )
++    except Exception:
++        pass
++
++    # --- 72h edge (what the market hasn't priced in yet) ---
++    signals.append(
++        _signal(
++            "edge_72h",
++            "Flywheel stacking on one relationship",
++            "Most operators optimize the loan in front of them; your spec optimizes six touches.",
++            "Pick one active file (Titus or Ridgeline) and map uncaptured touches in ClickUp today.",
++            seat="flywheel_officer",
++            urgency=70,
++        )
++    )
++
++    stale = [d for d in SEED_DEALS if int(d.get("idle_days") or 0) >= 7]
++    if stale:
++        d = stale[0]
++        signals.append(
++            _signal(
++                "edge_72h",
++                f"Idle capital narrative: {d['name']}",
++                f"{d.get('idle_days')}d without a decision — competitors assume you passed.",
++                "Publish an internal GO/NO-GO date to the team; force the market to react to you.",
++                seat="deal_hunter",
++                urgency=75,
++            )
++        )
++
++    try:
++        brief = cockpit_read.daily_brief()
++        if brief.get("status") in ("ok", "partial"):
++            sources.append("brief")
++            signals.append(
++                _signal(
++                    "edge_72h",
++                    "Fieldy → task loop",
++                    "Operators who don't capture voice lose commitments; you wear Fieldy all day.",
++                    "Run morning brief review; anything 'should become tasks' gets issued before travel.",
++                    seat="chief_of_staff",
++                    urgency=65,
++                )
++            )
++    except Exception:
++        pass
++
++    # --- 30d horizon (structural) ---
++    signals.append(
++        _signal(
++            "horizon_30d",
++            "Train the Brain to your 2025 instincts",
++            "Shadow validation exists — elite operators wire memory before they scale headcount.",
++            "Feed 10 historical GO/NO-GO deals in Train Brain; run shadow batch until match rate is trusted.",
++            seat="deal_hunter",
++            urgency=55,
++        )
++    )
++    signals.append(
++        _signal(
++            "horizon_30d",
++            "Meta → GHL → ClickUp closed loop",
++            "Speed-to-lead + recorded calls + team tasks = compound moat in investor lending.",
++            "Document one playbook in knowledge base; Echo routes tasks from every lead SMS.",
++            seat="rainmaker",
++            urgency=60,
++        )
++    )
++
++    week_end = date.today() + timedelta(days=30)
++    signals.append(
++        _signal(
++            "horizon_30d",
++            f"30-day operator checkpoint ({week_end.isoformat()})",
++            "Elite command centers are judged on decision velocity, not hours online.",
++            "Sunday review: 3 compounding decisions logged, 3 approvals cleared, 1 flywheel touch added per top deal.",
++            seat="chief_of_staff",
++            urgency=50,
++        )
++    )
++
++    # --- Contrarian edge board ---
++    contrarian.append(
++        _contrarian(
++            "Modular at scale",
++            "Wait for perfect comps and one big proof point.",
++            "Your Ridgeline file is exactly where others stall — a conditional GO with Baker locked beats silent pass.",
++            "Ask council: 'Where am I reflex-passing money?' with Ridgeline context.",
++            seat="deal_hunter",
++        )
++    )
++    contrarian.append(
++        _contrarian(
++            "Lead gen in 2026",
++            "Buy more ads when CPL rises.",
++            "Fix speed-to-lead and A2P compliance first — cheap leads with slow response is negative ROI.",
++            "Connect Meta + GHL if not live; measure response minutes, not impressions.",
++            seat="cfo_capital",
++        )
++    )
++    contrarian.append(
++        _contrarian(
++            "Operator calendar",
++            "Fill the calendar with reactive work.",
++            "Protected recovery and family blocks are offensive weapons for deal quality.",
++            "Defend two blocks this week; treat misses as a revenue leak.",
++            seat="performance",
++        )
++    )
++
++    try:
++        counts = cockpit_read.counts()
++        decisions = int(counts.get("decisions") or 0)
++        if decisions < 5:
++            contrarian.append(
++                _contrarian(
++                    "Memory moat",
++                    "Rely on ChatGPT for deal calls.",
++                    "Generic AI can't diverge from YOUR rules — trained memory is the unfair advantage.",
++                    "Paste 3 past deals into Train Brain today.",
++                    seat="chief_of_staff",
++                )
++            )
++            sources.append("brain_memory")
++    except Exception:
++        pass
++
++    # Attention budget
++    watch_count = int(scan.get("watch_count") or 0)
++    fires = watch_count + len([s for s in signals if s["horizon"] == "now"])
++    connector_gaps = 0
++    try:
++        from brain.connectors import clickup, ghl, meta, fieldy
++
++        for mod in (clickup, ghl, meta, fieldy):
++            if not mod.configured():
++                connector_gaps += 1
++    except Exception:
++        connector_gaps = 3
++
++    decisions = 0
++    try:
++        decisions = int(cockpit_read.counts().get("decisions") or 0)
++    except Exception:
++        pass
++
++    readiness = max(
++        0,
++        min(
++            100,
++            35
++            + min(decisions, 25)
++            + (15 if scan.get("status") == "ok" else 5)
++            + max(0, 25 - connector_gaps * 5)
++            - min(fires * 4, 20),
++        ),
++    )
++
++    # Dedupe signals by title
++    seen: set[str] = set()
++    unique_signals: list[dict] = []
++    for s in sorted(signals, key=lambda x: -int(x.get("urgency") or 0)):
++        key = s["title"][:60]
++        if key in seen:
++            continue
++        seen.add(key)
++        s.pop("urgency", None)
++        unique_signals.append(s)
++
++    return {
++        "status": "ok" if unique_signals else "partial",
++        "sources": sorted(set(sources + ["brain_operator"])),
++        "readiness_score": readiness,
++        "attention_budget": {
++            "active_fires": fires,
++            "connector_gaps": connector_gaps,
++            "scan_headline": scan.get("headline"),
++        },
++        "signals": {
++            "now": [s for s in unique_signals if s["horizon"] == "now"][:4],
++            "edge_72h": [s for s in unique_signals if s["horizon"] == "edge_72h"][:4],
++            "horizon_30d": [s for s in unique_signals if s["horizon"] == "horizon_30d"][:4],
++        },
++        "contrarian": contrarian[:5],
++        "operator_mantra": (
++            "See around corners: live stack + trained memory + gated execution. "
++            "You decide; Jarvis finds what others won't think to look for."
++        ),
++    }
++
++
++def narrate_horizon(horizon_payload: dict) -> str | None:
++    """Optional one-paragraph Claude narration of horizon intel."""
++    import os
++
++    key = os.getenv("ANTHROPIC_API_KEY")
++    if not key:
++        return None
++    try:
++        import anthropic
++
++        client = anthropic.Anthropic(api_key=key)
++        model = os.getenv("GOLDFRONT_REASON_MODEL", "claude-sonnet-5")
++        resp = client.messages.create(
++            model=model,
++            max_tokens=400,
++            system=(
++                "You are Jarvis briefing Lindsey Conrad — elite operator, one short paragraph, "
++                "no invented dollar amounts, actionable and calm."
++            ),
++            messages=[
++                {
++                    "role": "user",
++                    "content": f"Brief her on this operator horizon JSON in 3–4 sentences:\n{horizon_payload}",
++                }
++            ],
++        )
++        return "".join(
++            b.text for b in resp.content if getattr(b, "type", "") == "text"
++        ).strip()
++    except Exception:
++        return None
+diff --git a/brain/main.py b/brain/main.py
+index 9d975e5..5b0094f 100644
+--- a/brain/main.py
++++ b/brain/main.py
+@@ -32,6 +32,7 @@ from brain.approvals import queue as approval_queue
+ from brain.cockpit.read import CockpitRead
+ from brain.cockpit.seed_pipeline import SEED_DEALS
+ from brain.council.orchestrator import daily_money_scan
++from brain.council.horizon import operator_horizon, narrate_horizon
+ from brain.agent.live_context import build_live_context
+ from brain.connectors.base import ConnectorNotConfigured
+ from brain.connectors import clickup, fieldy
+@@ -147,6 +148,20 @@ def intel_snapshot():
+     return build_live_context(_cockpit)
+ 
+ 
++@app.get("/intel/horizon")
++def intel_horizon(narrate: bool = False):
++    """
++    Operator horizon — now / 72h edge / 30d structural signals + contrarian board.
++    Optional ?narrate=1 for one-paragraph Claude briefing (needs ANTHROPIC_API_KEY).
++    """
++    payload = operator_horizon(_cockpit)
++    if narrate:
++        narration = narrate_horizon(payload)
++        if narration:
++            payload["narration"] = narration
++    return payload
++
++
+ @app.get("/deals/pipeline")
+ def deals_pipeline():
+     """Reference pipeline cards (master spec seed deals) — qualitative, no invented math."""
+diff --git a/tests/test_council.py b/tests/test_council.py
+index 0588bc5..6a64a2a 100644
+--- a/tests/test_council.py
++++ b/tests/test_council.py
+@@ -21,6 +21,9 @@ class FakeCockpit:
+     def blindspots(self):
+         return {"status": "connect_source", "sources": ["brain_scan"], "items": []}
+ 
++    def daily_brief(self):
++        return {"status": "partial", "sources": ["brief"]}
++
+     def ghl_crm(self):
+         return {"status": "connect_source", "sources": ["ghl"]}
+ 
+diff --git a/tests/test_horizon.py b/tests/test_horizon.py
+new file mode 100644
+index 0000000..0c2b13f
+--- /dev/null
++++ b/tests/test_horizon.py
+@@ -0,0 +1,15 @@
++"""Operator horizon intel."""
++
++from brain.council.horizon import operator_horizon
++from tests.test_council import FakeCockpit
++
++
++def test_operator_horizon_shape():
++    out = operator_horizon(FakeCockpit())
++    assert out["status"] in ("ok", "partial")
++    assert "signals" in out
++    assert "now" in out["signals"]
++    assert "edge_72h" in out["signals"]
++    assert "horizon_30d" in out["signals"]
++    assert len(out.get("contrarian") or []) >= 1
++    assert 0 <= out.get("readiness_score", 0) <= 100
+-- 
+2.43.0
+

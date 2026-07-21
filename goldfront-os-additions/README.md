@@ -21,10 +21,21 @@ Or from Command Center repo:
 ./scripts/install-brain-patch.sh ../Goldfront-os
 ```
 
-**Manus deploy** applies this patch automatically in `deploy/manus-deploy-core.sh`
-(step 3) when you run `manus-accurate.sh`.
+**Manus deploy** applies patches automatically in `deploy/manus-deploy-core.sh` (step 3).
 
-## Legacy patch (older Brain only)
+## Operator horizon (10-steps-ahead)
+
+`0002-Operator-horizon-ten-steps-ahead.patch` — apply after patch 0001:
+
+- `GET /intel/horizon` — now / 72h edge / 30d signals + contrarian board + readiness score
+- `?narrate=1` — optional Claude paragraph (needs `ANTHROPIC_API_KEY`)
+- `/chat` **operator mode** when you ask about edge, contrarian, “10 steps ahead”, etc.
+
+```bash
+git apply ../conrad-command-center/goldfront-os-additions/patches/0002-Operator-horizon-ten-steps-ahead.patch
+python3 -m pytest tests/test_horizon.py -q
+```
+
 
 If your checkout predates approvals/Meta/weather, also apply `brain-changes.patch`
 (or use `install-brain-patch.sh`, which applies both when needed).

@@ -5,7 +5,7 @@ export function Footer() {
     <footer>
       <div className="footer__primary">CONRAD COMMAND CENTER · conradstrong.com</div>
       <div className="footer__cadence">
-        Sunday compounding review — patient with results, impatient with actions
+        Press <kbd>J</kbd> anywhere to jump to Jarvis · Sunday compounding review
       </div>
       <div className="legend">
         <span>
