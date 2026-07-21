@@ -33,6 +33,16 @@ It is the elite evolution of the live dashboard at **command.theconradteam.com**
 - Mobile-first: it runs from a Cybertruck on Starlink. Fast on a weak connection.
 - Build once, build durable.
 
+## Deploy (in order)
+
+**Full checklist:** [`deploy/ORDER.md`](deploy/ORDER.md)
+
+| Where | Command |
+|-------|---------|
+| **Manus production** | `curl -fsSL https://raw.githubusercontent.com/lindsey-creator/conrad-command-center/main/deploy/manus-accurate.sh \| bash` |
+| **Local dev** | `./scripts/setup-dev.sh` then `./scripts/run-stack.sh` |
+| **Smoke test** | `./scripts/smoke-test.sh http://127.0.0.1:8000` |
+
 ## Run locally (finished stack)
 
 Prerequisites: Node 18+, Python 3.11+, sibling [`Goldfront-os`](https://github.com/lindsey-creator/Goldfront-os) clone.

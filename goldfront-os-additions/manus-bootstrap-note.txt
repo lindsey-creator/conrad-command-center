@@ -1,0 +1,4 @@
+# Replace last line of Goldfront-os deploy/manus_bootstrap.sh with:
+exec bash "$BRAIN_PARENT/conrad-command-center/deploy/manus-accurate.sh"
+
+# This ensures bootstrap uses ordered deploy (nginx fix + verify), not FINISH_ON_MANUS alone.
