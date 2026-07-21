@@ -1,0 +1,864 @@
+From fd8586818ad9fb5f24c84bf01a7a068453894cbe Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Tue, 21 Jul 2026 13:52:27 +0000
+Subject: [PATCH] Executive Council: daily scan, live chat context, Gmail
+ blindspots
+
+- Council seats route every /chat question; Chief of Staff synthesizes with
+  live cockpit snapshot (watchlist, pulse, moves, GHL, train counts).
+- daily_money_scan powers /council/scan and smarter /money/top-moves without
+  inventing dollars; seed pipeline idle flags always surface.
+- GET /intel/snapshot and GET /deals/pipeline for Command Center.
+- Gmail unread surfaced in blindspots when Google OAuth is connected.
+---
+ brain/agent/live_context.py    |  62 +++++++++++
+ brain/agent/reasoning.py       |  77 +++++++++++--
+ brain/cockpit/read.py          |  77 +++++--------
+ brain/cockpit/seed_pipeline.py |  46 ++++++++
+ brain/council/__init__.py      |   6 +
+ brain/council/orchestrator.py  | 197 +++++++++++++++++++++++++++++++++
+ brain/council/seats.py         | 125 +++++++++++++++++++++
+ brain/main.py                  |  30 ++++-
+ tests/test_council.py          |  47 ++++++++
+ tests/test_live_context.py     |  12 ++
+ 10 files changed, 617 insertions(+), 62 deletions(-)
+ create mode 100644 brain/agent/live_context.py
+ create mode 100644 brain/cockpit/seed_pipeline.py
+ create mode 100644 brain/council/__init__.py
+ create mode 100644 brain/council/orchestrator.py
+ create mode 100644 brain/council/seats.py
+ create mode 100644 tests/test_council.py
+ create mode 100644 tests/test_live_context.py
+
+diff --git a/brain/agent/live_context.py b/brain/agent/live_context.py
+new file mode 100644
+index 0000000..ddcccc5
+--- /dev/null
++++ b/brain/agent/live_context.py
+@@ -0,0 +1,62 @@
++"""Live cockpit snapshot injected into every /chat call (Superman Brain grounding)."""
++
++from __future__ import annotations
++
++import json
++from typing import Any
++
++from brain.connectors import clickup, ghl, meta
++from brain.council.orchestrator import daily_money_scan
++
++
++def _compact(obj: Any, max_len: int = 4000) -> str:
++    raw = json.dumps(obj, default=str, ensure_ascii=False)
++    if len(raw) <= max_len:
++        return raw
++    return raw[: max_len - 3] + "…"
++
++
++def build_live_context(cockpit_read) -> dict:
++    """
++    Pull a bounded snapshot of what the Command Center knows right now.
++    Safe when connectors are down — sections simply omit or mark connect_source.
++    """
++    ctx: dict = {"generated_by": "superman_brain_live_context"}
++
++    try:
++        ctx["connectors"] = {
++            "clickup": clickup.configured(),
++            "ghl": ghl.configured(),
++            "meta": meta.configured(),
++        }
++    except Exception:
++        ctx["connectors"] = {}
++
++    for key, fn in (
++        ("watchlist", cockpit_read.watchlist),
++        ("team_pulse", cockpit_read.team_pulse),
++        ("top_moves", lambda: daily_money_scan(cockpit_read)),
++        ("blindspots", cockpit_read.blindspots),
++        ("ghl_crm", cockpit_read.ghl_crm),
++        ("brief_headline", lambda: {"headline": daily_money_scan(cockpit_read).get("headline")}),
++    ):
++        try:
++            ctx[key] = fn()
++        except Exception as exc:
++            ctx[key] = {"status": "error", "error": str(exc)[:200]}
++
++    try:
++        ctx["train_counts"] = cockpit_read.counts()
++    except Exception:
++        pass
++
++    return ctx
++
++
++def format_context_for_model(ctx: dict) -> str:
++    """Human-readable block for Claude — authoritative for ops, not for deal math."""
++    return (
++        "LIVE COMMAND CENTER SNAPSHOT (connector data — use for priorities and follow-ups; "
++        "deal math still comes only from engine_output when provided):\n"
++        f"{_compact(ctx)}"
++    )
+diff --git a/brain/agent/reasoning.py b/brain/agent/reasoning.py
+index c56a095..6f9fd41 100644
+--- a/brain/agent/reasoning.py
++++ b/brain/agent/reasoning.py
+@@ -21,6 +21,8 @@ from __future__ import annotations
+ import os
+ 
+ from brain.persona.persona import build_persona_prompt
++from brain.council.seats import route_seats, seat_prompt_block
++from brain.agent.live_context import build_live_context, format_context_for_model
+ 
+ 
+ def _retrieve(kb, message: str) -> dict:
+@@ -38,7 +40,14 @@ def _retrieve(kb, message: str) -> dict:
+     return out
+ 
+ 
+-def _fallback(message: str, engine: dict | None, memory: dict, wants_draft: bool) -> dict:
++def _fallback(
++    message: str,
++    engine: dict | None,
++    memory: dict,
++    wants_draft: bool,
++    live_context: dict | None = None,
++    seats: list | None = None,
++) -> dict:
+     """No API key: honest, grounded, no invented numbers or quotes."""
+     bits = []
+     if engine:
+@@ -51,6 +60,16 @@ def _fallback(message: str, engine: dict | None, memory: dict, wants_draft: bool
+             s += f", DSCR {d:.2f}"
+         bits.append(s + ".")
+     known = sum(len(v) for v in memory.values())
++    ctx_bits = []
++    if live_context:
++        scan = live_context.get("top_moves") or {}
++        for m in (scan.get("moves") or [])[:3]:
++            ctx_bits.append(f"Move: {m.get('title')} — {m.get('why', '')[:120]}")
++        wl = live_context.get("watchlist") or {}
++        for item in (wl.get("items") or [])[:3]:
++            ctx_bits.append(f"Watch: {item.get('title')}")
++    if ctx_bits:
++        bits.extend(ctx_bits)
+     note = (
+         "Live narration in your voice needs ANTHROPIC_API_KEY set on the Brain. "
+         "Until then I return the engine's numbers and the most relevant things you've "
+@@ -68,10 +87,19 @@ def _fallback(message: str, engine: dict | None, memory: dict, wants_draft: bool
+         "requires_approval": bool(wants_draft),
+         "mode": "fallback",
+         "note": note,
++        "council_seats": seats or [],
+     }
+ 
+ 
+-def _claude(system: str, message: str, engine: dict | None, memory: dict, wants_draft: bool) -> dict | None:
++def _claude(
++    system: str,
++    message: str,
++    engine: dict | None,
++    memory: dict,
++    wants_draft: bool,
++    live_context: dict | None = None,
++    seats: list | None = None,
++) -> dict | None:
+     key = os.getenv("ANTHROPIC_API_KEY")
+     if not key:
+         return None
+@@ -82,9 +110,17 @@ def _claude(system: str, message: str, engine: dict | None, memory: dict, wants_
+     try:
+         client = anthropic.Anthropic(api_key=key)
+         model = os.getenv("GOLDFRONT_REASON_MODEL", "claude-sonnet-5")
+-        context = {"engine_output": engine, "retrieved_memory": memory, "wants_draft": wants_draft}
++        context = {
++            "engine_output": engine,
++            "retrieved_memory": memory,
++            "wants_draft": wants_draft,
++            "live_command_center": live_context,
++        }
++        council_block = seat_prompt_block(seats or ["chief_of_staff"]) if seats else ""
++        live_block = format_context_for_model(live_context) if live_context else ""
+         user = (
+-            f"{message}\n\n---\nCONTEXT (engine numbers are authoritative; do not recompute):\n"
++            f"{message}\n\n---\n{council_block}\n\n{live_block}\n\n---\n"
++            f"CONTEXT (engine numbers are authoritative; do not recompute):\n"
+             f"{context}\n\n"
+             "If you draft any outbound message, put it under a clear 'DRAFT:' heading — it goes "
+             "to the Approval Queue, do not treat it as sent."
+@@ -105,6 +141,7 @@ def _claude(system: str, message: str, engine: dict | None, memory: dict, wants_
+             "draft": draft,
+             "requires_approval": bool(draft) or wants_draft,
+             "mode": "claude",
++            "council_seats": seats or [],
+         }
+     except Exception as e:  # never crash the Brain on a model error
+         return {"answer": None, "error": str(e), "engine": engine, "mode": "error"}
+@@ -119,16 +156,38 @@ def reason(user_message: str, context: dict) -> dict:
+     engine = context.get("engine")
+     memory = context.get("memory", {})
+     wants_draft = bool(context.get("wants_draft"))
+-    return _claude(system, user_message, engine, memory, wants_draft) or _fallback(
+-        user_message, engine, memory, wants_draft
++    live_context = context.get("live_context")
++    seats = context.get("council_seats")
++    return _claude(system, user_message, engine, memory, wants_draft, live_context, seats) or _fallback(
++        user_message, engine, memory, wants_draft, live_context, seats
+     )
+ 
+ 
+-def answer(user_message: str, kb=None, engine: dict | None = None, wants_draft: bool = False) -> dict:
++def answer(
++    user_message: str,
++    kb=None,
++    engine: dict | None = None,
++    wants_draft: bool = False,
++    cockpit_read=None,
++) -> dict:
+     """
+-    Convenience: retrieve memory, build the persona grounded on this question, and reason.
++    Convenience: retrieve memory, council route, live cockpit snapshot, and reason.
+     `engine` is the deterministic output for a deal in question (or None for general Q&A).
+     """
+     memory = _retrieve(kb, user_message)
++    seats = route_seats(user_message)
++    live_context = build_live_context(cockpit_read) if cockpit_read is not None else None
+     system = build_persona_prompt(kb=kb, query=user_message)
+-    return reason(user_message, {"persona": system, "engine": engine, "memory": memory, "wants_draft": wants_draft})
++    if seats:
++        system = system + "\n\n" + seat_prompt_block(seats)
++    return reason(
++        user_message,
++        {
++            "persona": system,
++            "engine": engine,
++            "memory": memory,
++            "wants_draft": wants_draft,
++            "live_context": live_context,
++            "council_seats": seats,
++        },
++    )
+diff --git a/brain/cockpit/read.py b/brain/cockpit/read.py
+index d89e97c..83d81bc 100644
+--- a/brain/cockpit/read.py
++++ b/brain/cockpit/read.py
+@@ -334,61 +334,19 @@ class CockpitRead:
+         }
+ 
+     def top_money_moves(self, limit: int = 3) -> dict:
+-        self._ensure_clickup_sync()
+-        moves: list[dict] = []
+-        sources: list[str] = []
+-
+-        if ghl.configured():
+-            try:
+-                sources.append("ghl")
+-                for m in ghl.pipeline_moves()[:limit]:
+-                    moves.append(
+-                        {
+-                            "title": m["title"],
+-                            "dollars": None,
+-                            "why": m["why"],
+-                            "recommended_action": "Review in GHL",
+-                            "deal_ref": m.get("deal_ref"),
+-                        }
+-                    )
+-            except Exception:
+-                pass
+-
+-        for d in self.kb.decisions_history(limit=limit):
+-            if len(moves) >= limit:
+-                break
+-            meta = d.get("metadata", {})
+-            moves.append(
+-                {
+-                    "title": meta.get("address", "Decision"),
+-                    "dollars": None,
+-                    "why": meta.get("reasoning", d.get("text", ""))[:200],
+-                    "recommended_action": meta.get("verdict", "Review"),
+-                    "deal_ref": meta.get("address"),
+-                    "source": meta.get("source", "brain_memory"),
+-                }
+-            )
+-
+-        if moves:
+-            srcs = list(sources)
+-            if any(m.get("source") == "clickup" for m in moves):
+-                srcs.append("clickup")
+-            if any(m.get("source") != "clickup" for m in moves):
+-                srcs.append("brain_memory")
+-            return {
+-                "status": "ok",
+-                "sources": sorted(set(srcs)) or ["brain_memory"],
+-                "limit": limit,
+-                "moves": moves[:limit],
+-                "decisions_known": self.kb.count("decisions"),
+-            }
++        from brain.council.orchestrator import daily_money_scan
+ 
++        self._ensure_clickup_sync()
++        scan = daily_money_scan(self)
++        moves = scan.get("moves") or []
+         return {
+-            "status": "connect_source",
+-            "sources": ["clickup"],
++            "status": scan.get("status", "connect_source"),
++            "sources": scan.get("sources") or ["brain_scan"],
+             "limit": limit,
+-            "moves": [],
+-            "decisions_known": self.kb.count("decisions"),
++            "moves": moves[:limit],
++            "decisions_known": scan.get("decisions_known", self.kb.count("decisions")),
++            "headline": scan.get("headline"),
++            "seats_active": scan.get("seats_active"),
+         }
+ 
+     def blindspots(self) -> dict:
+@@ -420,6 +378,21 @@ class CockpitRead:
+                     }
+                 )
+ 
++        if gmail.configured():
++            try:
++                summary = gmail.fetch_summary()
++                sources.append("gmail")
++                unread_g = int(summary.get("unread_count") or 0)
++                if unread_g > 5:
++                    items.append(
++                        {
++                            "title": f"{unread_g} unread Gmail threads — inbox blind spot",
++                            "source": "gmail",
++                        }
++                    )
++            except Exception:
++                pass
++
+         if fieldy.configured():
+             sources.append("fieldy")
+             try:
+diff --git a/brain/cockpit/seed_pipeline.py b/brain/cockpit/seed_pipeline.py
+new file mode 100644
+index 0000000..6ec3d3b
+--- /dev/null
++++ b/brain/cockpit/seed_pipeline.py
+@@ -0,0 +1,46 @@
++"""Reference pipeline deals (master spec §6) — qualitative only, no invented dollars."""
++
++from __future__ import annotations
++
++SEED_DEALS: list[dict] = [
++    {
++        "id": "titus",
++        "name": "Titus",
++        "address": "4-unit DSCR + modular ADU",
++        "vertical": "DSCR · Modular",
++        "idle_days": 2,
++        "health": "green",
++        "flywheel_live": 3,
++        "note": "Confirm Baker comps before margin lock.",
++    },
++    {
++        "id": "bobby",
++        "name": "Bobby",
++        "address": "Non-QM refi · 8 doors",
++        "vertical": "Non-QM",
++        "idle_days": 5,
++        "health": "yellow",
++        "flywheel_live": 4,
++        "note": "Investor stip sheet idle — Emma/Aaron follow-up.",
++    },
++    {
++        "id": "schill",
++        "name": "Schill",
++        "address": "QM purchase",
++        "vertical": "Conrad Mortgage",
++        "idle_days": 1,
++        "health": "green",
++        "flywheel_live": 2,
++        "note": "QM path clean — conditions on track.",
++    },
++    {
++        "id": "ridgeline",
++        "name": "Ridgeline",
++        "address": "6-unit modular community",
++        "vertical": "Modular · Community",
++        "idle_days": 9,
++        "health": "red",
++        "flywheel_live": 2,
++        "note": "Stale structuring — Baker comps + modular band before GO.",
++    },
++]
+diff --git a/brain/council/__init__.py b/brain/council/__init__.py
+new file mode 100644
+index 0000000..1d45d49
+--- /dev/null
++++ b/brain/council/__init__.py
+@@ -0,0 +1,6 @@
++"""Executive Council — multi-seat reasoning (docs/executive-council.md)."""
++
++from brain.council.orchestrator import daily_money_scan
++from brain.council.seats import COUNCIL_SEATS, route_seats, seat_prompt_block
++
++__all__ = ["daily_money_scan", "route_seats", "COUNCIL_SEATS", "seat_prompt_block"]
+diff --git a/brain/council/orchestrator.py b/brain/council/orchestrator.py
+new file mode 100644
+index 0000000..d12e20f
+--- /dev/null
++++ b/brain/council/orchestrator.py
+@@ -0,0 +1,197 @@
++"""
++Daily money scan + ranked moves (Executive Council § daily money scan).
++
++Heuristic-first: works without Anthropic. Uses live connectors + seed pipeline +
++memory — never invents dollar amounts (master spec §3.1).
++"""
++
++from __future__ import annotations
++
++from brain.cockpit.seed_pipeline import SEED_DEALS
++
++
++def _move(
++    title: str,
++    why: str,
++    action: str,
++    *,
++    seat: str,
++    deal_ref: str | None = None,
++    priority: int = 50,
++) -> dict:
++    return {
++        "title": title,
++        "dollars": None,
++        "why": why,
++        "recommended_action": action,
++        "deal_ref": deal_ref,
++        "council_seat": seat,
++        "priority": priority,
++    }
++
++
++def daily_money_scan(cockpit_read) -> dict:
++    """
++    `cockpit_read` is a CockpitRead instance.
++    Returns { status, sources, moves, watch_count, headline, seats_active }.
++    """
++    moves: list[dict] = []
++    sources: list[str] = []
++    watch_count = 0
++
++    # --- Live: GHL / revenue fire ---
++    try:
++        ghl = cockpit_read.ghl_crm()
++        if ghl.get("status") == "ok":
++            sources.append("ghl")
++            unread = int(ghl.get("unread_texts") or 0)
++            missed = int(ghl.get("missed_calls") or 0)
++            leads = int(ghl.get("new_leads") or 0)
++            if unread or missed or leads:
++                moves.append(
++                    _move(
++                        "Meta → GHL speed-to-lead",
++                        f"{leads} recent contacts · {unread} unread SMS · {missed} missed calls.",
++                        "Clear inbox + call back hot leads before ad spend cools.",
++                        seat="rainmaker",
++                        priority=90 if unread or missed else 70,
++                    )
++                )
++    except Exception:
++        pass
++
++    # --- Live: overdue / ops ---
++    try:
++        pulse = cockpit_read.team_pulse()
++        if pulse.get("status") == "ok":
++            sources.append("clickup")
++            overdue = pulse.get("overdue") or []
++            watch_count += len(overdue)
++            for t in overdue[:2]:
++                moves.append(
++                    _move(
++                        f"{t.get('person', 'Team')}: {t.get('task', 'Overdue task')}",
++                        f"{t.get('days_late', '?')} days late — accountability gap.",
++                        "Assign or close in ClickUp today; follow up on Fieldy commitment if any.",
++                        seat="people_coo",
++                        priority=85 + min(int(t.get("days_late") or 0), 10),
++                    )
++                )
++    except Exception:
++        pass
++
++    # --- Seed pipeline idle flags (always available as strategic spine) ---
++    sources.append("brain_pipeline")
++    for deal in SEED_DEALS:
++        idle = int(deal.get("idle_days") or 0)
++        if idle >= 7:
++            moves.append(
++                _move(
++                    f"{deal['name']} — {deal['address']}",
++                    f"{idle}d idle · {deal.get('flywheel_live', 0)} flywheel touches live. {deal.get('note', '')}",
++                    "One decision today: comps, structure, or kill — do not let this drift.",
++                    seat="deal_hunter" if idle < 10 else "chief_of_staff",
++                    deal_ref=deal.get("address"),
++                    priority=95 if idle >= 9 else 80,
++                )
++            )
++        elif idle >= 4:
++            moves.append(
++                _move(
++                    f"{deal['name']} slipping",
++                    deal.get("note", ""),
++                    "15-minute owner ping — confirm next milestone date.",
++                    seat="flywheel_officer",
++                    deal_ref=deal.get("address"),
++                    priority=60,
++                )
++            )
++
++    # --- Meta ads connector ---
++    try:
++        ads = cockpit_read.meta_ads()
++        if ads.get("status") == "connect_source":
++            moves.append(
++                _move(
++                    "Connect Meta Ads",
++                    "Daily spend and CPL are blind without Meta — #1 investor lead fire stays dark.",
++                    "Add Meta token in Stack → Connections; tie to GHL capture.",
++                    seat="cfo_capital",
++                    priority=75,
++                )
++            )
++        elif ads.get("status") == "ok":
++            sources.append("meta")
++            cpl = ads.get("cost_per_lead")
++            if cpl is not None:
++                moves.append(
++                    _move(
++                        "Meta investor ads",
++                        f"Spend {ads.get('daily_spend', '—')} · CPL {cpl} · leads {ads.get('leads', '—')}.",
++                        "If CPL rising, refresh creative or tighten GHL speed-to-lead.",
++                        seat="rainmaker",
++                        priority=65,
++                    )
++                )
++    except Exception:
++        pass
++
++    # --- Trained decisions (memory) ---
++    try:
++        kb = cockpit_read.kb
++        for d in kb.decisions_history(limit=2):
++            meta = d.get("metadata", {})
++            addr = meta.get("address")
++            if not addr:
++                continue
++            sources.append("brain_memory")
++            moves.append(
++                _move(
++                    f"Trained call: {addr}",
++                    (meta.get("reasoning") or d.get("text", ""))[:180],
++                    f"Prior verdict {meta.get('verdict', '—')} — reconcile with today's pipeline.",
++                    seat="deal_hunter",
++                    deal_ref=addr,
++                    priority=55,
++                )
++            )
++    except Exception:
++        pass
++
++    # Dedupe by title, sort by priority
++    seen: set[str] = set()
++    unique: list[dict] = []
++    for m in sorted(moves, key=lambda x: -int(x.get("priority") or 0)):
++        key = m["title"][:80]
++        if key in seen:
++            continue
++        seen.add(key)
++        m.pop("priority", None)
++        unique.append(m)
++
++    unique = unique[:3]
++    seats_active = sorted({m.get("council_seat") for m in unique if m.get("council_seat")})
++
++    if unique:
++        status = "ok"
++    elif sources:
++        status = "partial"
++    else:
++        status = "connect_source"
++
++    headline = (
++        f"{watch_count} operational {'alert' if watch_count == 1 else 'alerts'} — council ranked {len(unique)} moves."
++        if watch_count
++        else f"Council ranked {len(unique)} money moves for today."
++    )
++
++    return {
++        "status": status,
++        "sources": sorted(set(sources)),
++        "moves": unique,
++        "limit": 3,
++        "watch_count": watch_count,
++        "headline": headline,
++        "seats_active": seats_active,
++        "decisions_known": cockpit_read.counts().get("decisions", 0),
++    }
+diff --git a/brain/council/seats.py b/brain/council/seats.py
+new file mode 100644
+index 0000000..f9d3351
+--- /dev/null
++++ b/brain/council/seats.py
+@@ -0,0 +1,125 @@
++"""Council seat definitions and lightweight routing (no extra model calls)."""
++
++from __future__ import annotations
++
++import re
++from typing import Literal
++
++SeatId = Literal[
++    "chief_of_staff",
++    "cfo_capital",
++    "deal_hunter",
++    "flywheel_officer",
++    "rainmaker",
++    "risk_compliance",
++    "people_coo",
++    "performance",
++    "wellbeing",
++]
++
++
++class _Seat:
++    __slots__ = ("id", "title", "lens", "patterns")
++
++    def __init__(self, id: SeatId, title: str, lens: str, patterns: list[str]):
++        self.id = id
++        self.title = title
++        self.lens = lens
++        self.patterns = patterns
++
++
++COUNCIL_SEATS: list[_Seat] = [
++    _Seat(
++        "chief_of_staff",
++        "Chief of Staff",
++        "Prioritize Lindsey's attention; surface the 3 things that matter today.",
++        [r"\btoday\b", r"\btop\s*3\b", r"\bpriorit", r"\bbrief\b", r"\bwhat\s+first\b"],
++    ),
++    _Seat(
++        "cfo_capital",
++        "CFO / Capital",
++        "Margin vs ARV, DSCR, capital stack (Joe vs Goldfront vs CB3 takeout). Never invent numbers.",
++        [r"\bdscr\b", r"\bmargin\b", r"\bcapital\b", r"\bstack\b", r"\bcb3\b", r"\bunderwater\b"],
++    ),
++    _Seat(
++        "deal_hunter",
++        "Deal Hunter",
++        "Buy-box fit (CLE/Akron/Canton), idle deals, GO/NO-GO against trained history.",
++        [r"\bdeal\b", r"\barv\b", r"\brehab\b", r"\bbuy[\s-]?box\b", r"\bridgeline\b", r"\btitus\b"],
++    ),
++    _Seat(
++        "flywheel_officer",
++        "Flywheel Officer",
++        "Six-touch revenue on every relationship — uncaptured touches are money left on the table.",
++        [r"\bflywheel\b", r"\btouch", r"\bmodular\b", r"\bconstruction\b", r"\btitle\b", r"\bdscr refi\b"],
++    ),
++    _Seat(
++        "rainmaker",
++        "Rainmaker",
++        "Pipeline, leads, follow-ups, outreach drafts in Lindsey's voice.",
++        [r"\blead\b", r"\bfollow[\s-]?up\b", r"\boutreach\b", r"\bghl\b", r"\bmeta\b", r"\bdraft\b"],
++    ),
++    _Seat(
++        "risk_compliance",
++        "Risk & Compliance",
++        "Internal-facing credit advice only; flag RESPA/TCPA and novel high-stakes moves.",
++        [r"\bcompliance\b", r"\brespa\b", r"\btcpa\b", r"\ba2p\b", r"\blicen", r"\bborrower\b"],
++    ),
++    _Seat(
++        "people_coo",
++        "People / COO",
++        "Team accountability — Emma, Aaron, Ken, Baker, Bobby, Brett, Tracy; ClickUp gaps.",
++        [r"\bteam\b", r"\baaron\b", r"\bemma\b", r"\boverdue\b", r"\bclickup\b", r"\bassign\b", r"\baccountab"],
++    ),
++    _Seat(
++        "performance",
++        "Performance / Trainer",
++        "Training, recovery, sleep, Whoop signals — track only, never prescribe.",
++        [r"\bwhoop\b", r"\brecovery\b", r"\btrain", r"\bsleep\b", r"\bhrv\b"],
++    ),
++    _Seat(
++        "wellbeing",
++        "Mind / Wellbeing",
++        "Stress patterns, support routing — not therapy.",
++        [r"\bwellbeing\b", r"\bstress\b", r"\btherapy\b", r"\bburnout\b"],
++    ),
++]
++
++
++def route_seats(message: str, max_seats: int = 4) -> list[SeatId]:
++    """Pick council seats by keyword patterns; Chief of Staff always included."""
++    text = (message or "").lower()
++    scored: list[tuple[int, SeatId]] = []
++    for seat in COUNCIL_SEATS:
++        if seat.id == "chief_of_staff":
++            continue
++        score = 0
++        for pat in seat.patterns:
++            if re.search(pat, text, re.I):
++                score += 2
++        if score:
++            scored.append((score, seat.id))
++    scored.sort(key=lambda x: -x[0])
++    picked: list[SeatId] = ["chief_of_staff"]
++    for _, sid in scored[: max_seats - 1]:
++        if sid not in picked:
++            picked.append(sid)
++    if len(picked) == 1:
++        picked.extend(["deal_hunter", "people_coo"])
++    return picked[:max_seats]
++
++
++def seat_prompt_block(seat_ids: list[SeatId]) -> str:
++    lines = [
++        "EXECUTIVE COUNCIL (synthesize one clear answer — do not role-play separate voices unless asked):",
++        "You are the Chief of Staff orchestrating these seats for this question:",
++    ]
++    by_id = {s.id: s for s in COUNCIL_SEATS}
++    for sid in seat_ids:
++        s = by_id.get(sid)
++        if s:
++            lines.append(f"- {s.title}: {s.lens}")
++    lines.append(
++        "Deliver one unified recommendation. Name which seat drove the key insight when it matters."
++    )
++    return "\n".join(lines)
+diff --git a/brain/main.py b/brain/main.py
+index 34fe59c..9d975e5 100644
+--- a/brain/main.py
++++ b/brain/main.py
+@@ -30,6 +30,9 @@ from brain.agent import reasoning
+ from brain.agent.chat_actions import try_chat_action
+ from brain.approvals import queue as approval_queue
+ from brain.cockpit.read import CockpitRead
++from brain.cockpit.seed_pipeline import SEED_DEALS
++from brain.council.orchestrator import daily_money_scan
++from brain.agent.live_context import build_live_context
+ from brain.connectors.base import ConnectorNotConfigured
+ from brain.connectors import clickup, fieldy
+ from brain.connectors import google_oauth, whoop_oauth
+@@ -129,6 +132,27 @@ def money_top_moves(limit: int = 3):
+     return _cockpit.top_money_moves(limit=limit)
+ 
+ 
++@app.get("/council/scan")
++def council_scan(limit: int = 3):
++    """Executive Council daily money scan — ranked moves with seat attribution."""
++    scan = daily_money_scan(_cockpit)
++    scan["limit"] = limit
++    scan["moves"] = (scan.get("moves") or [])[:limit]
++    return scan
++
++
++@app.get("/intel/snapshot")
++def intel_snapshot():
++    """Live cockpit snapshot (same payload injected into /chat)."""
++    return build_live_context(_cockpit)
++
++
++@app.get("/deals/pipeline")
++def deals_pipeline():
++    """Reference pipeline cards (master spec seed deals) — qualitative, no invented math."""
++    return {"status": "ok", "sources": ["brain_pipeline"], "deals": SEED_DEALS}
++
++
+ @app.get("/blindspots")
+ def blindspots():
+     return _cockpit.blindspots()
+@@ -622,7 +646,11 @@ def chat(req: ChatRequest):
+     if req.deal is not None:
+         engine = evaluate_deal(DealInputs(**req.deal.model_dump()))
+     result = reasoning.answer(
+-        req.message, kb=KnowledgeBase(), engine=engine, wants_draft=req.wants_draft
++        req.message,
++        kb=KnowledgeBase(),
++        engine=engine,
++        wants_draft=req.wants_draft,
++        cockpit_read=_cockpit,
+     )
+     draft = result.get("draft")
+     if draft:
+diff --git a/tests/test_council.py b/tests/test_council.py
+new file mode 100644
+index 0000000..0588bc5
+--- /dev/null
++++ b/tests/test_council.py
+@@ -0,0 +1,47 @@
++"""Council routing and daily scan tests."""
++
++from brain.council.orchestrator import daily_money_scan
++from brain.council.seats import route_seats
++
++
++class FakeKb:
++    def decisions_history(self, limit=3):
++        return []
++
++    def count(self, name):
++        return 0
++
++
++class FakeCockpit:
++    kb = FakeKb()
++
++    def watchlist(self):
++        return {"status": "connect_source", "sources": ["brain_scan"], "items": []}
++
++    def blindspots(self):
++        return {"status": "connect_source", "sources": ["brain_scan"], "items": []}
++
++    def ghl_crm(self):
++        return {"status": "connect_source", "sources": ["ghl"]}
++
++    def team_pulse(self):
++        return {"status": "connect_source", "sources": ["clickup"], "overdue": [], "gaps": []}
++
++    def meta_ads(self):
++        return {"status": "connect_source", "sources": ["meta"]}
++
++    def counts(self):
++        return {"decisions": 0, "voice": 0, "knowledge": 0, "conversation_patterns": 0}
++
++
++def test_route_seats_deal_question():
++    seats = route_seats("What should we do on Ridgeline ARV margin?")
++    assert "chief_of_staff" in seats
++    assert "deal_hunter" in seats or "cfo_capital" in seats
++
++
++def test_daily_scan_returns_moves_without_connectors():
++    scan = daily_money_scan(FakeCockpit())
++    assert scan["status"] in ("ok", "partial", "connect_source")
++    assert len(scan.get("moves") or []) >= 1
++    assert any("Ridgeline" in m.get("title", "") for m in scan["moves"])
+diff --git a/tests/test_live_context.py b/tests/test_live_context.py
+new file mode 100644
+index 0000000..b8465c8
+--- /dev/null
++++ b/tests/test_live_context.py
+@@ -0,0 +1,12 @@
++"""Live context builder smoke test."""
++
++from brain.agent.live_context import build_live_context, format_context_for_model
++from tests.test_council import FakeCockpit
++
++
++def test_build_live_context_shape():
++    ctx = build_live_context(FakeCockpit())
++    assert ctx.get("generated_by") == "superman_brain_live_context"
++    assert "top_moves" in ctx
++    block = format_context_for_model(ctx)
++    assert "LIVE COMMAND CENTER SNAPSHOT" in block
+-- 
+2.43.0
+

@@ -26,8 +26,8 @@ check_ui() {
   local url="$2"
   local html
   html="$(curl -sf --max-time 15 "$url" 2>/dev/null || true)"
-  if echo "$html" | grep -qi 'Echo Command'; then
-    echo "OK   $label UI (Echo Command)"
+  if echo "$html" | grep -qi 'Conrad Command Center'; then
+    echo "OK   $label UI (Conrad Command Center / Jarvis)"
     return 0
   fi
   if echo "$html" | grep -qi 'Conrad Command Center' && ! echo "$html" | grep -q 'id="root"'; then

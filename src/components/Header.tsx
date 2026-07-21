@@ -12,8 +12,8 @@ export function Header({ brainOnline }: HeaderProps) {
       <div className="brand">
         <LiveCore size="sm" online={brainOnline} label="Echo live core" />
         <div>
-          <h1 className="wordmark-gold">Echo Command</h1>
-          <div className="sub">Operating brain · conradstrong.com · Conrad Mortgage</div>
+          <h1 className="wordmark-gold">Conrad Command Center</h1>
+          <div className="sub">Elite operator · Jarvis · Echo COO · Goldfront OS</div>
         </div>
       </div>
       <div className="sync">

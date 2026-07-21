@@ -1,6 +1,6 @@
 # Manus AI — agent prompt (copy everything below)
 
-You are on the **Manus box** (`102.210.17.121`). Your job is to make the **live** site match the **Echo Command Center** on GitHub — not the legacy static “Conrad Command Center” HTML.
+You are on the **Manus box** (`102.210.17.121`). Your job is to make the **live** site match the **Conrad Command Center (Jarvis)** on GitHub — not the legacy static HTML dashboard (SYSTEM v4.1).
 
 ## Rules
 
@@ -30,9 +30,9 @@ curl -s https://command.theconradteam.com/ | grep -o '<title>[^<]*'
 | Check | Pass |
 |-------|------|
 | Local `/health` | JSON with `"status":"ok"` |
-| Local `/` title | Contains **Echo Command** |
+| Local `/` title | Contains **Conrad Command Center** |
 | Public `/health` | JSON (not HTML) |
-| Public `/` title | **Echo Command**, not legacy inline dashboard |
+| Public `/` title | **Conrad Command Center**, not legacy inline dashboard |
 
 ## Step 3 — If public HTTPS fails but local passes
 
