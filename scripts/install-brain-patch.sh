@@ -18,6 +18,10 @@ if [[ ! -f "$PATCH" ]]; then
 fi
 
 cd "$BRAIN_DIR"
+if rg -q 'approvals/pending' brain/main.py 2>/dev/null; then
+  echo "Brain already includes approval/meta/weather endpoints — skip patch."
+  exit 0
+fi
 echo "Applying patch in $BRAIN_DIR ..."
 git apply "$PATCH"
 echo "Running tests ..."

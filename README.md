@@ -33,6 +33,18 @@ It is the elite evolution of the live dashboard at **command.theconradteam.com**
 - Mobile-first: it runs from a Cybertruck on Starlink. Fast on a weak connection.
 - Build once, build durable.
 
+## Run locally (finished stack)
+
+Prerequisites: Node 18+, Python 3.11+, sibling [`Goldfront-os`](https://github.com/lindsey-creator/Goldfront-os) clone.
+
+```bash
+cd conrad-command-center
+chmod +x scripts/*.sh
+./scripts/run-stack.sh
+```
+
+Then open **http://127.0.0.1:8000**. Connectors are optional — modules show **Connect source** until keys are in `Goldfront-os/.env`. See **`BRAIN_CONNECTION.md`** and `Goldfront-os/deploy/CONNECT-EVERYTHING.md`.
+
 ## Push this to your own GitHub
 Create an **empty** repo on GitHub (no README, or the first push conflicts), then:
 

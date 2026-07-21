@@ -1,42 +1,97 @@
 # Connecting the Command Center to the Brain
 
-The Command Center is glass. The **Brain** (separate `goldfront-os` repo) is the
+The Command Center is glass. The **Brain** ([`Goldfront-os`](https://github.com/lindsey-creator/Goldfront-os)) is the
 source of truth. The UI calls the Brain's FastAPI service — it never computes
 numbers itself.
 
-## Run the Brain locally
+## Quick start (local)
+
 ```bash
-cd goldfront-os
-pip install -r requirements.txt
-uvicorn brain.main:app --reload      # http://127.0.0.1:8000  (see /docs)
+# Sibling folders:
+#   conrad-command-center/
+#   Goldfront-os/
+
+cd conrad-command-center
+./scripts/run-stack.sh
 ```
-Set the UI's API base to that URL (e.g. `VITE_BRAIN_API=http://127.0.0.1:8000`).
 
-## Endpoints that exist today
-- `GET  /health`
-- `POST /evaluate-deal` — deterministic deal math (margin, DSCR, flywheel, verdict)
-- `POST /train/voice`, `/train/deal-decision`, `/train/team-interaction`, `/train/conversation`
-- `GET  /decisions/history` — recency-weighted decision history
-- `GET  /train/counts`
-- `GET  /ads/meta` — Meta Ads spend, leads, CPL (connect_source until wired)
-- `GET  /weather` — Cleveland conditions (connect_source until wired)
-- `POST /tasks` — issue a task → routed into ClickUp (human gate when configured)
-- `GET  /approvals/pending` — drafts and tasks awaiting your approval
-- `POST /approvals/{id}/approve` — approve edited draft or create ClickUp task
-- `POST /approvals/{id}/deny` — discard pending item
-- `POST /chat` drafts return `approval_id` when routed to the Approval Queue
+Open **http://127.0.0.1:8000** — one port for UI + API.
 
-## Endpoints Fable should add (thin wrappers over the Brain, no new math)
-- `GET /brief/daily` — the morning brief (Fieldy + calendar + pipeline)
-- `GET /money/top-moves` — today's Top-3 money moves (from the engine + memory)
-- `GET /blindspots` and `GET /watchlist`
-- `GET /team/pulse` — overdue + accountability radar output
+Dev mode with hot reload (two terminals):
 
-## Live connectors (authorize in an interactive Cowork/Claude session)
-ClickUp · Fieldy · GoHighLevel · Gmail · Google Calendar · (Apple Health / Whoop
-sync via the dashboard). Until a connector is authorized, its module shows a clean
-"connect source" state — never fake data.
+```bash
+# Terminal 1
+cd Goldfront-os && uvicorn brain.main:app --reload --port 8000
+
+# Terminal 2
+cd conrad-command-center
+echo 'VITE_BRAIN_API=http://127.0.0.1:8000' > .env
+npm run dev   # http://localhost:5173
+```
+
+Smoke test (Brain running):
+
+```bash
+./scripts/smoke-test.sh http://127.0.0.1:8000
+```
+
+## Production layout
+
+The Brain serves the built React app when this path exists:
+
+`../conrad-command-center/dist` (sibling of the `Goldfront-os` repo root)
+
+```bash
+cd conrad-command-center && npm ci && npm run build
+cd ../Goldfront-os && pip install -r requirements.txt
+sudo systemctl restart superman-brain   # or your process manager
+```
+
+## Core endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/health` | Liveness |
+| `POST` | `/chat` | Echo / Ask the room (drafts return `approval_id`) |
+| `GET` | `/brief/daily` | Morning brief |
+| `GET` | `/money/top-moves` | Top money moves |
+| `GET` | `/blindspots`, `/watchlist`, `/team/pulse` | Intel modules |
+| `GET` | `/crm/ghl`, `/ads/meta`, `/weather` | Connectors (or `connect_source`) |
+| `POST` | `/tasks` | Queue ClickUp task (approval gate) |
+| `GET` | `/approvals/pending` | Pending drafts/tasks |
+| `POST` | `/approvals/{id}/approve`, `/deny` | Human gate |
+| `GET` | `/connectors/status` | Which env vars are configured |
+
+## ClickUp task actions (dashboard)
+
+| Method | Path |
+|--------|------|
+| `GET` | `/clickup/tasks/{task_id}` |
+| `PATCH` | `/clickup/tasks/{task_id}` |
+| `POST` | `/clickup/tasks/{task_id}/complete`, `/reopen`, `/assign`, `/unassign`, `/comment` |
+| `GET` | `/clickup/members` |
+
+## OAuth wizards (Connections page)
+
+| Method | Path |
+|--------|------|
+| `GET` | `/connect/google`, `/connect/whoop` — start OAuth |
+| `GET` | `/connect/google/status`, `/connect/whoop/status` |
+| `POST` | `/connect/google/config`, `/connect/whoop/config` |
+
+See `Goldfront-os/deploy/CONNECT-EVERYTHING.md` for env vars and Manus deploy.
+
+## Legacy patch
+
+If you run an old Brain checkout, apply:
+
+```bash
+./scripts/install-brain-patch.sh ../Goldfront-os
+```
+
+Current `Goldfront-os` on GitHub already includes these routes.
 
 ## Rule
+
 Numbers come from the Brain's engine. The UI displays and narrates. If a value
 isn't available, show the empty/connect state — do not invent it.
