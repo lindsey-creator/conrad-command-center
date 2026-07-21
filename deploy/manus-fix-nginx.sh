@@ -73,15 +73,15 @@ server {
 NGX
 fi
 
-# Remove duplicate per-host configs that override the unified proxy
-for stale in command.theconradteam.com commandcenter.theconradteam.com brain.theconradteam.com; do
-  if [ -f "/etc/nginx/sites-enabled/$stale" ] && [ "$(readlink -f "/etc/nginx/sites-enabled/$stale" 2>/dev/null)" != "$(readlink -f "$SITE" 2>/dev/null)" ]; then
-    if sudo grep -q '127.0.0.1:8000' "/etc/nginx/sites-enabled/$stale" 2>/dev/null; then
-      : # already proxying — keep if same target
-    else
-      echo "    remove stale nginx site: $stale"
-      sudo rm -f "/etc/nginx/sites-enabled/$stale"
-    fi
+# Remove duplicate enabled sites so unified proxy wins (legacy static or old vhosts)
+SITE_REAL="$(readlink -f "$SITE" 2>/dev/null || echo "$SITE")"
+for stale in command.theconradteam.com commandcenter.theconradteam.com brain.theconradteam.com conradstrong.com default; do
+  enabled="/etc/nginx/sites-enabled/$stale"
+  [ -e "$enabled" ] || continue
+  real="$(readlink -f "$enabled" 2>/dev/null || echo "$enabled")"
+  if [ "$real" != "$SITE_REAL" ]; then
+    echo "    remove duplicate nginx site: $stale"
+    sudo rm -f "$enabled"
   fi
 done
 

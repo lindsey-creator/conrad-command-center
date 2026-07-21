@@ -6,6 +6,8 @@ Do these **in order**. Do not skip steps.
 
 ## A. Manus production (always-on box)
 
+**Give this to Manus AI:** [`deploy/MANUS-AGENT-PROMPT.md`](MANUS-AGENT-PROMPT.md) (full copy-paste prompt).
+
 **One command** (Manus terminal or Manus AI):
 
 ```bash

@@ -37,7 +37,12 @@ pip install -q -U pip
 pip install -q -r requirements.txt
 
 step 4 "systemd superman-brain (always-on on :8000)"
-if command -v systemctl >/dev/null 2>&1; then
+systemd_ok=false
+if command -v systemctl >/dev/null 2>&1 && systemctl is-system-running --quiet 2>/dev/null; then
+  systemd_ok=true
+fi
+
+if $systemd_ok; then
   sudo tee /etc/systemd/system/superman-brain.service >/dev/null <<UNIT
 [Unit]
 Description=Superman Brain (Goldfront OS + Command Center)
@@ -65,7 +70,14 @@ UNIT
     die "superman-brain failed to start"
   }
 else
-  echo "    systemctl not available — start uvicorn manually"
+  echo "    systemd not running — start Brain in foreground or use existing :8000"
+  if ! curl -sf "http://127.0.0.1:8000/health" >/dev/null 2>&1; then
+    cd "$BRAIN_DIR"
+    # shellcheck disable=SC1091
+    source .venv/bin/activate
+    nohup uvicorn brain.main:app --host 0.0.0.0 --port 8000 >>"$BRAIN_DIR/brain.log" 2>&1 &
+    sleep 2
+  fi
 fi
 
 step 5 "Local health check"

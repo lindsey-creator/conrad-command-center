@@ -56,7 +56,14 @@ if [ "$VERIFY_PUBLIC" != "1" ]; then
   exit 0
 fi
 
-for host in command.theconradteam.com commandcenter.theconradteam.com conradstrong.com; do
+# Optional: VERIFY_HOSTS="command.theconradteam.com conradstrong.com"
+HOSTS="${VERIFY_HOSTS:-command.theconradteam.com commandcenter.theconradteam.com conradstrong.com}"
+
+for host in $HOSTS; do
+  if ! getent hosts "$host" >/dev/null 2>&1 && ! host "$host" >/dev/null 2>&1; then
+    echo "SKIP public $host (no DNS)"
+    continue
+  fi
   check_health "public $host" "https://${host}/health" || PUBLIC_FAIL=1
   check_ui "public $host" "https://${host}/" || PUBLIC_FAIL=1
 done

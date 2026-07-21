@@ -1,0 +1,10 @@
+diff --git a/deploy/manus_bootstrap.sh b/deploy/manus_bootstrap.sh
+index 0000000..0000000 100755
+--- a/deploy/manus_bootstrap.sh
++++ b/deploy/manus_bootstrap.sh
+@@ -21,4 +21,4 @@ else
+   git clone "$CC_URL" conrad-command-center
+ fi
+ 
+-exec bash "$BRAIN_PARENT/goldfront-os/deploy/FINISH_ON_MANUS.sh"
++exec bash "$BRAIN_PARENT/conrad-command-center/deploy/manus-accurate.sh"
