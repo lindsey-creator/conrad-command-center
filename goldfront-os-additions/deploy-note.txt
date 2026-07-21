@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Append to Goldfront-os deploy/FINISH_ON_MANUS.sh (after nginx reload):
+#   bash "$UI_DIR/deploy/manus-fix-nginx.sh" 2>/dev/null || true
+# Or run manus-accurate.sh from conrad-command-center instead.

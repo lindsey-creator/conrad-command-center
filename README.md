@@ -45,6 +45,16 @@ chmod +x scripts/*.sh
 
 Then open **http://127.0.0.1:8000**. Connectors are optional — modules show **Connect source** until keys are in `Goldfront-os/.env`. See **`BRAIN_CONNECTION.md`** and `Goldfront-os/deploy/CONNECT-EVERYTHING.md`.
 
+## Manus production (match Echo Command on the web)
+
+If `https://command.theconradteam.com/health` returns HTML instead of JSON, nginx is still serving the **legacy static dashboard**. On the **Manus terminal**, run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lindsey-creator/conrad-command-center/main/deploy/manus-accurate.sh | bash
+```
+
+Instructions for Manus AI: **`deploy/MANUS-ACCURATE.md`**.
+
 ## Push this to your own GitHub
 Create an **empty** repo on GitHub (no README, or the first push conflicts), then:
 

@@ -30,7 +30,7 @@ server {
     server_name command.theconradteam.com commandcenter.theconradteam.com;
     ssl_certificate /etc/letsencrypt/live/command.theconradteam.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/command.theconradteam.com/privkey.pem;
-    include /etc/letsencrypt/options-ssl-ssl.conf 2>/dev/null || include /etc/letsencrypt/options-ssl-nginx.conf;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
     location / {
         proxy_pass http://127.0.0.1:8000;
