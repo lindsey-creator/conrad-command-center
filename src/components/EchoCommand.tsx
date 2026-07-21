@@ -414,6 +414,16 @@ export function EchoCommand({
               {response.answer && (
                 <div className="echo-command__response">{response.answer}</div>
               )}
+              {response.council_seats && response.council_seats.length > 0 && (
+                <div className="echo-command__mode-note">
+                  <span className="echo-command__mode-tag">
+                    Council:{' '}
+                    {response.council_seats
+                      .map((s) => s.replace(/_/g, ' '))
+                      .join(' · ')}
+                  </span>
+                </div>
+              )}
               {(response.draft || draftEdit) && (
                 <ApprovalQueuePanel
                   approvalId={approvalId}

@@ -28,13 +28,20 @@ for cmd in python3 node npm curl; do command -v "$cmd" >/dev/null || die "Instal
 ( cd "$UI_DIR" && npm ci && npm run build )
 [ -f "$UI_DIR/dist/index.html" ] || die "UI build failed — missing dist/index.html"
 
-step 3 "Python venv + Brain dependencies"
+step 3 "Python venv + Brain dependencies + Executive Council patch"
 cd "$BRAIN_DIR"
 [ -d .venv ] || python3 -m venv .venv
 # shellcheck disable=SC1091
 source .venv/bin/activate
 pip install -q -U pip
 pip install -q -r requirements.txt
+COUNCIL_PATCH="$UI_DIR/goldfront-os-additions/patches/0001-Executive-Council-daily-scan-live-chat-context-Gmail.patch"
+if [ -f "$COUNCIL_PATCH" ] && ! grep -q '/council/scan' brain/main.py 2>/dev/null; then
+  echo "    Applying Executive Council patch …"
+  git apply "$COUNCIL_PATCH" || die "Council patch failed — fix Goldfront-os tree and retry"
+elif grep -q '/council/scan' brain/main.py 2>/dev/null; then
+  echo "    Executive Council endpoints already present"
+fi
 
 step 4 "systemd superman-brain (always-on on :8000)"
 systemd_ok=false

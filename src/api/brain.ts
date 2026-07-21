@@ -12,6 +12,7 @@ export interface MoneyMove {
   why: string;
   recommended_action: string;
   deal_ref?: string;
+  council_seat?: string;
 }
 
 export interface TopMoneyMovesResponse {
@@ -20,6 +21,29 @@ export interface TopMoneyMovesResponse {
   limit: number;
   moves: MoneyMove[];
   decisions_known: number;
+  headline?: string;
+  seats_active?: string[];
+}
+
+export interface CouncilScanResponse extends TopMoneyMovesResponse {
+  watch_count?: number;
+}
+
+export interface PipelineDeal {
+  id: string;
+  name: string;
+  address: string;
+  vertical: string;
+  idle_days: number;
+  health: string;
+  flywheel_live: number;
+  note: string;
+}
+
+export interface DealsPipelineResponse {
+  status: string;
+  sources: string[];
+  deals: PipelineDeal[];
 }
 
 export interface TeamPulseGap {
@@ -260,6 +284,7 @@ export interface ChatResponse {
   action?: string;
   action_status?: string;
   action_result?: Record<string, unknown>;
+  council_seats?: string[];
 }
 
 export interface ClickUpMember {
@@ -450,6 +475,19 @@ export const brain = {
   watchlist: () => fetchJson<ConnectSourceResponse>('/watchlist'),
   topMoves: (limit = 3) =>
     fetchJson<TopMoneyMovesResponse>(`/money/top-moves?limit=${limit}`),
+  councilScan: (limit = 3) =>
+    fetchJson<CouncilScanResponse>(`/council/scan?limit=${limit}`),
+  dealsPipeline: () => fetchJson<DealsPipelineResponse>('/deals/pipeline'),
+  evaluateDeal: (deal: ChatDealFields & { other_costs?: number }) =>
+    postJson<Record<string, unknown>>('/evaluate-deal', {
+      purchase_price: deal.purchase_price,
+      rehab_estimate: deal.rehab_estimate,
+      arv: deal.arv,
+      monthly_rent: deal.monthly_rent,
+      monthly_debt_service: deal.monthly_debt_service,
+      other_costs: deal.other_costs ?? 0,
+      flywheel_revenue_by_touch: {},
+    }),
   teamPulse: () => fetchJson<TeamPulseResponse>('/team/pulse'),
   dailyBrief: () => fetchJson<DailyBriefResponse>('/brief/daily'),
   decisionsHistory: (params?: { verdict?: string; limit?: number }) => {

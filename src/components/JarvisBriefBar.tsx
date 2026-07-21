@@ -20,7 +20,7 @@ const QUICK_PROMPTS: { label: string; text: string }[] = [
   { label: 'Top 3 moves', text: 'What are my top three money moves today? Be specific.' },
   { label: 'What burns today', text: 'What on the watch list will bite if I ignore it today?' },
   { label: 'Fieldy brief', text: 'Summarize yesterday from Fieldy — commitments I made and owed to me.' },
-  { label: 'Team holes', text: 'Who on the team has a commitment gap right now?' },
+  { label: 'Council scan', text: 'Run the Executive Council daily money scan and tell me the one move I should not skip.' },
 ];
 
 export function BrainDeployBanner() {
@@ -38,28 +38,37 @@ export function BrainDeployBanner() {
 }
 
 export function JarvisBriefBar({ brainOnline, onJarvisPrompt }: JarvisBriefBarProps) {
-  const fetchTop = useCallback(() => brain.topMoves(3), []);
+  const fetchCouncil = useCallback(() => brain.councilScan(3), []);
   const fetchWatch = useCallback(() => brain.watchlist(), []);
   const fetchPulse = useCallback(() => brain.teamPulse(), []);
 
-  const topMoves = useBrainQuery('jarvis-top', fetchTop, { refreshMs: POLL_FAST_MS });
+  const council = useBrainQuery('jarvis-council', fetchCouncil, { refreshMs: POLL_FAST_MS });
   const watch = useBrainQuery('jarvis-watch', fetchWatch, { refreshMs: POLL_FAST_MS });
   const pulse = useBrainQuery('jarvis-pulse', fetchPulse, { refreshMs: POLL_FAST_MS });
 
-  const movesLive = topMoves.data && hasLiveData(topMoves.data);
+  const scanLive = council.data && hasLiveData(council.data);
   const watchLive = watch.data && hasLiveData(watch.data);
   const overdue = pulse.data?.overdue?.length ?? 0;
-  const watchCount = watchLive ? (watch.data?.items?.length ?? 0) : 0;
+  const watchCount =
+    council.data?.watch_count ??
+    (watchLive ? (watch.data?.items?.length ?? 0) : 0);
+
+  const councilHeadline = council.data?.headline;
 
   const headline = !brainOnline
     ? 'Jarvis is on standby — connect the Brain and your stack to run the company from one screen.'
-    : watchCount + overdue > 0
-      ? `You have ${watchCount + overdue} operational fires${overdue ? ` (${overdue} overdue)` : ''}. I have your top moves ready.`
-      : movesLive && (topMoves.data?.moves?.length ?? 0) > 0
-        ? 'Pipeline is calm. Here is where to compound today.'
-        : 'Systems online. Ask me anything — deals, team, brief, or route a task.';
+    : councilHeadline
+      ? councilHeadline.replace(/^Council ranked/, 'Executive Council ranked')
+      : watchCount + overdue > 0
+        ? `You have ${watchCount + overdue} operational fires${overdue ? ` (${overdue} overdue)` : ''}. Council has your top moves.`
+        : scanLive && (council.data?.moves?.length ?? 0) > 0
+          ? 'Pipeline is calm. Here is where to compound today.'
+          : 'Systems online. Ask me anything — deals, team, brief, or route a task.';
 
-  const moves = movesLive ? (topMoves.data?.moves ?? []).slice(0, 3) : [];
+  const moves =
+    scanLive && (council.data?.moves?.length ?? 0) > 0
+      ? (council.data?.moves ?? []).slice(0, 3)
+      : [];
 
   const firePrompt = (text: string) => {
     onJarvisPrompt?.({ text, focusInput: true });
@@ -90,7 +99,9 @@ export function JarvisBriefBar({ brainOnline, onJarvisPrompt }: JarvisBriefBarPr
           <div className="jarvis-brief__moves" aria-label="Top money moves">
             {moves.map((m, i) => (
               <div key={i} className="jarvis-brief__move">
-                <strong>{m.dollars ?? '—'}</strong> — {m.title}. {m.why}
+                <strong>{m.council_seat ? `${m.council_seat.replace(/_/g, ' ')} · ` : ''}</strong>
+                {m.dollars ? `${m.dollars} — ` : ''}
+                <strong>{m.title}</strong>. {m.why}
               </div>
             ))}
           </div>
