@@ -43,6 +43,37 @@ It is the elite evolution of the live dashboard at **command.theconradteam.com**
 | **Local dev** | `./scripts/setup-dev.sh` then `./scripts/run-stack.sh` |
 | **Smoke test** | `./scripts/smoke-test.sh http://127.0.0.1:8000` |
 
+## Site watch (weekday HTTP checks)
+
+Public-site checks used to live as one-off Grok Bot jobs. They now live in-repo
+so a Cursor Automation can call them later. No secrets. No CRM. No email.
+
+```bash
+python3 scripts/site-watch/watch.py --self-test
+python3 scripts/site-watch/watch.py --sample
+```
+
+That writes `reports/site-watch/YYYY-MM-DD.md` (and `SAMPLE.md` with `--sample`).
+The script HTTP-checks at least:
+
+- https://conradmortgage.com (records 301 / redirect hops)
+- https://theconradteam.com (NMLS, apply CTAs, leftover Gold Star copy)
+- https://rhinolending.capital/apply
+- https://landownersclub.com
+
+**Phone lock:** `216-513-5139` is dead — flag if found, never publish.
+`216-250-9078` is Lindsey's publish number. Do not invent other numbers. Do not
+change a Maps/listing phone if you cannot prove which listing it is.
+
+**Cursor Automation should call:**
+
+```bash
+python3 scripts/site-watch/watch.py
+```
+
+Details, exit codes, and the suggested automation prompt:
+[`scripts/site-watch/README.md`](scripts/site-watch/README.md).
+
 ## Run locally (finished stack)
 
 Prerequisites: Node 18+, Python 3.11+, sibling [`Goldfront-os`](https://github.com/lindsey-creator/Goldfront-os) clone.
