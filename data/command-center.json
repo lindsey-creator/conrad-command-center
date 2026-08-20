@@ -8,7 +8,7 @@
     "warning": "Live CoS pull for Thu Aug 20 2026. Do not invent extra cards."
   },
   "status": {
-    "watching": "LeadFlow 3 is his. LTP 4. Schill still no time."
+    "watching": "LeadFlow 3 is his. Geneva 5. Schill still no time."
   },
   "calendar": {
     "date": "2026-08-20",
@@ -18,18 +18,18 @@
         "end": "15:50",
         "title": "Meeting With Conrad Mortgage",
         "detail": "LeadFlow",
-        "where": "LeadFlow",
+        "where": "Zoom",
         "href": null,
         "who": "Lindsey, Alex"
       },
       {
-        "start": "16:00",
-        "end": "19:00",
-        "title": "LTP Real Estate Connection",
+        "start": "17:00",
+        "end": "18:00",
+        "title": "Geneva",
         "detail": null,
-        "where": "16900 Detroit Ave, Lakewood, OH 44107",
+        "where": null,
         "href": null,
-        "who": "Lindsey, Emma, Marcus"
+        "who": null
       }
     ]
   },

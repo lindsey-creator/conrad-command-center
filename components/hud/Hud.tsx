@@ -28,8 +28,8 @@ function formatHm(hm: string) {
 
 function pickNext(blocks: CalendarBlock[], date: string, now: Date): CalendarBlock | null {
   const upcoming = blocks.filter((block) => {
-    const { end } = blockRangeOnDate(date, block.start, block.end);
-    return end.getTime() > now.getTime();
+    const { start } = blockRangeOnDate(date, block.start, block.end);
+    return start.getTime() > now.getTime();
   });
   return upcoming[0] ?? null;
 }

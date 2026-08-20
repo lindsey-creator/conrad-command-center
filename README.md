@@ -39,14 +39,14 @@ npm run export:pages
 Source: Chief of Staff. Not sample. Do not invent extra cards.
 
 - Clock — `America/New_York`
-- Next — 3:00–3:50 Meeting With Conrad Mortgage (LeadFlow). Lindsey accepted. Alex. No Meet URL.
-- Today remaining — LeadFlow 3:00–3:50 · LTP 4:00–7:00 Lakewood
-- Off glass — 2:30 Greg Clement (Fieldy only, not on calendar)
+- Next — LeadFlow 3:00 until it starts, then Geneva 5
+- Today remaining — LeadFlow 3:00–3:50 Zoom · Geneva 5:00–6:00 (no place)
+- Off glass — LTP (he pulled it) · Greg Clement
 - Inbound — CAPITAL Will Schill / Independence Bank / Joe LeConte. 720 and realtor empty.
 - WHOOP — Connect. No fake scores.
 - Phone — `216-250-9078`
 - Apply — https://applyconrad.com · https://www.rhinolending.capital/apply
-- Status — LeadFlow 3 is his. LTP 4. Schill still no time.
+- Status — LeadFlow 3 is his. Geneva 5. Schill still no time.
 
 Not on glass: Ken lists, email dump, LO bench, bot chat.
 
