@@ -160,6 +160,8 @@
   font-weight: 650;
 }
 
+.today__title--slot { color: var(--faint); letter-spacing: 0.12em; }
+
 .empty {
   font-size: 28px;
   margin: 18px 0 0;
@@ -191,8 +193,14 @@
 .inbound__card {
   min-height: 110px;
   padding: 12px;
-  border: 1px solid rgba(255, 176, 0, 0.28);
-  background: var(--amber-dim);
+  border: 1px solid var(--line);
+  background: rgba(0, 229, 255, 0.04);
+}
+
+.inbound__card--empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .inbound__title {

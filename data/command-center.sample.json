@@ -1,86 +1,28 @@
 {
   "meta": {
-    "kind": "sample",
-    "label": "SAMPLE FEED",
-    "warning": "Local config only. Not live production. Do not treat calendar, inbound, or WHOOP sample rings as sourced metrics.",
-    "timezone": "America/New_York",
-    "city": "Cleveland"
-  },
-  "operator": {
-    "name": "Lindsey Conrad",
-    "role": "CEO",
-    "entities": ["Goldfront", "Revolution"]
+    "kind": "config",
+    "label": "V1 GLASS",
+    "warning": "No live calendar, inbound, or WHOOP data. Placeholders and empty states only. Do not invent numbers or names.",
+    "timezone": "America/New_York"
   },
   "status": {
-    "source": "lock",
     "watching": "Independence Bank / Schill wants a time."
   },
-  "today": {
-    "source": "sample",
-    "note": "Sample Thursday. No live calendar API in this repo.",
-    "weekday": "Thursday",
-    "blocks": [
-      { "start": "07:30", "end": "08:15", "title": "Protected" },
-      { "start": "09:00", "end": "09:45", "title": "CoS" },
-      { "start": "13:00", "end": "13:45", "title": "Goldfront / Revolution" },
-      { "start": "15:30", "end": "16:15", "title": "Capital desk" }
-    ]
-  },
   "inbound": {
-    "source": "sample",
-    "note": "Inbound only. Gate: 720 / $500K+ / realtor purchase / capital. No Ken work-up lists. No chase.",
-    "gates": ["720+", "$500K+", "Realtor purchase", "Capital"],
     "cards": [
-      {
-        "gate": "capital",
-        "title": "Independence Bank / Schill wants a time",
-        "detail": "Capital",
-        "mark": "EXAMPLE"
-      },
-      {
-        "gate": "realtor",
-        "title": "Realtor purchase",
-        "detail": "732 · $615K",
-        "mark": "SAMPLE"
-      },
-      {
-        "gate": "credit",
-        "title": "720 · $500K+",
-        "detail": "Purchase inbound",
-        "mark": "SAMPLE"
-      }
+      { "gate": "720", "label": "720" },
+      { "gate": "realtor", "label": "Realtor" },
+      { "gate": "capital", "label": "Capital" }
     ]
-  },
-  "whoopSample": {
-    "recovery": 72,
-    "strain": 8.4,
-    "sleep": 91,
-    "label": "SAMPLE — not live biometrics"
   },
   "lock": {
-    "source": "lock",
-    "phones": {
-      "lindsey": {
-        "label": "Lindsey",
-        "number": "216-250-9078",
-        "tel": "tel:+12162509078",
-        "note": "His line. Tap to call."
-      },
-      "listing": {
-        "label": "Listing",
-        "number": "216-279-5821",
-        "note": "Conrad Mortgage · Pat GHL. Not his tap-to-call.",
-        "owner": "Pat"
-      },
-      "dead": {
-        "label": "Dead",
-        "number": "216-513-5139",
-        "note": "Dead. Do not use."
-      }
+    "phone": {
+      "number": "216-250-9078",
+      "tel": "tel:+12162509078"
     },
     "apply": [
-      { "label": "DSCR", "href": "https://www.rhinolending.capital/apply" },
-      { "label": "Residential", "href": "https://applyconrad.com" }
+      { "label": "Residential", "href": "https://applyconrad.com" },
+      { "label": "DSCR", "href": "https://www.rhinolending.capital/apply" }
     ]
   }
 }

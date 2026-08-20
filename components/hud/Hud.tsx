@@ -1,19 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import {
-  blockRange,
-  clevelandClock,
-  type ClockParts,
-} from '@/lib/cleveland';
-import type { CalendarBlock, CommandFeed } from '@/lib/feed';
+import { useEffect, useState } from 'react';
+import { clevelandClock, type ClockParts } from '@/lib/cleveland';
+import type { CommandFeed } from '@/lib/feed';
 import './hud.css';
-
-function recoveryZone(score: number): 'green' | 'yellow' | 'red' {
-  if (score >= 67) return 'green';
-  if (score >= 34) return 'yellow';
-  return 'red';
-}
 
 type WhoopStatus = {
   configured: boolean;
@@ -25,55 +15,13 @@ type WhoopStatus = {
   sleep: number | null;
 };
 
-function nextAndRest(blocks: CalendarBlock[], now: Date) {
-  const dated = blocks.map((block) => ({
-    block,
-    ...blockRange(block.start, block.end, now),
-  }));
-  const upcoming = dated.filter((row) => row.end.getTime() > now.getTime());
-  const next = upcoming[0] ?? null;
-  const rest = (next ? upcoming.slice(1) : upcoming).slice(0, 3);
-  return { next: next?.block ?? null, rest: rest.map((row) => row.block) };
-}
-
-function formatHm(hm: string) {
-  const [h, m] = hm.split(':').map(Number);
-  const suffix = h >= 12 ? 'PM' : 'AM';
-  const hour = h % 12 || 12;
-  return `${hour}:${String(m).padStart(2, '0')} ${suffix}`;
-}
-
-function RecoveryRing({
-  score,
-  zone,
-  sample,
-}: {
-  score: number;
-  zone: 'green' | 'yellow' | 'red';
-  sample: boolean;
-}) {
-  const r = 54;
-  const c = 2 * Math.PI * r;
-  const offset = c * (1 - Math.min(Math.max(score, 0), 100) / 100);
+function EmptyRing() {
   return (
     <svg className="whoop-ring" viewBox="0 0 140 140" aria-hidden="true">
-      <circle className="whoop-ring__track" cx="70" cy="70" r={r} />
-      <circle
-        className={`whoop-ring__value whoop-ring__value--${zone}`}
-        cx="70"
-        cy="70"
-        r={r}
-        strokeDasharray={c}
-        strokeDashoffset={offset}
-      />
+      <circle className="whoop-ring__track" cx="70" cy="70" r="54" />
       <text className="whoop-ring__score" x="70" y="74">
-        {Math.round(score)}
+        —
       </text>
-      {sample ? (
-        <text className="whoop-ring__sample" x="70" y="96">
-          SAMPLE
-        </text>
-      ) : null}
     </svg>
   );
 }
@@ -85,17 +33,13 @@ export function Hud({
   feed: CommandFeed;
   initialClock: ClockParts;
 }) {
-  const [now, setNow] = useState(() => new Date());
   const [clock, setClock] = useState(initialClock);
   const [whoop, setWhoop] = useState<WhoopStatus | null>(null);
 
   useEffect(() => {
-    const tick = () => {
-      const d = new Date();
-      setNow(d);
-      setClock(clevelandClock(d));
-    };
-    const id = window.setInterval(tick, 1000);
+    const id = window.setInterval(() => {
+      setClock(clevelandClock());
+    }, 1000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -111,8 +55,8 @@ export function Hud({
           setWhoop({
             configured: false,
             connected: false,
-            source: 'sample',
-            empty: false,
+            source: 'empty',
+            empty: true,
             recovery: null,
             strain: null,
             sleep: null,
@@ -128,29 +72,24 @@ export function Hud({
     };
   }, []);
 
-  const { next, rest } = useMemo(() => nextAndRest(feed.today.blocks, now), [feed.today.blocks, now]);
-  const inbound = feed.inbound.cards.slice(0, 3);
   const liveWhoop = whoop?.source === 'live';
-  const emptyWhoop = whoop?.source === 'empty';
-  const sampleWhoop = !liveWhoop && !emptyWhoop;
-  const recovery = liveWhoop && whoop.recovery != null ? whoop.recovery : feed.whoopSample.recovery;
-  const strain = liveWhoop ? whoop.strain : sampleWhoop ? feed.whoopSample.strain : null;
-  const sleep = liveWhoop ? whoop.sleep : sampleWhoop ? feed.whoopSample.sleep : null;
-  const zone = recoveryZone(recovery);
+  const recovery = liveWhoop ? whoop.recovery : null;
+  const strain = liveWhoop ? whoop.strain : null;
+  const sleep = liveWhoop ? whoop.sleep : null;
   const connectHref = whoop?.configured ? '/api/whoop/authorize' : undefined;
 
   return (
     <main className="hud">
       <div className="hud__bg" aria-hidden="true" />
 
-      <section className="pane pane--clock" aria-label="Clock Cleveland">
+      <section className="pane pane--clock" aria-label="Clock">
         <div className="pane__kicker">
           <span>CLOCK</span>
-          <span className="mark mark--lock">{feed.meta.city.toUpperCase()}</span>
+          <span className="mark mark--lock">AMERICA/NEW_YORK</span>
         </div>
         <div className="clock__time">{clock.time}</div>
         <div className="clock__meta">
-          {clock.weekday} {clock.month} {clock.day} · America/New_York
+          {clock.weekday} {clock.month} {clock.day}
         </div>
       </section>
 
@@ -165,106 +104,96 @@ export function Hud({
       <section className="pane pane--next" aria-label="Next">
         <div className="pane__kicker">
           <span>NEXT</span>
-          <span className="mark mark--sample">{feed.today.source === 'sample' ? 'SAMPLE' : 'LIVE'}</span>
+          <span className="mark mark--amber">NO FEED</span>
         </div>
-        {next ? (
-          <>
-            <div className="next__time">{formatHm(next.start)}</div>
-            <div className="next__title">{next.title}</div>
-          </>
-        ) : (
-          <div className="next__time next__time--clear">CLEAR</div>
-        )}
+        <div className="next__time next__time--clear">—</div>
+        <div className="next__title">Placeholder</div>
       </section>
 
       <section className="pane pane--today" aria-label="Today">
         <div className="pane__kicker">
           <span>TODAY</span>
-          <span className="mark mark--sample">SAMPLE</span>
+          <span className="mark mark--amber">NO FEED</span>
         </div>
-        {rest.length === 0 ? (
-          <p className="empty">—</p>
-        ) : (
-          <ol className="today__list">
-            {rest.map((block) => (
-              <li key={`${block.start}-${block.title}`}>
-                <span className="today__time">{formatHm(block.start)}</span>
-                <span className="today__title">{block.title}</span>
-              </li>
-            ))}
-          </ol>
-        )}
+        <ol className="today__list">
+          {['TODAY', 'TODAY', 'TODAY'].map((label, i) => (
+            <li key={i}>
+              <span className="today__time">—</span>
+              <span className="today__title today__title--slot">{label}</span>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="pane pane--whoop" aria-label="WHOOP">
         <div className="pane__kicker">
           <span>WHOOP</span>
-          <span className={`mark ${liveWhoop ? 'mark--live' : emptyWhoop ? 'mark--amber' : 'mark--sample'}`}>
-            {liveWhoop ? 'LIVE' : emptyWhoop ? 'NO DATA' : 'SAMPLE'}
+          <span className={`mark ${liveWhoop ? 'mark--live' : 'mark--amber'}`}>
+            {liveWhoop ? 'LIVE' : 'CONNECT'}
           </span>
         </div>
-        {emptyWhoop ? (
-          <p className="empty">Membership or sync empty.</p>
-        ) : (
-          <div className="whoop__body">
-            <RecoveryRing score={recovery} zone={zone} sample={sampleWhoop} />
-            <div className="whoop__stats">
-              <div>
-                <div className="whoop__n">{strain == null ? '—' : strain.toFixed(1)}</div>
-                <div className="whoop__l">STRAIN</div>
-              </div>
-              <div>
-                <div className="whoop__n">{sleep == null ? '—' : `${Math.round(sleep)}%`}</div>
-                <div className="whoop__l">SLEEP</div>
-              </div>
+        <div className="whoop__body">
+          {liveWhoop && recovery != null ? (
+            <svg className="whoop-ring" viewBox="0 0 140 140" aria-hidden="true">
+              <circle className="whoop-ring__track" cx="70" cy="70" r="54" />
+              <circle
+                className={`whoop-ring__value whoop-ring__value--${
+                  recovery >= 67 ? 'green' : recovery >= 34 ? 'yellow' : 'red'
+                }`}
+                cx="70"
+                cy="70"
+                r="54"
+                strokeDasharray={2 * Math.PI * 54}
+                strokeDashoffset={2 * Math.PI * 54 * (1 - recovery / 100)}
+              />
+              <text className="whoop-ring__score" x="70" y="74">
+                {Math.round(recovery)}
+              </text>
+            </svg>
+          ) : (
+            <EmptyRing />
+          )}
+          <div className="whoop__stats">
+            <div>
+              <div className="whoop__n">{strain == null ? '—' : strain.toFixed(1)}</div>
+              <div className="whoop__l">STRAIN</div>
+            </div>
+            <div>
+              <div className="whoop__n">{sleep == null ? '—' : `${Math.round(sleep)}%`}</div>
+              <div className="whoop__l">SLEEP</div>
             </div>
           </div>
-        )}
+        </div>
         {whoop?.connected ? null : connectHref ? (
           <a className="tap tap--whoop" href={connectHref}>
             CONNECT WHOOP
           </a>
         ) : (
-          <div className="tap tap--dead">CONNECT WHOOP · SET ENV</div>
+          <div className="tap tap--dead">CONNECT WHOOP</div>
         )}
       </section>
 
       <section className="pane pane--inbound" aria-label="Inbound">
         <div className="pane__kicker">
           <span>INBOUND ONLY</span>
-          <span className="mark mark--sample">SAMPLE</span>
+          <span className="mark mark--amber">EMPTY</span>
         </div>
-        <div className="gates">
-          {feed.inbound.gates.map((gate) => (
-            <span key={gate} className="gate">
-              {gate}
-            </span>
+        <div className="inbound__cards">
+          {feed.inbound.cards.slice(0, 3).map((card) => (
+            <article key={card.gate} className="inbound__card inbound__card--empty">
+              <div className="inbound__title">{card.label}</div>
+              <div className="inbound__detail">—</div>
+            </article>
           ))}
         </div>
-        {inbound.length === 0 ? (
-          <p className="empty">—</p>
-        ) : (
-          <div className="inbound__cards">
-            {inbound.map((card) => (
-              <article key={`${card.gate}-${card.title}`} className="inbound__card">
-                <span className={`mark ${card.mark === 'EXAMPLE' ? 'mark--amber' : 'mark--sample'}`}>
-                  {card.mark}
-                </span>
-                <div className="inbound__title">{card.title}</div>
-                <div className="inbound__detail">{card.detail}</div>
-              </article>
-            ))}
-          </div>
-        )}
       </section>
 
       <section className="pane pane--lock" aria-label="Lock">
         <div className="pane__kicker">
           <span>LOCK</span>
-          <span className="mark mark--lock">LIVE LINES</span>
         </div>
-        <a className="tap tap--call" href={feed.lock.phones.lindsey.tel}>
-          CALL {feed.lock.phones.lindsey.number}
+        <a className="tap tap--call" href={feed.lock.phone.tel}>
+          {feed.lock.phone.number}
         </a>
         <div className="lock__apply">
           {feed.lock.apply.map((link) => (
@@ -273,9 +202,6 @@ export function Hud({
             </a>
           ))}
         </div>
-        <p className="lock__pat">
-          {feed.lock.phones.listing.number} · Pat listing · not his call
-        </p>
       </section>
     </main>
   );
