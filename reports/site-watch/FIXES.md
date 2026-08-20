@@ -80,8 +80,9 @@ x-powered-by: Express
   `NMLS` / `nmls` in that document.
 - PWA marker: `/__manus/pwa/manifest.webmanifest`
 - Script: `https://theconradteam.com/assets/index-Di_yQG3S.js` — HTTP 200,
-  1,210,961 bytes. That **live JS already contains** footer strings (source
-  map `client/src/components/Footer.tsx` on the **live site**, not this repo):
+  ~1.21 MB, **17** `NMLS` hits. That **live JS already contains** footer
+  strings (source map `client/src/components/Footer.tsx` on the **live
+  site**, not this repo):
 
   - `Branch NMLS #2840570`
   - `Lindsey Stuart Conrad NMLS #89896`
@@ -166,7 +167,7 @@ No `Location`. Follow-redirects still 404. No Cloudflare / Manus headers.
 ```
 GET https://rhinolending.capital/
 HTTP/2 301
-location: http://www.rhinolending.capital
+location: http://www.rhinolending.capital/
 server: ip-10-123-*.ec2.internal
 ```
 
