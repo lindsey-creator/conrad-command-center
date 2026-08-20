@@ -40,7 +40,8 @@ Source: Chief of Staff. Not sample. Do not invent extra cards.
 
 - Clock — `America/New_York`
 - Next — LeadFlow 3:00 until it starts, then Geneva 5
-- Today remaining — LeadFlow 3:00–3:50 Zoom · Geneva 5:00–6:00 (no place)
+- Today 1 — LeadFlow 3:00–3:50 accepted · Zoom on the event
+- Today 2 — Geneva 5:00–6:00 (no place)
 - Off glass — LTP (he pulled it) · Greg Clement
 - Inbound — CAPITAL Will Schill / Independence Bank / Joe LeConte. 720 and realtor empty.
 - WHOOP — Connect. No fake scores.

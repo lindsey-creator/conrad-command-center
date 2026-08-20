@@ -141,7 +141,7 @@ export function Hud({
             <div className="next__title">{next.title}</div>
             {next.href ? (
               <a className="tap tap--meet" href={next.href} target="_blank" rel="noreferrer">
-                MEET
+                {next.href.includes('zoom.us') ? 'ZOOM' : 'MEET'}
               </a>
             ) : (
               <div className="next__where">
