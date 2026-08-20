@@ -1,66 +1,81 @@
-# Conrad Command Center
+# JARVIS · Conrad Command
 
-The interface for **Goldfront OS** — the private operating system that runs Lindsey
-Conrad's lending + construction operation (Goldfront + Conrad Enterprises, 8 units)
-and supports her personally. This is the "glass" that sits on top of the **Brain**
-(the deal-math engine + memory + training loop, in the separate `goldfront-os` repo).
+One landscape HUD for Lindsey Conrad (he/him), CEO of Goldfront / Revolution.
 
-It is the elite evolution of the live dashboard at **command.theconradteam.com**.
+Same scene on laptop, phone, and the Tesla Cybertruck browser (Chromium, 16:9, 18" center). No video. No hover. Bookmark the HTTPS URL. Drive-safe as a static page.
 
-## What's in here
-- **`PROMPT.md`** — paste this into your build tool (Cursor, Manus, or Fable). It's
-  the single instruction that tells the tool exactly what to build. **Start here.**
-- **`index.html`** — a real, self-contained, mobile-first **shell** you can open
-  right now (double-click it). It shows the look, layout, and every module in a
-  clean "connect source" state. Fable extends this into the live app.
-- **`docs/`** — the full spec set (self-contained copies): the master spec, the
-  Executive Council vision, the Command Center experience spec, and the coaching
-  frameworks (Hormozi, Miller, Sinek, Martell).
-- **`BRAND.md`** — the design bar and the feeling to hit.
-- **`BRAIN_CONNECTION.md`** — how this UI talks to the Brain's FastAPI endpoints.
-
-## How to use it with Fable (or Cursor / Manus)
-1. Open this repo in the tool.
-2. Point it at **`PROMPT.md`** and let it read `docs/` and `index.html`.
-3. Build order: keep `index.html`'s look, wire the shell to the Brain, then the
-   live connectors. Never fake data — show "connect source" until a source is live.
-
-## Ground rules (non-negotiable — see docs/master-spec.md §3)
-- The Brain's engine computes every number; the UI narrates, never calculates.
-- Nothing sends without a human gate (Approval Queue).
-- Health/performance modules track and remind — they never dose, prescribe, or
-  give medical advice; clinical decisions route to a real provider.
-- Mobile-first: it runs from a Cybertruck on Starlink. Fast on a weak connection.
-- Build once, build durable.
-
-## Deploy (in order)
-
-**Full checklist:** [`deploy/ORDER.md`](deploy/ORDER.md)
-
-| Where | Command |
-|-------|---------|
-| **Manus production** | `curl -fsSL https://raw.githubusercontent.com/lindsey-creator/conrad-command-center/main/deploy/manus-accurate.sh \| bash` |
-| **Local dev** | `./scripts/setup-dev.sh` then `./scripts/run-stack.sh` |
-| **Smoke test** | `./scripts/smoke-test.sh http://127.0.0.1:8000` |
-
-## Run locally (finished stack)
-
-Prerequisites: Node 18+, Python 3.11+, sibling [`Goldfront-os`](https://github.com/lindsey-creator/Goldfront-os) clone.
+## Open it
 
 ```bash
-cd conrad-command-center
-chmod +x scripts/*.sh
-./scripts/run-stack.sh
+npm install
+npm run dev
 ```
 
-Then open **http://127.0.0.1:8000**. Connectors are optional — modules show **Connect source** until keys are in `Goldfront-os/.env`. See **`BRAIN_CONNECTION.md`** and `Goldfront-os/deploy/CONNECT-EVERYTHING.md`.
+Open **http://localhost:3000**. That is the only board.
 
-## Push this to your own GitHub
-Create an **empty** repo on GitHub (no README, or the first push conflicts), then:
+## Truck bookmark
+
+1. Deploy this repo to [Vercel](https://vercel.com) (Framework: Next.js).
+2. Copy the production HTTPS URL. Example: `https://YOUR-APP.vercel.app`
+3. In the Cybertruck browser, bookmark that URL. Full screen. Landscape.
+4. Do not add a second page. This glass is the scene.
+
+`npm run build` then `npm start` is the same app locally over HTTP. The truck needs the Vercel HTTPS URL.
+
+## WHOOP (official API v2 only)
+
+Register an app later in the [WHOOP Developer Dashboard](https://developer-dashboard.whoop.com/). Paid WHOOP membership is required or OAuth/data comes back empty.
+
+Official docs used:
+
+- OAuth: https://developer.whoop.com/docs/developing/oauth/
+- API: https://developer.whoop.com/api/
+
+| | |
+|---|---|
+| Auth | `https://api.prod.whoop.com/oauth/oauth2/auth` |
+| Token | `https://api.prod.whoop.com/oauth/oauth2/token` |
+| Data | `https://api.prod.whoop.com/developer/v2` · `GET /recovery` · `GET /cycle` · `GET /activity/sleep` |
+| Scopes | `read:recovery read:cycles read:sleep read:profile offline` |
+
+Env — copy `.env.example` to `.env.local`. Never commit secrets. Client secret stays on the server.
+
+```
+WHOOP_CLIENT_ID=
+WHOOP_CLIENT_SECRET=
+WHOOP_REDIRECT_URI=http://localhost:3000/api/whoop/callback
+```
+
+Production redirect URI (must match the WHOOP app):
+
+```
+https://YOUR-APP.vercel.app/api/whoop/callback
+```
+
+Set the same three env vars in the Vercel project. Refresh tokens rotate; the server stores the new one on each refresh (httpOnly cookie). No client-secret in the browser. No mic. No WebRTC.
+
+Until credentials exist, the HUD shows **CONNECT WHOOP · SET ENV** and a **SAMPLE** recovery ring so the layout is never mistaken for live biometrics. Connected with no data: **NO DATA**, not fake scores.
+
+## Sample feed
+
+`data/command-center.sample.json` is a local config feed. Calendar, inbound cards, and WHOOP sample rings are **SAMPLE / EXAMPLE**, not production numbers. Lock phones and apply links are live ops facts.
+
+CoS edits that JSON. No second Goldfront KB doc.
+
+## Panes (one frame)
+
+1. **CLOCK** — Cleveland, `America/New_York`
+2. **NEXT** — next block only, huge
+3. **TODAY** — max 3 more (time + title)
+4. **INBOUND ONLY** — max 3 cards · 720 / $500K+ / realtor purchase / capital. No Ken lists. No chase.
+5. **WHOOP** — recovery ring (green 67+, yellow 34–66, red 0–33), strain, last sleep %
+6. **LOCK** — tap-to-call Lindsey `216-250-9078` · DSCR https://www.rhinolending.capital/apply · Residential https://applyconrad.com · Listing `216-279-5821` is Pat, not his call
+7. **STATUS** — one CoS line
+
+## Legacy Brain deck
+
+The old Vite Brain stack is still in `src/`. It is **not** the truck HUD.
 
 ```bash
-cd conrad-command-center
-git remote add origin https://github.com/<you>/conrad-command-center.git
-git branch -M main
-git push -u origin main
+npm run dev:brain
 ```
