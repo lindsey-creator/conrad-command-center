@@ -1,17 +1,40 @@
-import raw from '../data/command-center.sample.json';
+import raw from '../data/command-center.json';
+
+export type CalendarBlock = {
+  start: string;
+  end: string;
+  title: string;
+  detail: string | null;
+  where: string | null;
+  href: string | null;
+  who: string | null;
+};
+
+export type InboundCard = {
+  gate: string;
+  label: string;
+  title: string | null;
+  detail: string | null;
+};
 
 export type CommandFeed = {
   meta: {
     kind: string;
     label: string;
-    warning: string;
+    source: string;
+    as_of: string;
     timezone: string;
+    warning: string;
   };
   status: {
     watching: string;
   };
+  calendar: {
+    date: string;
+    blocks: CalendarBlock[];
+  };
   inbound: {
-    cards: { gate: string; label: string }[];
+    cards: InboundCard[];
   };
   lock: {
     phone: { number: string; tel: string };

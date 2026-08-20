@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { clevelandClock, type ClockParts } from '@/lib/cleveland';
-import type { CommandFeed } from '@/lib/feed';
+import { useEffect, useMemo, useState } from 'react';
+import { blockRangeOnDate, clevelandClock, type ClockParts } from '@/lib/cleveland';
+import type { CalendarBlock, CommandFeed } from '@/lib/feed';
 import './hud.css';
 
 type WhoopStatus = {
@@ -14,6 +14,25 @@ type WhoopStatus = {
   strain: number | null;
   sleep: number | null;
 };
+
+function formatRange(startHm: string, endHm: string) {
+  return `${formatHm(startHm)}–${formatHm(endHm)}`;
+}
+
+function formatHm(hm: string) {
+  const [h, m] = hm.split(':').map(Number);
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return m === 0 ? `${hour} ${suffix}` : `${hour}:${String(m).padStart(2, '0')} ${suffix}`;
+}
+
+function pickNext(blocks: CalendarBlock[], date: string, now: Date): CalendarBlock | null {
+  const upcoming = blocks.filter((block) => {
+    const { end } = blockRangeOnDate(date, block.start, block.end);
+    return end.getTime() > now.getTime();
+  });
+  return upcoming[0] ?? null;
+}
 
 function EmptyRing() {
   return (
@@ -33,12 +52,15 @@ export function Hud({
   feed: CommandFeed;
   initialClock: ClockParts;
 }) {
+  const [now, setNow] = useState(() => new Date());
   const [clock, setClock] = useState(initialClock);
   const [whoop, setWhoop] = useState<WhoopStatus | null>(null);
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      setClock(clevelandClock());
+      const d = new Date();
+      setNow(d);
+      setClock(clevelandClock(d));
     }, 1000);
     return () => window.clearInterval(id);
   }, []);
@@ -72,6 +94,13 @@ export function Hud({
     };
   }, []);
 
+  const next = useMemo(
+    () => pickNext(feed.calendar.blocks, feed.calendar.date, now),
+    [feed.calendar.blocks, feed.calendar.date, now],
+  );
+  const today = feed.calendar.blocks.slice(0, 3);
+  const inbound = feed.inbound.cards.slice(0, 3);
+  const inboundLive = inbound.some((card) => card.title);
   const liveWhoop = whoop?.source === 'live';
   const recovery = liveWhoop ? whoop.recovery : null;
   const strain = liveWhoop ? whoop.strain : null;
@@ -104,22 +133,41 @@ export function Hud({
       <section className="pane pane--next" aria-label="Next">
         <div className="pane__kicker">
           <span>NEXT</span>
-          <span className="mark mark--amber">NO FEED</span>
+          <span className="mark mark--live">LIVE</span>
         </div>
-        <div className="next__time next__time--clear">—</div>
-        <div className="next__title">Placeholder</div>
+        {next ? (
+          <>
+            <div className="next__time">{formatRange(next.start, next.end)}</div>
+            <div className="next__title">{next.title}</div>
+            {next.href ? (
+              <a className="tap tap--meet" href={next.href} target="_blank" rel="noreferrer">
+                MEET
+              </a>
+            ) : next.where ? (
+              <div className="next__where">{next.where}</div>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <div className="next__time next__time--clear">CLEAR</div>
+            <div className="next__title">No remaining block</div>
+          </>
+        )}
       </section>
 
       <section className="pane pane--today" aria-label="Today">
         <div className="pane__kicker">
           <span>TODAY</span>
-          <span className="mark mark--amber">NO FEED</span>
+          <span className="mark mark--live">LIVE</span>
         </div>
         <ol className="today__list">
-          {['TODAY', 'TODAY', 'TODAY'].map((label, i) => (
-            <li key={i}>
-              <span className="today__time">—</span>
-              <span className="today__title today__title--slot">{label}</span>
+          {today.map((block) => (
+            <li key={`${block.start}-${block.title}`}>
+              <span className="today__time">{formatRange(block.start, block.end)}</span>
+              <span>
+                <span className="today__title">{block.title}</span>
+                {block.where ? <span className="today__where">{block.where}</span> : null}
+              </span>
             </li>
           ))}
         </ol>
@@ -176,13 +224,25 @@ export function Hud({
       <section className="pane pane--inbound" aria-label="Inbound">
         <div className="pane__kicker">
           <span>INBOUND ONLY</span>
-          <span className="mark mark--amber">EMPTY</span>
+          <span className={`mark ${inboundLive ? 'mark--live' : 'mark--amber'}`}>
+            {inboundLive ? 'LIVE' : 'EMPTY'}
+          </span>
         </div>
         <div className="inbound__cards">
-          {feed.inbound.cards.slice(0, 3).map((card) => (
-            <article key={card.gate} className="inbound__card inbound__card--empty">
-              <div className="inbound__title">{card.label}</div>
-              <div className="inbound__detail">—</div>
+          {inbound.map((card) => (
+            <article
+              key={card.gate}
+              className={`inbound__card${card.title ? '' : ' inbound__card--empty'}`}
+            >
+              <div className="inbound__gate">{card.label}</div>
+              {card.title ? (
+                <>
+                  <div className="inbound__title">{card.title}</div>
+                  {card.detail ? <div className="inbound__detail">{card.detail}</div> : null}
+                </>
+              ) : (
+                <div className="inbound__detail">—</div>
+              )}
             </article>
           ))}
         </div>

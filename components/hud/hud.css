@@ -130,6 +130,19 @@
   margin-top: 8px;
 }
 
+.next__where {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: clamp(14px, 1.4vw, 18px);
+  color: var(--muted);
+}
+
+.tap--meet {
+  margin-top: 12px;
+  min-height: 64px;
+  max-width: 280px;
+}
+
 .today__list {
   list-style: none;
   margin: 0;
@@ -156,11 +169,19 @@
 }
 
 .today__title {
-  font-size: clamp(22px, 2.4vw, 34px);
+  display: block;
+  font-size: clamp(20px, 2.2vw, 32px);
   font-weight: 650;
 }
 
-.today__title--slot { color: var(--faint); letter-spacing: 0.12em; }
+.today__where {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: clamp(12px, 1.1vw, 15px);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
 
 .empty {
   font-size: 28px;
@@ -203,13 +224,26 @@
   justify-content: space-between;
 }
 
+.inbound__gate {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
 .inbound__title {
-  font-size: clamp(18px, 1.8vw, 24px);
+  font-size: clamp(16px, 1.6vw, 22px);
   font-weight: 650;
   margin: 8px 0 6px;
 }
 
 .inbound__detail { font-size: 13px; }
+
+.inbound__card:not(.inbound__card--empty) {
+  border-color: rgba(255, 176, 0, 0.4);
+  background: var(--amber-dim);
+}
 
 .whoop__body {
   display: grid;

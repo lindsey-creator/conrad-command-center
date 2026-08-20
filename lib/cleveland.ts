@@ -63,17 +63,17 @@ export function parseHm(hm: string): { hour: number; minute: number } {
   return { hour, minute };
 }
 
-export function blockRange(
+export function blockRangeOnDate(
+  ymd: string,
   startHm: string,
   endHm: string,
-  now = new Date(),
 ): { start: Date; end: Date } {
-  const ymd = clevelandYmd(now);
+  const [year, month, day] = ymd.split('-').map(Number);
   const start = parseHm(startHm);
   const end = parseHm(endHm);
   return {
-    start: clevelandLocalToDate(ymd.year, ymd.month, ymd.day, start.hour, start.minute),
-    end: clevelandLocalToDate(ymd.year, ymd.month, ymd.day, end.hour, end.minute),
+    start: clevelandLocalToDate(year, month, day, start.hour, start.minute),
+    end: clevelandLocalToDate(year, month, day, end.hour, end.minute),
   };
 }
 
