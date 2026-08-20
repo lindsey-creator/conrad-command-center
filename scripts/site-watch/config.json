@@ -1,0 +1,87 @@
+{
+  "user_agent": "ConradSiteWatch/1.0 (+https://github.com/lindsey-creator/conrad-command-center)",
+  "timeout_seconds": 20,
+  "max_redirects": 8,
+  "max_links_per_site": 20,
+  "report_dir": "reports/site-watch",
+  "skip_link_hosts": [
+    "www.w3.org",
+    "w3.org",
+    "react.dev",
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "schema.org",
+    "manus-analytics.com",
+    "api.manus.im",
+    "manus.im",
+    "files.manuscdn.com"
+  ],
+  "phone_lock": {
+    "dead": [
+      {
+        "digits": "2165135139",
+        "label": "216-513-5139",
+        "rule": "DEAD. Flag if found. Never publish. Do not use as a contact number."
+      }
+    ],
+    "publish": [
+      {
+        "digits": "2162509078",
+        "label": "216-250-9078",
+        "rule": "Lindsey's publish number."
+      }
+    ],
+    "unlisted_policy": "Do not invent other numbers. Report unclassified phones only. Do not change a Maps/listing phone if you cannot prove which listing it is."
+  },
+  "sites": [
+    {
+      "id": "conradmortgage",
+      "name": "Conrad Mortgage",
+      "url": "https://conradmortgage.com",
+      "note": "Apex and www historically 301. Record every hop; do not treat a 301 as a fetch failure if the final page is OK.",
+      "record_redirect_chain": true
+    },
+    {
+      "id": "theconradteam",
+      "name": "The Conrad Team",
+      "url": "https://theconradteam.com",
+      "note": "Check NMLS disclosure, apply CTAs, and leftover Gold Star copy.",
+      "probe_paths": ["/apply"],
+      "require_text": [
+        {
+          "id": "nmls",
+          "pattern": "NMLS",
+          "label": "NMLS disclosure",
+          "severity": "fail"
+        },
+        {
+          "id": "apply_cta",
+          "pattern": "(?i)(?:href|to|path)[^\\n]{0,40}apply|\\bApply Now\\b|\\bApply\\b|/apply",
+          "label": "Apply CTA",
+          "severity": "fail"
+        }
+      ],
+      "forbid_text": [
+        {
+          "id": "gold_star",
+          "pattern": "(?i)gold\\s*star",
+          "label": "leftover Gold Star copy",
+          "severity": "fail"
+        }
+      ]
+    },
+    {
+      "id": "rhinolending-apply",
+      "name": "Rhino Lending apply",
+      "url": "https://rhinolending.capital/apply",
+      "note": "Apex /apply has 404'd while www served the app. Check the listed URL; related www is context only.",
+      "expected_status": 200,
+      "related_urls": ["https://www.rhinolending.capital/apply"]
+    },
+    {
+      "id": "landownersclub",
+      "name": "Landowners Club",
+      "url": "https://landownersclub.com"
+    }
+  ]
+}
