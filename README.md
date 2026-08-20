@@ -11,7 +11,21 @@ npm run dev
 
 http://localhost:3000
 
-Truck: deploy to Vercel. Bookmark the HTTPS URL.
+## Truck bookmark
+
+Opened and verified HTTPS:
+
+**https://temporary-sonic-bugle-q41qi9j.vercel.app**
+
+This branch, this HUD. Not `command.theconradteam.com` — that host still serves Manus SYSTEM v4.1 from `main`.
+
+This Vercel URL is a temporary deploy. It expires unless claimed:
+
+https://vercel.com/claim-deployment?code=5bb72aa1-1ee4-4922-ac86-d2a6a0cf9526
+
+WHOOP redirect after claim:
+
+`https://temporary-sonic-bugle-q41qi9j.vercel.app/api/whoop/callback`
 
 ## On glass — Thu Aug 20 2026 live CoS pull
 
