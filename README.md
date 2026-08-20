@@ -34,18 +34,19 @@ Pages export (after Pages is on):
 npm run export:pages
 ```
 
-## On glass — Thu Aug 20 2026 live CoS pull
+## On glass — Thu Aug 20 2026 afternoon CoS pull
 
-Source: Chief of Staff from `lindsey@theconradteam.com` calendar + Gmail. Not sample. Do not invent extra cards.
+Source: Chief of Staff. Not sample. Do not invent extra cards.
 
 - Clock — `America/New_York`
-- Next — Andrew Berman 11:00–12:00 · Meet
-- Today — Berman · League Park Planning · LTP Real Estate Connection. Declined LeadFlow 3:00 is off glass. Connected Cleveland West 6:30 is off glass.
-- Inbound — one CAPITAL card (Schill / Independence Bank / Joe LeConte). 720 and realtor empty.
+- Next — 3:00–3:50 Meeting With Conrad Mortgage (LeadFlow). Lindsey accepted. Alex. No Meet URL.
+- Today remaining — LeadFlow 3:00–3:50 · LTP 4:00–7:00 Lakewood
+- Off glass — 2:30 Greg Clement (Fieldy only, not on calendar)
+- Inbound — CAPITAL Will Schill / Independence Bank / Joe LeConte. 720 and realtor empty.
 - WHOOP — Connect. No fake scores.
 - Phone — `216-250-9078`
 - Apply — https://applyconrad.com · https://www.rhinolending.capital/apply
-- Status — Schill still has no time. Next is Berman at 11.
+- Status — LeadFlow 3 is his. LTP 4. Schill still no time.
 
 Not on glass: Ken lists, email dump, LO bench, bot chat.
 

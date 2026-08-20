@@ -8,28 +8,19 @@
     "warning": "Live CoS pull for Thu Aug 20 2026. Do not invent extra cards."
   },
   "status": {
-    "watching": "Schill still has no time. Next is Berman at 11."
+    "watching": "LeadFlow 3 is his. LTP 4. Schill still no time."
   },
   "calendar": {
     "date": "2026-08-20",
     "blocks": [
       {
-        "start": "11:00",
-        "end": "12:00",
-        "title": "Andrew Berman",
-        "detail": "Meeting",
-        "where": "Meet",
-        "href": "https://meet.google.com/ucs-nnue-ohi",
-        "who": "Lindsey, Ryan (both), Brett, Andrew"
-      },
-      {
-        "start": "12:30",
-        "end": "13:30",
-        "title": "League Park Planning",
-        "detail": null,
-        "where": "Conrad Mortgage - The Mortgage Chef",
+        "start": "15:00",
+        "end": "15:50",
+        "title": "Meeting With Conrad Mortgage",
+        "detail": "LeadFlow",
+        "where": "LeadFlow",
         "href": null,
-        "who": "Lindsey, both Ryans, Richard, Francis, Paul Ward, M Bowen"
+        "who": "Lindsey, Alex"
       },
       {
         "start": "16:00",

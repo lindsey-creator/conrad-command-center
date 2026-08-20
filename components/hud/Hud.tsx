@@ -143,9 +143,11 @@ export function Hud({
               <a className="tap tap--meet" href={next.href} target="_blank" rel="noreferrer">
                 MEET
               </a>
-            ) : next.where ? (
-              <div className="next__where">{next.where}</div>
-            ) : null}
+            ) : (
+              <div className="next__where">
+                {[next.where, next.who].filter(Boolean).join(' · ')}
+              </div>
+            )}
           </>
         ) : (
           <>
