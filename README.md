@@ -13,19 +13,26 @@ http://localhost:3000
 
 ## Truck bookmark
 
-Opened and verified HTTPS:
+Blocked for a stable URL. Do not invent one.
 
-**https://temporary-sonic-bugle-q41qi9j.vercel.app**
+- `command.theconradteam.com` still serves Manus SYSTEM v4.1 from `main`. Putting this HUD there requires a merge. Not merged.
+- GitHub Pages is off. Static HUD is on branch `gh-pages`. Enabling Pages (branch `gh-pages`, folder `/`) would serve `https://lindsey-creator.github.io/conrad-command-center/` — not opened yet (404).
+- Vercel: no project token. A temporary deploy was opened and is not a durable bookmark.
 
-This branch, this HUD. Not `command.theconradteam.com` — that host still serves Manus SYSTEM v4.1 from `main`.
+Local:
 
-This Vercel URL is a temporary deploy. It expires unless claimed:
+```bash
+npm install
+npm run dev
+```
 
-https://vercel.com/claim-deployment?code=5bb72aa1-1ee4-4922-ac86-d2a6a0cf9526
+http://localhost:3000
 
-WHOOP redirect after claim:
+Pages export (after Pages is on):
 
-`https://temporary-sonic-bugle-q41qi9j.vercel.app/api/whoop/callback`
+```bash
+npm run export:pages
+```
 
 ## On glass — Thu Aug 20 2026 live CoS pull
 

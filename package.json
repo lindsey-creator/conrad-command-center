@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start -H 0.0.0.0 -p 3000",
     "dev:brain": "vite",
-    "preview": "next start -H 0.0.0.0 -p 3000"
+    "preview": "next start -H 0.0.0.0 -p 3000",
+    "export:pages": "bash scripts/export-pages.sh"
   },
   "dependencies": {
     "next": "^15.1.6",
