@@ -2,6 +2,7 @@
 node_modules/
 dist/
 build/
+out/
 .next/
 .vite/
 
@@ -11,3 +12,4 @@ build/
 
 # OS
 .DS_Store
+.vercel

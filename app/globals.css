@@ -1,0 +1,47 @@
+:root {
+  --bg: #02050a;
+  --ink: #f3fbff;
+  --muted: #8fb4c8;
+  --faint: #5e7d90;
+  --teal: #00e5ff;
+  --teal-2: #7af6ff;
+  --teal-dim: rgba(0, 229, 255, 0.12);
+  --amber: #ff9a3c;
+  --amber-dim: rgba(255, 122, 40, 0.14);
+  --red: #ff3b3b;
+  --green: #3dff9a;
+  --yellow: #ffd24a;
+  --glass: rgba(4, 18, 32, 0.28);
+  --line: rgba(0, 229, 255, 0.38);
+  --font: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+  --mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: #010308;
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { min-height: 100dvh; overflow-x: hidden; }
+
+a { color: inherit; text-decoration: none; }
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

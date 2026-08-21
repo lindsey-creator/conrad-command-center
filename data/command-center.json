@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "kind": "live",
+    "label": "LIVE · COS PULL",
+    "source": "Chief of Staff · lindsey@theconradteam.com calendar + Gmail",
+    "as_of": "2026-08-20",
+    "timezone": "America/New_York",
+    "warning": "Live CoS pull for Thu Aug 20 2026. Do not invent extra cards."
+  },
+  "status": {
+    "watching": "LeadFlow 3 is his. Geneva 5. Schill still no time."
+  },
+  "town": {
+    "brief": null
+  },
+  "calendar": {
+    "date": "2026-08-20",
+    "blocks": [
+      {
+        "start": "15:00",
+        "end": "15:50",
+        "title": "Meeting With Conrad Mortgage",
+        "detail": "LeadFlow",
+        "where": "Zoom",
+        "href": "https://us06web.zoom.us/j/83514143104?pwd=vLPiz6tFgaJtup7UbbbDDyLw4RHxiB.1",
+        "who": "Lindsey, Alex",
+        "brief": null
+      },
+      {
+        "start": "17:00",
+        "end": "18:00",
+        "title": "Geneva",
+        "detail": null,
+        "where": null,
+        "href": null,
+        "who": null,
+        "brief": null
+      }
+    ]
+  },
+  "inbound": {
+    "cards": [
+      { "gate": "720", "label": "720", "title": null, "detail": null, "href": null },
+      { "gate": "realtor", "label": "Realtor", "title": null, "detail": null, "href": null },
+      {
+        "gate": "capital",
+        "label": "Capital",
+        "title": "Will Schill / Independence Bank / Joe LeConte",
+        "detail": "Wants the Independence relationship clear. No time on calendar.",
+        "href": null
+      },
+      { "gate": "whale", "label": "Whale $500K+", "title": null, "detail": null, "href": null }
+    ]
+  },
+  "go": {
+    "apply": [
+      { "label": "Residential", "href": "https://applyconrad.com" },
+      { "label": "DSCR", "href": "https://www.rhinolending.capital/apply" }
+    ]
+  }
+}
