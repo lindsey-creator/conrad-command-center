@@ -43,9 +43,9 @@ Source: Chief of Staff. Not sample. Do not invent extra cards.
 - Today 1 — LeadFlow 3:00–3:50 accepted · Zoom on the event
 - Today 2 — Geneva 5:00–6:00 (no place)
 - Off glass — LTP (he pulled it) · Greg Clement
-- Inbound — CAPITAL Will Schill / Independence Bank / Joe LeConte. 720 and realtor empty.
+- Inbound — CAPITAL Will Schill / Independence Bank / Joe LeConte. 720, realtor, whale empty.
+- GO — JOIN NEXT / BRIEF / INBOUND ACT / SEND APPLY. No phone on glass.
 - WHOOP — Connect. No fake scores.
-- Phone — `216-250-9078`
 - Apply — https://applyconrad.com · https://www.rhinolending.capital/apply
 - Status — LeadFlow 3 is his. Geneva 5. Schill still no time.
 

@@ -8,6 +8,7 @@ export type CalendarBlock = {
   where: string | null;
   href: string | null;
   who: string | null;
+  brief?: string | null;
 };
 
 export type InboundCard = {
@@ -15,6 +16,7 @@ export type InboundCard = {
   label: string;
   title: string | null;
   detail: string | null;
+  href: string | null;
 };
 
 export type CommandFeed = {
@@ -29,6 +31,9 @@ export type CommandFeed = {
   status: {
     watching: string;
   };
+  town: {
+    brief: string | null;
+  };
   calendar: {
     date: string;
     blocks: CalendarBlock[];
@@ -36,8 +41,7 @@ export type CommandFeed = {
   inbound: {
     cards: InboundCard[];
   };
-  lock: {
-    phone: { number: string; tel: string };
+  go: {
     apply: { label: string; href: string }[];
   };
 };

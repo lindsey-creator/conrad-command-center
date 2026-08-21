@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { blockRangeOnDate, clevelandClock, type ClockParts } from '@/lib/cleveland';
-import type { CalendarBlock, CommandFeed } from '@/lib/feed';
+import type { CalendarBlock, CommandFeed, InboundCard } from '@/lib/feed';
 import {
   CornerPies,
   DegreeStrip,
@@ -40,6 +40,31 @@ function pickNext(blocks: CalendarBlock[], date: string, now: Date): CalendarBlo
     return start.getTime() > now.getTime();
   });
   return upcoming[0] ?? null;
+}
+
+function pickCurrent(blocks: CalendarBlock[], date: string, now: Date): CalendarBlock | null {
+  return (
+    blocks.find((block) => {
+      const { start, end } = blockRangeOnDate(date, block.start, block.end);
+      return start.getTime() <= now.getTime() && now.getTime() < end.getTime();
+    }) ?? null
+  );
+}
+
+function minutesUntil(target: Date, now: Date): number {
+  return Math.max(0, Math.round((target.getTime() - now.getTime()) / 60_000));
+}
+
+function meetingBrief(block: CalendarBlock | null, townBrief: string | null): string {
+  if (townBrief) return townBrief;
+  if (block?.brief) return block.brief;
+  if (!block) return '—';
+  const parts = [block.who, block.detail, block.where].filter(Boolean);
+  return parts.length ? parts.join(' · ') : '—';
+}
+
+function pickInboundAct(cards: InboundCard[]): InboundCard | null {
+  return cards.find((card) => Boolean(card.title)) ?? null;
 }
 
 function Rail({ side }: { side: 'left' | 'right' }) {
@@ -145,9 +170,18 @@ export function Hud({
     () => pickNext(feed.calendar.blocks, feed.calendar.date, now),
     [feed.calendar.blocks, feed.calendar.date, now],
   );
+  const current = useMemo(
+    () => pickCurrent(feed.calendar.blocks, feed.calendar.date, now),
+    [feed.calendar.blocks, feed.calendar.date, now],
+  );
   const today = feed.calendar.blocks.slice(0, 3);
-  const inbound = feed.inbound.cards.slice(0, 3);
+  const inbound = feed.inbound.cards.slice(0, 4);
   const inboundLive = inbound.some((card) => card.title);
+  const act = pickInboundAct(inbound);
+  const brief = meetingBrief(next ?? current, feed.town.brief);
+  const mins = next
+    ? minutesUntil(blockRangeOnDate(feed.calendar.date, next.start, next.end).start, now)
+    : null;
   const liveWhoop = whoop?.source === 'live';
   const recovery = liveWhoop ? whoop.recovery : null;
   const strain = liveWhoop ? whoop.strain : null;
@@ -263,11 +297,11 @@ export function Hud({
           </div>
         </div>
         {whoop?.connected ? null : connectHref ? (
-          <a className="tap tap--whoop" href={connectHref}>
+          <a className="tap tap--whoop tap--whoop-hot" href={connectHref}>
             CONNECT WHOOP
           </a>
         ) : (
-          <div className="tap tap--dead">CONNECT WHOOP</div>
+          <div className="tap tap--whoop tap--dead">CONNECT WHOOP</div>
         )}
       </Widget>
 
@@ -303,16 +337,62 @@ export function Hud({
         </div>
       </Widget>
 
-      <Widget area="lock" label="LOCK">
-        <a className="tap tap--call" href={feed.lock.phone.tel}>
-          {feed.lock.phone.number}
-        </a>
-        <div className="lock__apply">
-          {feed.lock.apply.map((link) => (
-            <a key={link.href} className="tap tap--apply" href={link.href} target="_blank" rel="noreferrer">
-              {link.label}
+      <Widget area="go" label="GO" mark="ACT" markTone="amber">
+        {next ? (
+          next.href ? (
+            <a className="tap tap--join" href={next.href} target="_blank" rel="noreferrer">
+              <span className="go__join-label">JOIN NEXT</span>
+              <span className="go__join-meta">
+                {formatRange(next.start, next.end)} · {mins === 0 ? 'NOW' : `${mins} MIN`}
+              </span>
             </a>
-          ))}
+          ) : (
+            <div className="tap tap--join tap--dead">
+              <span className="go__join-label">JOIN NEXT</span>
+              <span className="go__join-meta">
+                {formatRange(next.start, next.end)} · {mins === 0 ? 'NOW' : `${mins} MIN`}
+              </span>
+            </div>
+          )
+        ) : (
+          <div className="tap tap--join tap--dead">
+            <span className="go__join-label go__join-label--clear">CLEAR</span>
+          </div>
+        )}
+
+        <div className="go__brief">
+          <div className="go__kicker">BRIEF</div>
+          <p className="go__brief-line">{brief}</p>
+        </div>
+
+        {act?.href ? (
+          <a className="tap tap--act" href={act.href} target="_blank" rel="noreferrer">
+            <span className="go__kicker">INBOUND ACT · {act.label}</span>
+            <span className="go__act-title">{act.title}</span>
+            {act.detail ? <span className="go__act-detail">{act.detail}</span> : null}
+          </a>
+        ) : act ? (
+          <div className="tap tap--act tap--dead">
+            <span className="go__kicker">INBOUND ACT · {act.label}</span>
+            <span className="go__act-title">{act.title}</span>
+            {act.detail ? <span className="go__act-detail">{act.detail}</span> : null}
+          </div>
+        ) : (
+          <div className="tap tap--act tap--dead">
+            <span className="go__kicker">INBOUND ACT</span>
+            <span className="go__act-title">—</span>
+          </div>
+        )}
+
+        <div className="go__apply">
+          <div className="go__kicker">SEND APPLY</div>
+          <div className="go__apply-row">
+            {feed.go.apply.map((link) => (
+              <a key={link.href} className="tap tap--apply" href={link.href} target="_blank" rel="noreferrer">
+                {link.label}
+              </a>
+            ))}
+          </div>
         </div>
       </Widget>
     </main>
