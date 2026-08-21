@@ -1,8 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { blockRangeOnDate, clevelandClock, type ClockParts } from '@/lib/cleveland';
 import type { CalendarBlock, CommandFeed } from '@/lib/feed';
+import {
+  CornerPies,
+  DegreeStrip,
+  DropLines,
+  JarviRings,
+  MarkRadar,
+  Reticle,
+} from './JarviRings';
 import './hud.css';
 
 type WhoopStatus = {
@@ -34,14 +42,53 @@ function pickNext(blocks: CalendarBlock[], date: string, now: Date): CalendarBlo
   return upcoming[0] ?? null;
 }
 
-function EmptyRing() {
+function Rail({ side }: { side: 'left' | 'right' }) {
+  const ticks = Array.from({ length: 32 }, (_, i) => i);
   return (
-    <svg className="whoop-ring" viewBox="0 0 140 140" aria-hidden="true">
-      <circle className="whoop-ring__track" cx="70" cy="70" r="54" />
-      <text className="whoop-ring__score" x="70" y="74">
-        —
-      </text>
-    </svg>
+    <div className={`hud__rail hud__rail--${side}`} aria-hidden="true">
+      <svg className="hud__ticks" viewBox="0 0 28 400" preserveAspectRatio="none">
+        {ticks.map((i) => (
+          <line
+            key={i}
+            x1={side === 'left' ? 20 : 2}
+            y1={8 + i * 12.2}
+            x2={side === 'left' ? (i % 4 === 0 ? 3 : 11) : i % 4 === 0 ? 25 : 17}
+            y2={8 + i * 12.2}
+            stroke={i % 4 === 0 ? 'rgba(0,229,255,0.55)' : 'rgba(0,229,255,0.2)'}
+            strokeWidth="1"
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+function Widget({
+  area,
+  label,
+  mark,
+  markTone,
+  tone,
+  children,
+}: {
+  area: string;
+  label: string;
+  mark?: string;
+  markTone?: 'live' | 'amber';
+  tone?: 'cyan' | 'alert';
+  children: ReactNode;
+}) {
+  return (
+    <section className={`widget widget--${area}`} aria-label={label}>
+      <CornerPies tone={tone} />
+      <DegreeStrip />
+      <DropLines />
+      <div className="widget__kicker">
+        <span>{label}</span>
+        {mark ? <span className={`mark mark--${markTone ?? 'live'}`}>{mark}</span> : null}
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -109,59 +156,64 @@ export function Hud({
 
   return (
     <main className="hud">
-      <div className="hud__bg" aria-hidden="true" />
+      <div className="hud__void" aria-hidden="true" />
+      <div className="hud__hex" aria-hidden="true" />
+      <div className="hud__scan" aria-hidden="true" />
+      <div className="hud__vignette" aria-hidden="true" />
+      <Rail side="left" />
+      <Rail side="right" />
 
-      <section className="pane pane--clock" aria-label="Clock">
-        <div className="pane__kicker">
-          <span>CLOCK</span>
-          <span className="mark mark--lock">AMERICA/NEW_YORK</span>
-        </div>
-        <div className="clock__time">{clock.time}</div>
-        <div className="clock__meta">
-          {clock.weekday} {clock.month} {clock.day}
-        </div>
-      </section>
+      <header className="brand" aria-label="JARVIS">
+        <div className="brand__word">J.A.R.V.I.S.</div>
+      </header>
 
-      <section className="pane pane--status" aria-label="Status">
-        <div className="pane__kicker">
-          <span>STATUS</span>
-          <span className="mark mark--amber">COS</span>
+      <Widget area="clock" label="CLOCK" mark="AMERICA/NEW_YORK">
+        <div className="clock__stage">
+          <div className="clock__core">
+            <JarviRings idPrefix="clock" />
+          </div>
+          <div className="clock__readout">
+            <div className="clock__time">{clock.time}</div>
+            <div className="clock__meta">
+              {clock.weekday} {clock.month} {clock.day}
+            </div>
+          </div>
         </div>
+      </Widget>
+
+      <Widget area="status" label="STATUS" mark="COS" markTone="amber">
         <p className="status__line">{feed.status.watching}</p>
-      </section>
+      </Widget>
 
-      <section className="pane pane--next" aria-label="Next">
-        <div className="pane__kicker">
-          <span>NEXT</span>
-          <span className="mark mark--live">LIVE</span>
+      <Widget area="next" label="NEXT" mark="LIVE">
+        <div className="next__stage">
+          <div className="next__radar">
+            <MarkRadar idPrefix="next" alert={!next} />
+          </div>
+          {next ? (
+            <div className="next__readout">
+              <div className="next__time">{formatRange(next.start, next.end)}</div>
+              <div className="next__title">{next.title}</div>
+              {next.href ? (
+                <a className="tap tap--meet" href={next.href} target="_blank" rel="noreferrer">
+                  {next.href.includes('zoom.us') ? 'ZOOM' : 'MEET'}
+                </a>
+              ) : (
+                <div className="next__where">
+                  {[next.where, next.who].filter(Boolean).join(' · ')}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="next__readout">
+              <div className="next__time next__time--clear">CLEAR</div>
+              <div className="next__title">No remaining block</div>
+            </div>
+          )}
         </div>
-        {next ? (
-          <>
-            <div className="next__time">{formatRange(next.start, next.end)}</div>
-            <div className="next__title">{next.title}</div>
-            {next.href ? (
-              <a className="tap tap--meet" href={next.href} target="_blank" rel="noreferrer">
-                {next.href.includes('zoom.us') ? 'ZOOM' : 'MEET'}
-              </a>
-            ) : (
-              <div className="next__where">
-                {[next.where, next.who].filter(Boolean).join(' · ')}
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <div className="next__time next__time--clear">CLEAR</div>
-            <div className="next__title">No remaining block</div>
-          </>
-        )}
-      </section>
+      </Widget>
 
-      <section className="pane pane--today" aria-label="Today">
-        <div className="pane__kicker">
-          <span>TODAY</span>
-          <span className="mark mark--live">LIVE</span>
-        </div>
+      <Widget area="today" label="TODAY" mark="LIVE">
         <ol className="today__list">
           {today.map((block) => (
             <li key={`${block.start}-${block.title}`}>
@@ -173,15 +225,9 @@ export function Hud({
             </li>
           ))}
         </ol>
-      </section>
+      </Widget>
 
-      <section className="pane pane--whoop" aria-label="WHOOP">
-        <div className="pane__kicker">
-          <span>WHOOP</span>
-          <span className={`mark ${liveWhoop ? 'mark--live' : 'mark--amber'}`}>
-            {liveWhoop ? 'LIVE' : 'CONNECT'}
-          </span>
-        </div>
+      <Widget area="whoop" label="WHOOP" mark={liveWhoop ? 'LIVE' : 'CONNECT'} markTone={liveWhoop ? 'live' : 'amber'}>
         <div className="whoop__body">
           {liveWhoop && recovery != null ? (
             <svg className="whoop-ring" viewBox="0 0 140 140" aria-hidden="true">
@@ -201,7 +247,9 @@ export function Hud({
               </text>
             </svg>
           ) : (
-            <EmptyRing />
+            <div className="whoop__core">
+              <JarviRings idPrefix="whoop" compact wordmark />
+            </div>
           )}
           <div className="whoop__stats">
             <div>
@@ -221,39 +269,41 @@ export function Hud({
         ) : (
           <div className="tap tap--dead">CONNECT WHOOP</div>
         )}
-      </section>
+      </Widget>
 
-      <section className="pane pane--inbound" aria-label="Inbound">
-        <div className="pane__kicker">
-          <span>INBOUND ONLY</span>
-          <span className={`mark ${inboundLive ? 'mark--live' : 'mark--amber'}`}>
-            {inboundLive ? 'LIVE' : 'EMPTY'}
-          </span>
-        </div>
+      <Widget
+        area="inbound"
+        label="INBOUND ONLY"
+        mark={inboundLive ? 'LIVE' : 'EMPTY'}
+        tone={inboundLive ? 'alert' : 'cyan'}
+      >
         <div className="inbound__cards">
           {inbound.map((card) => (
             <article
               key={card.gate}
               className={`inbound__card${card.title ? '' : ' inbound__card--empty'}`}
             >
-              <div className="inbound__gate">{card.label}</div>
-              {card.title ? (
-                <>
-                  <div className="inbound__title">{card.title}</div>
-                  {card.detail ? <div className="inbound__detail">{card.detail}</div> : null}
-                </>
-              ) : (
-                <div className="inbound__detail">—</div>
-              )}
+              <div className="inbound__well" aria-hidden="true">
+                <MarkRadar idPrefix={`in-${card.gate}`} alert={Boolean(card.title)} />
+                {card.title ? <Reticle className="inbound__reticle" /> : null}
+              </div>
+              <div className="inbound__copy">
+                <div className="inbound__gate">{card.label}</div>
+                {card.title ? (
+                  <>
+                    <div className="inbound__title">{card.title}</div>
+                    {card.detail ? <div className="inbound__detail">{card.detail}</div> : null}
+                  </>
+                ) : (
+                  <div className="inbound__detail">—</div>
+                )}
+              </div>
             </article>
           ))}
         </div>
-      </section>
+      </Widget>
 
-      <section className="pane pane--lock" aria-label="Lock">
-        <div className="pane__kicker">
-          <span>LOCK</span>
-        </div>
+      <Widget area="lock" label="LOCK">
         <a className="tap tap--call" href={feed.lock.phone.tel}>
           {feed.lock.phone.number}
         </a>
@@ -264,7 +314,7 @@ export function Hud({
             </a>
           ))}
         </div>
-      </section>
+      </Widget>
     </main>
   );
 }
