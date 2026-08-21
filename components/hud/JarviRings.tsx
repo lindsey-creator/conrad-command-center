@@ -222,31 +222,41 @@ export function MarkRadar({ idPrefix, alert = false }: { idPrefix: string; alert
 }
 
 export function CornerPies({ tone = 'cyan' }: { tone?: 'cyan' | 'alert' }) {
-  const stroke = tone === 'alert' ? 'rgba(255,72,48,0.82)' : 'rgba(0,229,255,0.78)';
+  const stroke = tone === 'alert' ? 'rgba(255,72,48,0.82)' : 'rgba(0,229,255,0.82)';
+  const fill = tone === 'alert' ? 'rgba(255,60,40,0.08)' : 'rgba(0,229,255,0.07)';
   const corners = ['tl', 'tr', 'br', 'bl'] as const;
   return (
     <div className="widget__pies" aria-hidden="true">
       {corners.map((c) => (
-        <svg key={c} className={`widget__pie widget__pie--${c}`} viewBox="0 0 72 72">
-          <path d="M6 40 A34 34 0 0 1 40 6" fill="none" stroke={stroke} strokeWidth="1.4" />
+        <svg key={c} className={`widget__pie widget__pie--${c}`} viewBox="0 0 80 80">
+          <path d="M4 78 A74 74 0 0 1 78 4 L48 4 A44 44 0 0 0 4 48 Z" fill={fill} />
+          <path d="M8 70 A62 62 0 0 1 70 8" fill="none" stroke={stroke} strokeWidth="1.5" />
           <path
-            d="M14 40 A26 26 0 0 1 40 14"
+            d="M16 64 A48 48 0 0 1 64 16"
             fill="none"
             stroke="rgba(255,255,255,0.28)"
             strokeWidth="0.7"
-            strokeDasharray="3 4"
+            strokeDasharray="2 5"
           />
-          <path
-            d="M6 40 A34 34 0 0 1 18 14"
-            fill="none"
-            stroke={stroke}
-            strokeWidth="4"
-            opacity="0.35"
-          />
-          <line x1="4" y1="46" x2="16" y2="46" stroke={stroke} strokeWidth="1.1" />
-          <line x1="46" y1="4" x2="46" y2="16" stroke={stroke} strokeWidth="1.1" />
-          <line x1="8" y1="52" x2="12" y2="52" stroke="rgba(255,255,255,0.35)" strokeWidth="0.8" />
-          <line x1="52" y1="8" x2="52" y2="12" stroke="rgba(255,255,255,0.35)" strokeWidth="0.8" />
+          <path d="M10 52 A42 42 0 0 1 28 16" fill="none" stroke={stroke} strokeWidth="5" opacity="0.4" />
+          {[18, 28, 38, 48, 58].map((deg) => {
+            const a = ((deg - 90) * Math.PI) / 180;
+            const x1 = 80 + Math.cos(a) * 52;
+            const y1 = 80 + Math.sin(a) * 52;
+            const x2 = 80 + Math.cos(a) * (deg % 20 === 18 ? 66 : 60);
+            const y2 = 80 + Math.sin(a) * (deg % 20 === 18 ? 66 : 60);
+            return (
+              <line
+                key={deg}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke={stroke}
+                strokeWidth={deg % 20 === 18 ? 1.3 : 0.7}
+              />
+            );
+          })}
         </svg>
       ))}
     </div>
