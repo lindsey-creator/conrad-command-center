@@ -2,12 +2,12 @@
 
 - Brand: Conrad Mortgage / Conrad Team
 - Market: Cleveland, OH / Northeast Ohio
-- Status: DRAFT — human publishes
+- Status: DRAFT — human publishes in GBP
 - Phone lock: 216-250-9078
 - Do not publish: 216-513-5139
+- Theme: **Fall market readiness + refinance prep + FTB documents + closing-table transparency**
 
-> Canonical Thursday output per `seo-system/prompts/weekly-gbp-posts.md`.  
-> Human-reviewed bundle also in [`content/seo-drafts/2026-08-27/gbp-posts.md`](../../content/seo-drafts/2026-08-27/gbp-posts.md).
+> Mirrors canonical output in [`seo-system/output/week-2/gbp-posts.md`](../../../seo-system/output/week-2/gbp-posts.md).
 
 ---
 
@@ -15,8 +15,9 @@
 
 - Suggested day: Friday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (Cleveland skyline or autumn neighborhood — no steering)
+
+**Body:**
 
 As summer winds down, Greater Cleveland housing often shifts — inventory, showings, and buyer timelines can look different than they did in June.
 
@@ -26,8 +27,9 @@ Conrad Mortgage / Conrad Team helps Northeast Ohio buyers and homeowners talk th
 
 Message us here if you are planning a purchase or refinance this fall.
 
-- CTA: Message us on this profile
-- Compliance notes: No rates. No neighborhood steering. No rank or review-count claims.
+**CTA:** Message us on this profile
+
+**Compliance notes:** No rates. No neighborhood steering. No rank or review-count claims.
 
 ---
 
@@ -35,8 +37,9 @@ Message us here if you are planning a purchase or refinance this fall.
 
 - Suggested day: Monday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (checklist / statement redacted graphic)
+
+**Body:**
 
 Thinking about refinancing in Cleveland or Northeast Ohio? A short prep list can make the first conversation much more useful:
 
@@ -49,8 +52,9 @@ We will walk through break-even timing and options honestly — **including when
 
 Questions? Message us on this profile or call **216-250-9078**.
 
-- CTA: Call 216-250-9078 or message on this profile
-- Compliance notes: Process education only — not a credit decision. No rate quotes.
+**CTA:** Call 216-250-9078 or message on this profile
+
+**Compliance notes:** Process education only — not a credit decision. No rate quotes.
 
 ---
 
@@ -58,8 +62,9 @@ Questions? Message us on this profile or call **216-250-9078**.
 
 - Suggested day: Wednesday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (folder / checklist visual)
+
+**Body:**
 
 First home in Greater Cleveland? You do not need a perfect file on day one — but having a few basics ready speeds up pre-approval:
 
@@ -73,8 +78,9 @@ We will tell you exactly what applies to **your** situation — and explain anyt
 
 Ready for a checklist tailored to you? Message us here.
 
-- CTA: Message us on this profile
-- Compliance notes: Education only. No program guarantees. No Fair Housing steering.
+**CTA:** Message us on this profile
+
+**Compliance notes:** Education only. No program guarantees. No Fair Housing steering.
 
 ---
 
@@ -82,8 +88,9 @@ Ready for a checklist tailored to you? Message us here.
 
 - Suggested day: Thursday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (keys / signing table — no client faces without consent)
+
+**Body:**
 
 The complaint we hear most about mortgage — from every lender category — is **surprises late in the process.**
 
@@ -97,16 +104,17 @@ Mortgage is personal. You deserve a process you can follow and people who tell y
 
 Comparing lenders? Ask us hard questions. We welcome them.
 
-- CTA: Message us on this profile
-- Compliance notes: No star ratings, review totals, “#1 lender,” competitor names, or rate quotes.
+**CTA:** Message us on this profile
+
+**Compliance notes:** No star ratings, review totals, “#1 lender,” competitor names, or rate quotes.
 
 ---
 
 ## Human checklist
 
-- Publish in GBP (one post at a time; stagger with prior approved sets from 2026-08-20 / 2026-08-21 / 2026-08-24 / 2026-08-25 / 2026-08-26 if all are approved)
-- Add photo per post (`Image: HUMAN_SUPPLIES`)
-- Confirm NAP, hours, website from verified GBP admin — do not paste an unverified street address
-- Confirm **216-250-9078** on the listing you control (resolve any site phone mismatch before paste)
-- Do not mention **216-513-5139**
-- Do not promote DSCR, hard money, or Goldfront construction products on this listing
+- Publish in GBP one post at a time
+- Add photo per post
+- Stagger with prior approved sets (2026-08-20 / 2026-08-21 / 2026-08-24 / 2026-08-25 / 2026-08-26)
+- Confirm NAP, hours, website from verified GBP admin
+- Confirm 216-250-9078 on listing you control
+- Do not mention 216-513-5139
