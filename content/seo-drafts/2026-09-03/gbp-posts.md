@@ -2,12 +2,12 @@
 
 - Brand: Conrad Mortgage / Conrad Team
 - Market: Cleveland, OH / Northeast Ohio
-- Status: DRAFT — human publishes
+- Status: DRAFT — human publishes in GBP
 - Phone lock: 216-250-9078
 - Do not publish: 216-513-5139
+- Theme: **September market rhythm + first-call process + FTB pre-approval timing + proactive communication trust**
 
-> Canonical Thursday output per `seo-system/prompts/weekly-gbp-posts.md`.  
-> Human-reviewed bundle also in [`content/seo-drafts/2026-09-03/gbp-posts.md`](../../content/seo-drafts/2026-09-03/gbp-posts.md).
+> Mirrors canonical output in [`seo-system/output/week-2/gbp-posts.md`](../../../seo-system/output/week-2/gbp-posts.md).
 
 ---
 
@@ -15,8 +15,9 @@
 
 - Suggested day: Friday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (Cleveland skyline or early autumn — no neighborhood steering)
+
+**Body:**
 
 Labor Day is behind us, but **September is not a “wait until spring” market** in Greater Cleveland.
 
@@ -28,8 +29,9 @@ Conrad Mortgage / Conrad Team helps Northeast Ohio buyers and homeowners talk th
 
 Planning a purchase or refinance this fall? Message us here.
 
-- CTA: Message us on this profile
-- Compliance notes: No rates. No neighborhood steering. No rank or review-count claims.
+**CTA:** Message us on this profile
+
+**Compliance notes:** No rates. No neighborhood steering. No rank or review-count claims.
 
 ---
 
@@ -37,8 +39,9 @@ Planning a purchase or refinance this fall? Message us here.
 
 - Suggested day: Monday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (phone / consultation visual — no client faces without consent)
+
+**Body:**
 
 Not sure what happens on the **first call** with a mortgage team? Here is what a useful 15–20 minute conversation usually covers — purchase or refinance:
 
@@ -52,8 +55,9 @@ No jargon walls. No pretending every file is identical.
 
 Want that conversation for a Cleveland or Northeast Ohio home loan? Call **216-250-9078** or message us on this profile.
 
-- CTA: Call 216-250-9078 or message on this profile
-- Compliance notes: Process education only — not a credit decision. No rate quotes. Phone appears once in this set.
+**CTA:** Call 216-250-9078 or message on this profile
+
+**Compliance notes:** Process education only — not a credit decision. No rate quotes. Phone appears once in this set.
 
 ---
 
@@ -61,8 +65,9 @@ Want that conversation for a Cleveland or Northeast Ohio home loan? Call **216-2
 
 - Suggested day: Wednesday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (keys / welcome mat — no steering by neighborhood)
+
+**Body:**
 
 **First home in Greater Cleveland?** One of the most common questions we hear: *Should I get pre-approved before I tour houses?*
 
@@ -76,8 +81,9 @@ Pre-approval is not a lifetime promise. It is a **clear snapshot** with named ne
 
 Not sure where to start? Message us here. We will walk through what applies to **your** timeline.
 
-- CTA: Message us on this profile
-- Compliance notes: Education only. No program guarantees. No Fair Housing steering.
+**CTA:** Message us on this profile
+
+**Compliance notes:** Education only. No program guarantees. No Fair Housing steering.
 
 ---
 
@@ -85,8 +91,9 @@ Not sure where to start? Message us here. We will walk through what applies to *
 
 - Suggested day: Thursday
 - Type: update
-- Image: HUMAN_SUPPLIES
-- Body:
+- Image: HUMAN_SUPPLIES (team at desk / notification graphic — no fake metrics)
+
+**Body:**
 
 The hardest part of a mortgage file is often **not knowing what is happening** — days with no update, jargon in an email, or a surprise fee at the last minute.
 
@@ -100,17 +107,17 @@ We cannot promise every file moves at the same speed. We can promise you will kn
 
 Comparing lenders? Ask how often they update borrowers — and who owns your file. We welcome those questions.
 
-- CTA: Message us on this profile
-- Compliance notes: No star ratings, review totals, “#1 lender,” competitor names, or rate quotes.
+**CTA:** Message us on this profile
+
+**Compliance notes:** No star ratings, review totals, “#1 lender,” competitor names, or rate quotes.
 
 ---
 
 ## Human checklist
 
-- Publish in GBP (one post at a time; stagger with prior approved sets from 2026-09-02 / 2026-09-01 / 2026-08-31 / 2026-08-28 / 2026-08-27 if all are approved)
-- Add photo per post (`Image: HUMAN_SUPPLIES`)
-- Confirm NAP, hours, website from verified GBP admin — do not paste an unverified street address
-- Confirm **216-250-9078** on the listing you control (site-watch 2026-09-03: theconradteam.com HTTP 200; public page shows **216-279-2223** — resolve mismatch before paste)
-- Do not mention **216-513-5139**
-- Do not promote DSCR, hard money, or Goldfront construction products on this listing
-- **NO_SNAPSHOT** persists for pack competitors — complete incognito observation before claiming pack alignment
+- Publish in GBP one post at a time
+- Add photo per post
+- Stagger with prior approved sets (2026-09-02 / 2026-09-01 / 2026-08-31 / 2026-08-28 / 2026-08-27)
+- Confirm NAP, hours, website from verified GBP admin
+- Confirm 216-250-9078 on listing you control (site-watch 2026-09-03: public page shows 216-279-2223)
+- Do not mention 216-513-5139
