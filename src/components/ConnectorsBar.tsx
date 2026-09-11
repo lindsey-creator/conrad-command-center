@@ -21,7 +21,7 @@ export function ConnectorsBar({ onOpenConnections }: ConnectorsBarProps) {
   return (
     <div className="connectors-bar hud-corners">
       <div className="connectors-bar-label">
-        <span className="connectors-stack-kicker">ECHO STACK</span>
+        <span className="connectors-stack-kicker">CONNECTOR STACK</span>
         <span className="connectors-dot" data-live={connected > 0} />
         {loading && !data ? 'Checking…' : `${connected} of ${total} connected`}
       </div>

@@ -1,0 +1,121 @@
+.type1 {
+  margin-bottom: 12px;
+  padding: 16px 18px;
+}
+
+.type1__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.type1__kicker {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+.type1__title {
+  margin: 4px 0 0;
+  font-size: clamp(17px, 3.2vw, 20px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.type1__brain-pill {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.type1__brain-pill--live {
+  color: var(--go);
+  border-color: rgba(62, 207, 142, 0.35);
+  background: rgba(62, 207, 142, 0.08);
+}
+
+.type1__empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.type1__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 720px) {
+  .type1__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.type1__card {
+  padding: 14px 14px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 120px;
+  transition: border-color var(--transition);
+}
+
+.type1__card:hover {
+  border-color: var(--line-strong);
+}
+
+.type1__cat {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.type1__card--judgment .type1__cat { color: var(--crit); }
+.type1__card--capital .type1__cat { color: var(--go); }
+.type1__card--relationships .type1__cat { color: var(--warn); }
+
+.type1__card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.type1__detail {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.type1__action {
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  opacity: 0.85;
+}

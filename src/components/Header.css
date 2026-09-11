@@ -4,7 +4,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 4px 16px;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+  border-bottom: 1px solid var(--line);
   position: relative;
 }
 
@@ -15,7 +15,7 @@
   left: 0;
   width: 120px;
   height: 1px;
-  background: linear-gradient(90deg, var(--cyan), transparent);
+  background: linear-gradient(90deg, var(--gold), transparent);
 }
 
 .brand { display: flex; align-items: center; gap: 16px; }
@@ -41,11 +41,10 @@
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 600;
-  color: var(--cyan);
+  color: var(--gold-3);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-bottom: 2px;
-  animation: echo-breathe 3s ease-in-out infinite;
 }
 
 .sync-dot {
@@ -56,9 +55,9 @@
   margin-right: 5px;
   vertical-align: middle;
 }
-.sync-dot--online { background: var(--cyan); box-shadow: 0 0 12px var(--cyan-glow); animation: status-pulse 2.4s ease-in-out infinite; }
+.sync-dot--online { background: var(--go); box-shadow: 0 0 10px var(--go-glow); animation: status-pulse 2.4s ease-in-out infinite; }
 .sync-dot--offline { background: var(--ember); box-shadow: 0 0 12px var(--ember-glow); }
 .sync-label { color: var(--muted); font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; }
-.sync-label--online { color: var(--cyan-2); }
+.sync-label--online { color: var(--go); }
 .sync-time { color: var(--faint); font-size: 8.5px; }
 .live-indicator { display: inline-block; line-height: 1.5; }

@@ -417,7 +417,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
   return (
     <>
-      <div className="priority-horns-kicker">LIVE SIGNALS</div>
+      <div className="priority-horns-kicker">JARVIS · LIVE SIGNALS</div>
       <div className="priority-scan" role="group" aria-label="Live signals">
         <div className={`scan-tile scan-tile--fire${flashGhl ? ' scan-tile--flash' : ''}`}>
           <span
@@ -734,16 +734,16 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               )}
             </LaneModule>
 
-            <LaneModule title="Issue a Task" icon="📋" pill="Echo Route" defaultOpen={false}>
-              <p>Voice or text → routed via Echo to ClickUp with context.</p>
+            <LaneModule title="Issue a Task" icon="📋" pill="JARVIS route" defaultOpen={false}>
+              <p>Voice or text → routed via JARVIS to ClickUp with context.</p>
               <IssueTaskForm sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
             </LaneModule>
         </IntelLane>
 
         <IntelLane
           variant="audio"
-          title="Echo Intel"
-          subtitle="Fieldy · Brief · Echo"
+          title="JARVIS Intel"
+          subtitle="Fieldy · Brief · transcripts"
           badge={briefTodayCount > 0 ? briefTodayCount : null}
         >
             <LaneModule
@@ -778,7 +778,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
                   onConnect={onConnect}
                 />
               ) : (
-                <p>Meeting captures from Fieldy and Echo / ClickUp.</p>
+                <p>Meeting captures from Fieldy and ClickUp transcripts.</p>
               )}
             </LaneModule>
 
@@ -873,13 +873,13 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
             </LaneModule>
 
             <LaneModule
-              title="Echo · Meetings"
+              title="Meetings log"
               icon="🤖"
               pill="ClickUp"
               defaultOpen={false}
             >
               <p>
-                Plaud captures → Echo routes meeting output to All Meetings Log.
+                Plaud captures → Brain routes meeting output to All Meetings Log.
                 Paste raw transcript when share URLs aren&apos;t fetchable.
               </p>
               <ConnectSource sources={[...STATIC_SOURCES.teamFieldy]} onConnect={onConnect} />

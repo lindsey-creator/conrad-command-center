@@ -47,16 +47,16 @@ export function CommandHeader({
 
   const statusLabel =
     voiceState === 'listening'
-      ? 'ECHO LISTENING'
+      ? 'JARVIS LISTENING'
       : voiceState === 'speaking'
-        ? 'ECHO SPEAKING'
+        ? 'JARVIS SPEAKING'
         : voiceState === 'thinking'
-          ? 'ECHO PROCESSING'
+          ? 'JARVIS PROCESSING'
           : brainOnline
             ? 'JARVIS ONLINE'
-            : 'ECHO STANDBY';
+            : 'STANDBY';
 
-  const echoActive =
+  const jarvisActive =
     brainOnline &&
     (voiceState === 'listening' || voiceState === 'speaking' || voiceState === 'thinking');
 
@@ -65,14 +65,14 @@ export function CommandHeader({
       <div className="command-header__mesh" aria-hidden="true" />
 
       <div className="command-strip">
-        <span className="command-strip__item command-strip__item--brand">OPERATING BRAIN</span>
+        <span className="command-strip__item command-strip__item--brand">JARVIS</span>
         <span className="command-strip__sep" aria-hidden="true" />
-        <span className="command-strip__item">CONRAD MORTGAGE</span>
+        <span className="command-strip__item">COMMAND CENTER</span>
         <span className="command-strip__sep" aria-hidden="true" />
-        <span className="command-strip__item">ECHO COO</span>
+        <span className="command-strip__item">GOLDFRONT OS</span>
         <span className="command-strip__sep" aria-hidden="true" />
         <span
-          className={`command-strip__item command-strip__item--echo${brainOnline ? ' command-strip__item--active' : ''}${echoActive ? ' command-strip__item--pulse' : ''}`}
+          className={`command-strip__item command-strip__item--jarvis${brainOnline ? ' command-strip__item--active' : ''}${jarvisActive ? ' command-strip__item--pulse' : ''}`}
         >
           {statusLabel}
         </span>

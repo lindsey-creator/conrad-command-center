@@ -1,35 +1,35 @@
 :root {
-  /* Live JARVIS — deep slate + cyan energy (no pure black) */
-  --bg: #1a2332;
-  --bg-elevated: #1e2a3a;
-  --panel: rgba(255, 255, 255, 0.06);
-  --panel-solid: rgba(30, 42, 58, 0.92);
-  --panel-2: rgba(26, 35, 50, 0.95);
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(0, 212, 255, 0.22);
-  --ink: #e8ecf0;
-  --muted: #8b9cb3;
-  --faint: #5a6d85;
+  /* JARVIS Command Center — BRAND.md: dark glass, restrained gold */
+  --bg: #0a0c10;
+  --bg-elevated: #12161d;
+  --panel: rgba(18, 22, 29, 0.72);
+  --panel-solid: #161b23;
+  --panel-2: #12161d;
+  --line: #232a34;
+  --line-strong: rgba(200, 162, 74, 0.28);
+  --ink: #eef2f7;
+  --muted: #8a95a5;
+  --faint: #5b6675;
 
-  --cyan: #00d4ff;
-  --cyan-2: #4ecdc4;
-  --cyan-glow: rgba(0, 212, 255, 0.35);
-  --cyan-dim: rgba(0, 212, 255, 0.08);
+  --cyan: #5aa9ff;
+  --cyan-2: #7ab8ff;
+  --cyan-glow: rgba(90, 169, 255, 0.22);
+  --cyan-dim: rgba(90, 169, 255, 0.06);
 
-  --gold: #c9a227;
-  --gold-2: #d4b03a;
-  --gold-3: #e0c050;
-  --gold-glow: rgba(201, 162, 39, 0.28);
-  --gold-dim: rgba(201, 162, 39, 0.06);
-  --ivory: #e8ecf0;
-  --ember: #e07a4a;
-  --ember-glow: rgba(224, 122, 74, 0.35);
+  --gold: #c8a24a;
+  --gold-2: #d4b35a;
+  --gold-3: #e7c877;
+  --gold-glow: rgba(200, 162, 74, 0.22);
+  --gold-dim: rgba(200, 162, 74, 0.06);
+  --ivory: #eef2f7;
+  --ember: #ff5d5d;
+  --ember-glow: rgba(255, 93, 93, 0.28);
 
-  --go: #4ecdc4;
-  --go-glow: rgba(78, 205, 196, 0.35);
-  --warn: #d4a843;
-  --crit: #e07a4a;
-  --info: #6a9ec4;
+  --go: #3ecf8e;
+  --go-glow: rgba(62, 207, 142, 0.28);
+  --warn: #f5b53d;
+  --crit: #ff5d5d;
+  --info: #5aa9ff;
 
   --radius: 8px;
   --radius-sm: 4px;
@@ -74,30 +74,8 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 90% 60% at 20% 0%, rgba(0, 120, 180, 0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 50% at 85% 100%, rgba(78, 205, 196, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(30, 42, 58, 0.4) 0%, transparent 70%);
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 3px,
-    rgba(0, 212, 255, 0.015) 3px,
-    rgba(0, 212, 255, 0.015) 4px
-  );
-  animation: holo-scan 8s linear infinite;
-}
-
-@keyframes holo-scan {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200, 162, 74, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(18, 22, 29, 0.9) 0%, transparent 50%);
 }
 
 #root { position: relative; z-index: 1; }
