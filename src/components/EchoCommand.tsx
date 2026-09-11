@@ -45,6 +45,8 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
   const [approvalId, setApprovalId] = useState<string | null>(null);
   const handleAskRef = useRef<(text?: string) => Promise<void>>(async () => {});
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [commandFocused, setCommandFocused] = useState(false);
 
   const handleTranscript = useCallback((text: string) => {
     setMessage(text);
@@ -79,6 +81,10 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
   const handleAsk = async (text?: string) => {
     const query = (text ?? message).trim();
     if (!query) return;
+    if (!brainOnline) {
+      setError('Brain offline — connect Stack in Connections.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -172,6 +178,11 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
     if (voiceState === 'listening') stopListening();
   };
 
+  const focusCommandLine = () => {
+    inputRef.current?.focus();
+    setCommandFocused(true);
+  };
+
   return (
     <section className="echo-command echo-command--hero hud-corners jarvis-glass" aria-label="Ask JARVIS">
       <div className="echo-command__mesh" aria-hidden="true" />
@@ -192,7 +203,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
               <span className="echo-command__kicker">JARVIS · sole command</span>
               <h2 className="echo-command__title">Command line</h2>
               <p className="echo-command__subtitle">
-                Voice or text — Brain narrates, never invents. Tasks and drafts hit the Approval Queue.
+                Speak when ready, sir — Wispr Flow or keyboard into this line. Brain narrates live data only.
               </p>
             </div>
             <div className="echo-command__controls">
@@ -226,17 +237,61 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
             </div>
           )}
 
+          {!brainOnline && (
+            <p className="echo-command__offline" role="status">
+              Brain offline — connect Stack before JARVIS can answer.{' '}
+              <a className="echo-command__offline-link" href="#connections">
+                Connect source
+              </a>
+            </p>
+          )}
+
           <div className="echo-command__bar">
+            <button
+              type="button"
+              className={`echo-command__speak-target${commandFocused ? ' echo-command__speak-target--armed' : ''}`}
+              onClick={focusCommandLine}
+              aria-label="Focus command line for Wispr Flow dictation"
+            >
+              <span className="echo-command__speak-ring" aria-hidden="true" />
+              <span className="echo-command__speak-icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M19 11v1a7 7 0 0 1-14 0v-1M12 18v3M8 21h8"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <span className="echo-command__speak-label">Speak</span>
+              <span className="echo-command__speak-sub">Wispr → line</span>
+            </button>
             <div className="echo-command__input-wrap">
+              <label className="echo-command__input-label" htmlFor="jarvis-command-input">
+                Command input
+              </label>
               <textarea
-                id="echo-input"
+                ref={inputRef}
+                id="jarvis-command-input"
                 className="echo-command__input"
                 rows={2}
-                placeholder="Ask about deals, priorities, or today's brief…"
+                placeholder="Dictate with Wispr Flow or type — deals, priorities, brief…"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                onFocus={() => setCommandFocused(true)}
+                onBlur={() => setCommandFocused(false)}
                 onKeyDown={onKeyDown}
-                aria-label="Message for JARVIS"
+                aria-label="Command line for JARVIS"
+                enterKeyHint="send"
+                autoComplete="off"
+                spellCheck={true}
               />
             </div>
             <div className="echo-command__actions">
@@ -249,19 +304,19 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
                   onPointerLeave={onMicPointerUp}
                   onPointerCancel={onMicPointerUp}
                   aria-pressed={voiceState === 'listening'}
-                  title={voiceState === 'listening' ? 'Release to stop' : 'Hold to speak'}
+                  title={voiceState === 'listening' ? 'Release to stop' : 'Hold for browser mic'}
                 >
                   <span className="echo-command__btn-icon" aria-hidden="true">🎙</span>
-                  Mic
+                  Hold
                 </button>
               )}
               <button
                 type="button"
                 className="echo-command__btn echo-command__btn--primary"
-                disabled={loading || !message.trim()}
+                disabled={loading || !message.trim() || !brainOnline}
                 onClick={() => void handleAsk()}
               >
-                {loading ? 'Thinking…' : 'Send'}
+                {loading ? 'Thinking…' : 'Execute'}
               </button>
             </div>
           </div>
@@ -269,8 +324,8 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
           <div className="echo-command__meta">
             <div className="echo-command__hint">
               {micSupported
-                ? 'Hold mic or type · Enter to send'
-                : 'Type your question · Enter to send'}
+                ? 'Wispr Flow into this line · hold mic as fallback · Enter to execute'
+                : 'Wispr Flow or keyboard · Enter to execute'}
             </div>
             <div className="echo-command__options">
               <label className="echo-command__checkbox">

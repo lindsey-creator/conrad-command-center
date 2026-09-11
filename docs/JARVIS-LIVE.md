@@ -27,3 +27,13 @@ This doc locks how Lindsey Conrad's operator stack is named in product copy, pro
 ## Header copy (canonical)
 
 **JARVIS · Command** with a live indicator when `/health` reports Brain reachable.
+
+## Voice — Wispr Flow → command line
+
+On phone or Cybertruck tablet, Lindsey dictates with **[Wispr Flow](https://wisprflow.ai)** (system-wide dictation). The cockpit is built for that flow:
+
+1. Tap **Speak** on the command line (or tap the text field) so focus lands in `#jarvis-command-input`.
+2. Trigger Wispr Flow — transcribed text appears in the command line.
+3. **Execute** (or Enter) sends to Brain; nothing runs without live data or Approval Queue rules.
+
+Browser hold-to-talk mic is a fallback when Wispr is unavailable. JARVIS copy uses he/him for Lindsey in UI we maintain.

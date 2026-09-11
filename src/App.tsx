@@ -94,8 +94,8 @@ export default function App() {
       {page === 'dashboard' ? (
         <div className="command-deck__main">
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
-          <Type1Decisions brainOnline={brainOnline} />
           <EchoCommand brainOnline={brainOnline} onVoiceStateChange={setVoiceState} />
+          <Type1Decisions brainOnline={brainOnline} onConnect={openConnections} />
           <QuickRunStrip clickupConnected={clickupConnected} />
           <PendingApprovals />
           <ModuleGrid onConnect={openConnections} />

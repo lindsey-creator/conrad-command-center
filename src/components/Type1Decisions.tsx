@@ -3,6 +3,7 @@ import { brain, type MoneyMove, type TeamPulseGap, type WatchlistItem } from '..
 import { POLL_FAST_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
+import { ConnectSource } from './ConnectSource';
 import './type1-decisions.css';
 
 export type Type1Category = 'capital' | 'judgment' | 'relationships' | 'authority';
@@ -98,9 +99,27 @@ function buildType1Cards(
 
 interface Type1DecisionsProps {
   brainOnline?: boolean;
+  onConnect?: (source: string) => void;
 }
 
-export function Type1Decisions({ brainOnline = false }: Type1DecisionsProps) {
+function collectOfflineSources(
+  payloads: Array<{ status?: string; sources?: string[] } | null | undefined>,
+): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const payload of payloads) {
+    if (!payload || payload.status !== 'connect_source') continue;
+    for (const source of payload.sources ?? []) {
+      if (!seen.has(source)) {
+        seen.add(source);
+        out.push(source);
+      }
+    }
+  }
+  return out;
+}
+
+export function Type1Decisions({ brainOnline = false, onConnect }: Type1DecisionsProps) {
   const fetchWatch = useCallback(() => brain.watchlist(), []);
   const fetchMoves = useCallback(() => brain.topMoves(3), []);
   const fetchPulse = useCallback(() => brain.teamPulse(), []);
@@ -127,7 +146,20 @@ export function Type1Decisions({ brainOnline = false }: Type1DecisionsProps) {
     !watchlist.data && !topMoves.data && !teamPulse.data && !blindspots.data &&
     (watchlist.loading || topMoves.loading);
 
+  const offlineSources = useMemo(
+    () =>
+      collectOfflineSources([
+        watchlist.data,
+        topMoves.data,
+        teamPulse.data,
+        blindspots.data,
+      ]),
+    [watchlist.data, topMoves.data, teamPulse.data, blindspots.data],
+  );
+
   const cards = useMemo(() => {
+    if (!brainOnline) return [];
+
     const watchLive = watchlist.data && hasLiveData(watchlist.data);
     const movesLive = topMoves.data && hasLiveData(topMoves.data);
     const pulseLive = teamPulse.data && hasLiveData(teamPulse.data);
@@ -141,7 +173,7 @@ export function Type1Decisions({ brainOnline = false }: Type1DecisionsProps) {
     const blindItems = blindLive ? blindspots.data?.items ?? [] : [];
 
     return buildType1Cards(watchItems, moves, gaps, blindItems);
-  }, [watchlist.data, topMoves.data, teamPulse.data, blindspots.data]);
+  }, [brainOnline, watchlist.data, topMoves.data, teamPulse.data, blindspots.data]);
 
   const hasAnySource =
     (watchlist.data && hasLiveData(watchlist.data)) ||
@@ -168,12 +200,28 @@ export function Type1Decisions({ brainOnline = false }: Type1DecisionsProps) {
         <p className="type1__empty">Scanning Brain for today’s Type-1 calls…</p>
       )}
 
-      {!loading && cards.length === 0 && (
-        <p className="type1__empty">
-          {hasAnySource
-            ? 'No Type-1 cards right now — stack is clear or awaiting connector data.'
-            : 'Connect ClickUp, deals, or Fieldy via Stack — JARVIS surfaces up to three Type-1 cards here.'}
-        </p>
+      {!loading && !brainOnline && (
+        <div className="type1__connect">
+          <p className="type1__empty">Brain offline — no Type-1 cards until Stack is linked.</p>
+          {onConnect && (
+            <button type="button" className="type1__connect-btn" onClick={() => onConnect('clickup')}>
+              Connect source
+            </button>
+          )}
+        </div>
+      )}
+
+      {!loading && brainOnline && cards.length === 0 && (
+        <div className="type1__connect">
+          <p className="type1__empty">
+            {hasAnySource
+              ? 'No Type-1 calls right now — stack is clear.'
+              : 'Connect live sources — JARVIS shows up to three Type-1 cards here, never placeholders.'}
+          </p>
+          {offlineSources.length > 0 && (
+            <ConnectSource sources={offlineSources} onConnect={onConnect} />
+          )}
+        </div>
       )}
 
       {cards.length > 0 && (
