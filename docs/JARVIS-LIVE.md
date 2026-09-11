@@ -37,3 +37,10 @@ On phone or Cybertruck tablet, Lindsey dictates with **[Wispr Flow](https://wisp
 3. **Execute** (or Enter) sends to Brain; nothing runs without live data or Approval Queue rules.
 
 Browser hold-to-talk mic is a fallback when Wispr is unavailable. JARVIS copy uses he/him for Lindsey in UI we maintain.
+
+## Town radar & Gmail inbox (HUD lane)
+
+The **Town & inbox** band calls Brain `GET /inbox/radar` when implemented. Until routes and OAuth are live:
+
+- **Gmail** — Connect Google (same OAuth as Calendar); the lane shows **Connect source**, never placeholder threads.
+- **Town.com** — Brain `TOWN_API_TOKEN` (and future `/inbox/radar` fields with `source: town`); Cursor JARVIS can route Town context while the HUD stays honest offline.

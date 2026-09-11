@@ -369,6 +369,21 @@ export interface WeatherResponse {
   note?: string;
 }
 
+export interface InboxRadarItem {
+  title?: string;
+  detail?: string;
+  source?: string;
+  time?: string;
+  url?: string;
+}
+
+export interface InboxRadarResponse extends ConnectSourceResponse {
+  items?: InboxRadarItem[];
+  town_open?: number | null;
+  gmail_unread?: number | null;
+  note?: string;
+}
+
 export interface IssueTaskRequest {
   text: string;
   assignee_hint?: string;
@@ -412,6 +427,25 @@ export interface ApprovalActionResponse {
 
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(`${getBase()}${path}`);
+  if (!res.ok) {
+    throw new Error(`Brain API ${path}: ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+/** Brain route not shipped yet — honest connect_source instead of throwing. */
+async function fetchJsonOrConnectSource<T extends ConnectSourceResponse>(
+  path: string,
+  fallbackSources: string[],
+): Promise<T> {
+  const res = await fetch(`${getBase()}${path}`);
+  if (res.status === 404 || res.status === 501) {
+    return {
+      status: 'connect_source',
+      sources: fallbackSources,
+      items: [],
+    } as unknown as T;
+  }
   if (!res.ok) {
     throw new Error(`Brain API ${path}: ${res.status}`);
   }
@@ -488,6 +522,8 @@ export const brain = {
   weekAhead: () => fetchJson<ConnectSourceResponse>('/calendar/week'),
   metaAds: () => fetchJson<MetaAdsResponse>('/ads/meta'),
   weather: () => fetchJson<WeatherResponse>('/weather'),
+  inboxRadar: () =>
+    fetchJsonOrConnectSource<InboxRadarResponse>('/inbox/radar', ['gmail', 'town']),
   issueTask: (req: IssueTaskRequest) => postJson<IssueTaskResponse>('/tasks', req),
   pendingApprovals: () => fetchJson<ApprovalsPendingResponse>('/approvals/pending'),
   approveApproval: (id: string, text?: string) =>

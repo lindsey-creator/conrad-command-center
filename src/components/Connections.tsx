@@ -72,6 +72,11 @@ const CONNECTOR_HELP: Record<
     where: 'OpenWeather or similar API key in Brain .env',
     envVars: ['WEATHER_API_KEY'],
   },
+  town: {
+    label: 'Town.com',
+    where: 'Town.com API token in Brain .env — HUD inbox/radar lane + Cursor JARVIS',
+    envVars: ['TOWN_API_TOKEN'],
+  },
 };
 
 interface ConnectionsProps {

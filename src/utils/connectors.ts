@@ -9,6 +9,7 @@ export const SOURCE_TO_CONNECTOR: Record<string, string> = {
   apple_health: 'apple_health',
   meta: 'meta',
   weather: 'weather',
+  town: 'town',
   wellbeing_checkin: 'wellbeing_checkin',
   brain_scan: 'brain_scan',
   brain_memory: 'brain_memory',
@@ -20,4 +21,6 @@ export const OPTIONAL_SOURCE_HELP: Record<string, string> = {
   wellbeing_checkin: 'Wellbeing check-in — in-app, no connector',
   brain_scan: 'Connect any data source below to fill blind spots',
   brain_memory: 'Train decisions in Feed the Brain',
+  town: 'Town.com — add TOWN_API_TOKEN to Brain .env; JARVIS in Cursor routes context',
+  gmail: 'Same Google OAuth as Calendar — read-only inbox for the HUD',
 };
