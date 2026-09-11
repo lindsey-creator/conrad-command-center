@@ -3,6 +3,7 @@ import { brain } from './api/brain';
 import { touchBrainLive } from './hooks/brainLive';
 import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
 import { CommandHeader } from './components/CommandHeader';
+import { Type1Decisions } from './components/Type1Decisions';
 import { Connections, resolveConnectorKey } from './components/Connections';
 import { ConnectorsBar } from './components/ConnectorsBar';
 import { EchoCommand } from './components/EchoCommand';
@@ -92,10 +93,11 @@ export default function App() {
       )}
       {page === 'dashboard' ? (
         <div className="command-deck__main">
+          <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
+          <Type1Decisions brainOnline={brainOnline} />
           <EchoCommand brainOnline={brainOnline} onVoiceStateChange={setVoiceState} />
           <QuickRunStrip clickupConnected={clickupConnected} />
           <PendingApprovals />
-          <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <ModuleGrid onConnect={openConnections} />
         </div>
       ) : page === 'echo' ? (

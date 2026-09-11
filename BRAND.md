@@ -1,17 +1,22 @@
 # Brand & design bar — Conrad Command Center
 
-The feeling is the spec. When Lindsey opens it she should feel **"we got this."**
+The feeling is the spec. When Lindsey opens it he should feel **"we got this."**
 
 ## Principles
 - **Elite and calm.** Uncluttered, confident, quiet luxury. Dark, deep background;
   restrained gold accent; generous spacing. Nothing shouts.
 - **Clarity over decoration.** So clear it's hard to mess up. One screen, one glance,
-  she knows everything.
+  he knows everything.
 - **Mobile-first.** Runs from a phone/tablet in a Cybertruck on Starlink. Big tap
   targets, fast, works on a weak connection.
 - **Status you feel instantly.** Green on-track, amber watch, red critical — color
   and a pill, never a wall of text.
-- **Nothing seen before, but never gimmicky.** Distinctive, not busy.
+- **Nothing seen before, but never gimmicky.** Distinctive cockpit — sharper than
+  movie HUDs, zero cosplay.
+
+## Assistant
+- **JARVIS** is the only name for the in-product assistant (header: **JARVIS · Command**).
+- Command Center is the glass; Brain in `Goldfront-os` is the engine.
 
 ## Palette (from the shell — tune freely)
 - background `#0a0c10` → panels `#12161d` / `#161b23`, hairlines `#232a34`

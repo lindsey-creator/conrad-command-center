@@ -52,7 +52,7 @@ sudo systemctl restart superman-brain   # or your process manager
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/health` | Liveness |
-| `POST` | `/chat` | Echo / Ask the room (drafts return `approval_id`) |
+| `POST` | `/chat` | JARVIS command line (drafts return `approval_id`) |
 | `GET` | `/brief/daily` | Morning brief |
 | `GET` | `/money/top-moves` | Top money moves |
 | `GET` | `/blindspots`, `/watchlist`, `/team/pulse` | Intel modules |

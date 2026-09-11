@@ -12,7 +12,7 @@ export function Nav({ page, onChange }: NavProps) {
         Dashboard
       </button>
       <button type="button" className={`nav-btn${page === 'echo' ? ' active' : ''}`} onClick={() => onChange('echo')}>
-        Echo
+        JARVIS
       </button>
       <button type="button" className={`nav-btn${page === 'connections' ? ' active' : ''}`} onClick={() => onChange('connections')}>
         Stack

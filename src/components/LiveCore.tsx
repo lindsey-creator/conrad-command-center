@@ -13,7 +13,7 @@ interface LiveCoreProps {
 export function LiveCore({
   state = 'idle',
   size = 'md',
-  label = 'Echo core',
+  label = 'JARVIS core',
   showParticles = false,
   online = true,
 }: LiveCoreProps) {
@@ -63,7 +63,7 @@ export function LiveCore({
               : state === 'thinking'
                 ? 'THINKING'
                 : online
-                  ? 'ECHO LIVE'
+                  ? 'JARVIS LIVE'
                   : 'STANDBY'}
         </span>
       )}

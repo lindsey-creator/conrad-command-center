@@ -15,9 +15,9 @@ function voiceStatusLabel(state: EchoVoiceState): string | null {
     case 'listening':
       return 'Listening…';
     case 'speaking':
-      return 'Echo is speaking…';
+      return 'JARVIS is speaking…';
     case 'thinking':
-      return 'Echo is thinking…';
+      return 'JARVIS is thinking…';
     default:
       return null;
   }
@@ -94,7 +94,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
       if (wantsTask) {
         const taskRes = await brain.issueTask({
           text: query,
-          source: 'echo_command',
+          source: 'jarvis_command',
         });
         if (taskRes.status === 'connect_source') {
           const msg = 'ClickUp not connected — add keys in Connections.';
@@ -173,7 +173,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
   };
 
   return (
-    <section className="echo-command echo-command--hero hud-corners jarvis-glass" aria-label="Ask Echo">
+    <section className="echo-command echo-command--hero hud-corners jarvis-glass" aria-label="Ask JARVIS">
       <div className="echo-command__mesh" aria-hidden="true" />
       <div className="echo-command__hero">
         <div className="echo-command__core-col">
@@ -182,17 +182,17 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
             size="hero"
             showParticles
             online={brainOnline}
-            label={statusLabel ?? (brainOnline ? 'Echo live' : 'Echo standby')}
+            label={statusLabel ?? (brainOnline ? 'JARVIS live' : 'JARVIS standby')}
           />
         </div>
 
         <div className="echo-command__main-col">
           <div className="echo-command__head">
             <div>
-              <span className="echo-command__kicker">Operating Brain · Echo COO</span>
-              <h2 className="echo-command__title">Ask Echo</h2>
+              <span className="echo-command__kicker">JARVIS · sole command</span>
+              <h2 className="echo-command__title">Command line</h2>
               <p className="echo-command__subtitle">
-                Voice-first priorities and deal rigor — Fieldy feeds the brief, ClickUp routes tasks.
+                Voice or text — Brain narrates, never invents. Tasks and drafts hit the Approval Queue.
               </p>
             </div>
             <div className="echo-command__controls">
@@ -205,7 +205,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
                     setSpeakEnabled((s) => !s);
                   }}
                   aria-pressed={speakEnabled}
-                  title={speakEnabled ? 'Mute Echo voice' : 'Enable Echo voice'}
+                  title={speakEnabled ? 'Mute JARVIS voice' : 'Enable JARVIS voice'}
                 >
                   <span className="echo-command__toggle-icon" aria-hidden="true">
                     {speakEnabled ? '🔊' : '🔇'}
@@ -236,7 +236,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={onKeyDown}
-                aria-label="Message for Echo"
+                aria-label="Message for JARVIS"
               />
             </div>
             <div className="echo-command__actions">

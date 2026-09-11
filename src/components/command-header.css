@@ -10,8 +10,8 @@
   pointer-events: none;
   z-index: 0;
   background:
-    linear-gradient(125deg, rgba(0, 212, 255, 0.1) 0%, rgba(78, 205, 196, 0.04) 30%, transparent 55%),
-    radial-gradient(ellipse 55% 75% at 0% 45%, rgba(0, 212, 255, 0.06) 0%, transparent 60%);
+    linear-gradient(125deg, rgba(200, 162, 74, 0.06) 0%, transparent 45%),
+    radial-gradient(ellipse 55% 75% at 0% 45%, rgba(18, 22, 29, 0.5) 0%, transparent 60%);
 }
 
 .command-strip {
@@ -21,7 +21,7 @@
   align-items: center;
   flex-wrap: wrap;
   padding: 10px 20px;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -35,16 +35,14 @@
 }
 
 .command-strip__item--brand { color: var(--gold); }
-.command-strip__item--echo { color: var(--faint); margin-left: auto; }
-.command-strip__item--echo.command-strip__item--active {
-  color: var(--cyan);
-  text-shadow: 0 0 14px var(--cyan-glow);
-  animation: echo-breathe 3s ease-in-out infinite;
+.command-strip__item--jarvis { color: var(--faint); margin-left: auto; }
+.command-strip__item--jarvis.command-strip__item--active {
+  color: var(--gold-3);
 }
 .command-strip__sep {
   width: 1px;
   height: 14px;
-  background: rgba(0, 212, 255, 0.2);
+  background: var(--line);
   flex-shrink: 0;
 }
 
@@ -72,7 +70,7 @@
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: var(--cyan);
+  color: var(--gold);
 }
 .command-header__name {
   margin: 0;

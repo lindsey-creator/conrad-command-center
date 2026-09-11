@@ -7,10 +7,12 @@ the Brain underneath so the screen doesn't just *show* — it *thinks, warns, an
 recommends*.
 
 ## The feeling (the real spec)
-When Lindsey opens it she should feel **"we got this."** Calm, elite, in control,
-nothing cluttered. Something that looks like nothing she's seen — and is so clear
-it's hard to mess up. She runs it from her phone/tablet in a Cybertruck (autodrive)
+When Lindsey opens it he should feel **"we got this."** Calm, elite, in control,
+nothing cluttered. Something that looks like nothing he's seen — and is so clear
+it's hard to mess up. He runs it from his phone/tablet in a Cybertruck (autodrive)
 on Starlink, so **mobile-first and fast on a weak connection is non-negotiable.**
+
+**JARVIS** is the sole in-product assistant; Command Center is the glass HUD (see `JARVIS-LIVE.md`).
 
 ## Modules (match the live dashboard, then raise it)
 Business:
