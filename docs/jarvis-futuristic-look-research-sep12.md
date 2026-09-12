@@ -26,6 +26,15 @@ Flat SaaS cards. Weak glow. Tiny type. Widget soup. Orbitron-everywhere cosplay.
 3. **Mark III look** — White primary, cyan only as accent. Kill card soup. Z-depth holographic summon. Scanline / vignette sparingly.
 4. **Cybertruck + WHOOP Day Orbit** — Landscape void, overlay glass, Recovery / Sleep / Strain strip. Giant type.
 
+## Optional deltas (do not block Speak / orb)
+
+- **bertrandmbanwi** — 3-shell field, independent rotation / RMS spread.
+- **jarvis.ximg.app** — 72-bar ring driven by `levelRef` RMS, not a flat sine.
+- **EliseyRotar** — orb bloom + compact click-to-expand job pill.
+- **Debddj** — boot system-check tokens (ARC / LOOP / WISPR / TTS / GLASS).
+- **scifiinterfaces** — peripheral hash + tiny omega gauges (PWR / TGT / NAV / I/O). Stay small until needed.
+- **experienceperception IM2** — layered translucency, z-depth summon, white Mark III (cyan accent only).
+
 ## Success
 
 Speak works in Chrome. Talk Mode orb reacts. Landscape + WHOOP strip present. No SaaS dashboard vibe.

@@ -87,6 +87,44 @@
   box-shadow: inset 0 0 160px 64px rgba(0, 2, 6, 0.82);
 }
 
+/* scifiinterfaces / Perception IM2 — peripheral hash + omega gauges */
+.rhino__hash {
+  position: absolute;
+  top: 18%;
+  bottom: 22%;
+  width: 18px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0 1px,
+    transparent 1px 14px
+  );
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.rhino__hash--l { left: 18px; }
+.rhino__hash--r { right: 18px; }
+
+.rhino__omega {
+  position: absolute;
+  left: 50%;
+  bottom: 118px;
+  z-index: 3;
+  display: flex;
+  gap: 18px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.rhino__omega span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.rhino.mode-talk .rhino__omega { bottom: 132px; }
+
 .rhino__flare {
   position: absolute;
   inset: 0;
@@ -1343,6 +1381,28 @@
   color: var(--mute);
 }
 
+.boot__tokens {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  min-width: 220px;
+}
+
+.boot__tokens li {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--mute);
+  opacity: 0.4;
+}
+
+.boot__tokens li em { font-style: normal; }
+.boot__tokens li.is-ok { color: #fff; opacity: 1; }
+.boot__tokens li.is-ok span { color: #3ef0c0; }
+
 @keyframes boot-spin { to { transform: rotate(360deg); } }
 @keyframes core-breathe {
   0%, 100% { transform: scale(1); opacity: 1; }
@@ -1631,6 +1691,66 @@
 .holo-glass {
   position: relative;
 }
+
+.task-pill {
+  position: absolute;
+  right: 28px;
+  bottom: 8px;
+  z-index: 6;
+  max-width: 240px;
+}
+
+.task-pill__dot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  min-width: 0;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+.task-pill__dot i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.45);
+}
+
+.task-pill__list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.task-pill__list button {
+  width: 100%;
+  min-height: 36px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 2px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.task-pill__list u { text-decoration: none; }
+.task-pill__list u.is-proven { color: #3ef0c0; }
+.task-pill__list u.is-claimed { color: var(--amber); }
+
+.rhino.mode-talk .task-pill { right: 3vw; bottom: 10px; }
 
 .rhino.mode-talk .money-radar,
 .rhino.mode-talk .leak-grid {

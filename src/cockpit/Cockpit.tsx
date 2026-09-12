@@ -25,6 +25,7 @@ import {
 import { useHudPack } from './useHudPack';
 import { useType1Locks } from './useType1Locks';
 import { JobRail } from './JobRail';
+import { TaskPill } from './TaskPill';
 import { nextLoopPhase, resolveAutonomy } from './readyAgent';
 import { useAgentJobs } from './useAgentJobs';
 import { useWhoopDay } from './useWhoopDay';
@@ -205,12 +206,20 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <div className="rhino__scan" />
         <div className="rhino__holo" />
         <div className="rhino__vignette" />
+        <div className="rhino__hash rhino__hash--l" />
+        <div className="rhino__hash rhino__hash--r" />
       </div>
       <div className="rhino__frame" aria-hidden="true">
         <i className="rhino__cut rhino__cut--tl" />
         <i className="rhino__cut rhino__cut--tr" />
         <i className="rhino__cut rhino__cut--bl" />
         <i className="rhino__cut rhino__cut--br" />
+      </div>
+      <div className="rhino__omega" aria-hidden="true">
+        <span>PWR</span>
+        <span>TGT</span>
+        <span>NAV</span>
+        <span>I/O</span>
       </div>
 
       <header className="rhino-top">
@@ -248,6 +257,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <div className="board__voice">
           <p className="caption">{caption}</p>
         </div>
+        <TaskPill jobs={jobs} onAsk={ask} />
       </div>
 
       <CommandDock

@@ -9,4 +9,4 @@ Gigantic audio-reactive Arc + particle halo. Wispr mic RMS and TTS-like envelope
 Heartbeat reactor. Mark III FUI dock. 2–3 materializing ticks only (TYPE-1 / MONEY NOW / LEAKING) plus WHOOP Day Orbit strip. Scanline vignette. Giant Cybertruck type.
 
 ## Boot
-Ritual stages + wake flare. No camera, no video holograms, no widget soup.
+Ritual stages + Debddj system-check tokens + wake flare. No camera, no video holograms, no widget soup. Peripheral hash / omega gauges stay tiny (scifiinterfaces). EliseyRotar job pill is click-to-expand only.

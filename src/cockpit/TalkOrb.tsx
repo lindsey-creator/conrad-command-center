@@ -107,6 +107,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
         rot += spin + rms * (motion === 'think-swirl' ? 0.045 : 0.022);
       }
 
+      drawBloom(ctx, cx, cy, scale, rms, color, dim, wispr);
       drawHalo(ctx, cx, cy, scale, rms, color, dim, wispr);
       drawGlass(ctx, cx, cy, scale, rms, color, dim, wispr);
       if (wispr === 'connecting' || motion === 'connect-spin') drawConnectRing(ctx, cx, cy, scale, t, color);
@@ -144,6 +145,29 @@ function inferState(motion: OrbMotion): WisprState {
   if (motion === 'listen-ripple') return 'listening';
   if (motion === 'connect-spin') return 'connecting';
   return 'idle';
+}
+
+/** EliseyRotar-style bloom — soft field, not a second orb. */
+function drawBloom(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+  dim: boolean,
+  state: WisprState,
+) {
+  if (state === 'disabled') return;
+  const bloom = ctx.createRadialGradient(cx, cy, scale * 0.1, cx, cy, scale * (1.85 + rms * 0.4));
+  const a = dim ? 0.06 : 0.16 + rms * 0.22;
+  bloom.addColorStop(0, `rgba(255,255,255,${a})`);
+  bloom.addColorStop(0.35, `rgba(${color[0]},${color[1]},${color[2]},${a * 0.55})`);
+  bloom.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bloom;
+  ctx.beginPath();
+  ctx.arc(cx, cy, scale * (1.9 + rms * 0.35), 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function drawHalo(
@@ -255,17 +279,19 @@ function drawShells(
   dim: boolean,
   state: WisprState,
 ) {
-  const swirl = state === 'thinking' ? t * (1.4 + rms * 1.2) : 0;
-  const cos = Math.cos(rot + swirl * 0.15);
-  const sin = Math.sin(rot + swirl * 0.15);
   const mute = state === 'disabled' ? 0.35 : 1;
+  const speeds = [1, -0.74, 1.38];
+  const swirl = state === 'thinking' ? t * (1.4 + rms * 1.2) : 0;
 
   for (let s = 0; s < SHELLS.length; s++) {
+    const ang = rot * speeds[s] + swirl * (0.12 + s * 0.06);
+    const cos = Math.cos(ang);
+    const sin = Math.sin(ang);
     for (const p of SHELLS[s]) {
       const x1 = p.x * cos - p.z * sin;
       const z1 = p.x * sin + p.z * cos;
       const persp = 2.15 / (2.15 + z1);
-      const spread = 1 + (s === 0 ? rms * 0.18 : 0);
+      const spread = 1 + (s === 0 ? rms * 0.22 : s === 1 ? rms * 0.1 : rms * 0.04);
       const px = cx + x1 * scale * persp * spread;
       const py = cy + p.y * scale * persp * spread;
       const a = ((dim ? 0.12 : 0.24) + persp * 0.55 + rms * 0.28) * mute;
@@ -291,10 +317,12 @@ function drawWaveformRing(
   const inner = scale * 0.8;
   for (let i = 0; i < bars; i++) {
     const ang = (i / bars) * Math.PI * 2;
-    const n = 0.2 + Math.abs(Math.sin(now / 80 + i * 0.32)) * (0.3 + rms);
-    const len = (alert ? 26 : 14) + n * (48 + rms * 28);
-    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.28 + n * 0.55})`;
-    ctx.lineWidth = 2;
+    const spat = 0.32 + 0.68 * Math.abs(Math.sin((i / bars) * Math.PI * 8 + now / 160));
+    const travel = Math.abs(Math.sin(now / 70 + i * 0.22));
+    const n = 0.08 + rms * spat + travel * rms * 0.4;
+    const len = (alert ? 22 : 10) + n * (52 + rms * 36);
+    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.22 + n * 0.6})`;
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(ang) * inner, cy + Math.sin(ang) * inner);
     ctx.lineTo(cx + Math.cos(ang) * (inner + len), cy + Math.sin(ang) * (inner + len));
