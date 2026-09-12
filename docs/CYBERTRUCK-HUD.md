@@ -15,10 +15,11 @@ Root attribute: `data-pack="cybertruck" | "phone"` on `.rhino`. Ultrawide (`min-
 
 ## Preview URLs (local `npm run preview`)
 
-- Idle five-panel glass: `/?idle=1&cybertruck=1`
-- Talk Mode (enlarged arc core): `/?talk=1&cybertruck=1`
-- Low-recovery work gate (CLAIMED preview): `/?idle=1&whoop=low&cybertruck=1`
+- Idle void + WHOOP strip + dim Arc: `/?idle=1&whoop=low&cybertruck=1`
+- Talk Mode (orb ~70%): `/?talk=1&cybertruck=1`
 - **Speak demo:** `/?speak=1`
+
+Idle is cinematic: Day Orbit WHOOP strip, dim Arc Core, three ticks (TYPE-1 / MONEY NOW / LEAKING). Talk Mode gives the orb the glass. No SaaS cards. White type, cyan accent only.
 
 ## Talk Mode — Brain `/chat` (not ChatGPT on the glass)
 

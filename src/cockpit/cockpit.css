@@ -3,12 +3,12 @@
 .rhino {
   --void: #020508;
   --ice: #00e5ff;
-  --ice-2: #7af6ff;
+  --ice-2: #c8e8ee;
   --amber: #ffc857;
   --crit: #ff4d6d;
-  --ink: #e7fbff;
-  --mute: #7aa8b4;
-  --tap: 72px;
+  --ink: #f4f7fa;
+  --mute: #8a9aa3;
+  --tap: 56px;
   position: relative;
   height: 100dvh;
   min-height: 100dvh;
@@ -16,7 +16,12 @@
   background: var(--void);
   color: var(--ink);
   display: grid;
-  grid-template-rows: 52px auto 1fr auto;
+  grid-template-rows: 48px auto 1fr auto;
+}
+
+.rhino button {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .rhino:not(.is-live) .rhino-top,
@@ -39,8 +44,8 @@
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 42%, rgba(0, 229, 255, 0.14), transparent 58%),
-    radial-gradient(ellipse 40% 30% at 78% 22%, rgba(0, 180, 255, 0.08), transparent 70%);
+    radial-gradient(ellipse 70% 50% at 50% 46%, rgba(0, 229, 255, 0.06), transparent 58%),
+    radial-gradient(ellipse 36% 28% at 78% 18%, rgba(255, 255, 255, 0.03), transparent 70%);
 }
 
 .rhino__holo {
@@ -136,8 +141,9 @@
   font-family: var(--font-display);
   font-size: 18px;
   letter-spacing: 0.32em;
-  color: var(--ice);
-  text-shadow: 0 0 16px rgba(0, 229, 255, 0.45);
+  color: #fff;
+  text-shadow: none;
+  font-weight: 500;
 }
 
 .rhino-top__brand i {
@@ -175,14 +181,19 @@
   color: var(--ice-2);
 }
 
+.rhino.mode-idle .job-rail,
+.rhino.mode-talk .job-rail {
+  display: none;
+}
+
 .job-rail {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px 10px;
-  min-height: 36px;
-  padding: 4px 16px;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+  min-height: 28px;
+  padding: 2px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .job-rail__loop,
@@ -209,8 +220,8 @@
   font-size: 10px;
   letter-spacing: 0.1em;
   color: var(--mute);
-  border: 1px solid rgba(0, 229, 255, 0.16);
-  padding: 3px 7px;
+  border: 0;
+  padding: 2px 4px;
 }
 
 .job-rail__loop li.is-on {
@@ -254,12 +265,12 @@
 
 .rhino-top__stack {
   min-width: var(--tap);
-  min-height: 44px;
-  border: 1px solid rgba(0, 229, 255, 0.28);
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   background: transparent;
-  color: var(--ice);
+  color: #fff;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.18em;
 }
 
@@ -269,15 +280,34 @@
   min-height: 0;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
-  grid-template-rows: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: 1fr minmax(0, 1.6fr) 1fr;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   grid-template-areas:
+    'orbit orbit orbit'
     'money core leak'
     'type1 type1 type1'
-    'orbit orbit orbit'
     'cap cap cap';
-  gap: 8px;
-  padding: 8px 16px 4px;
+  gap: 6px 12px;
+  padding: 8px 28px 4px;
+}
+
+.rhino.mode-idle .board {
+  grid-template-areas:
+    'orbit orbit orbit'
+    'core core core'
+    'type1 money leak'
+    'cap cap cap';
+  grid-template-rows: auto minmax(0, 1fr) 72px auto;
+}
+
+.rhino.mode-talk .board {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr) minmax(220px, 0.72fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'cap core type1'
+    'cap core type1'
+    '. core type1';
+  padding: 4px 24px 0;
 }
 
 .money-radar { grid-area: money; }
@@ -304,9 +334,8 @@
   align-items: center;
   justify-content: center;
   min-height: 180px;
-  border: 1px solid rgba(0, 229, 255, 0.22);
-  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
-  background: radial-gradient(circle at 50% 45%, rgba(0, 229, 255, 0.12), rgba(2, 8, 12, 0.2));
+  border: 0;
+  background: transparent;
 }
 
 .arc-bay::before,
@@ -337,8 +366,8 @@
 }
 
 .rhino.core-amber .arc-bay {
-  background: radial-gradient(circle at 50% 45%, rgba(255, 200, 87, 0.16), rgba(2, 8, 12, 0.2));
-  border-color: rgba(255, 200, 87, 0.4);
+  background: transparent;
+  border: 0;
 }
 
 .rhino.core-amber .arc-bay::before {
@@ -354,8 +383,8 @@
 }
 
 .rhino.core-red .arc-bay {
-  background: radial-gradient(circle at 50% 45%, rgba(255, 77, 109, 0.18), rgba(2, 8, 12, 0.2));
-  border-color: rgba(255, 77, 109, 0.45);
+  background: transparent;
+  border: 0;
 }
 
 .rhino.core-red .arc-bay::before {
@@ -377,45 +406,57 @@
 
 .arc-bay__tag {
   position: absolute;
-  top: 10px;
-  left: 14px;
-  font-family: var(--font-display);
-  font-size: 14px;
+  top: 8px;
+  left: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   letter-spacing: 0.22em;
-  color: var(--ice);
+  color: var(--mute);
+}
+
+.rhino.mode-idle .arc-bay__tag,
+.rhino.mode-talk .arc-bay__tag {
+  opacity: 0.45;
 }
 
 .talk-orb {
   position: relative;
   z-index: 1;
   flex: 0 0 auto;
-  width: min(28vh, 240px);
-  height: min(28vh, 240px);
+  width: min(34vh, 280px);
+  height: min(34vh, 280px);
   pointer-events: none;
 }
 
-.rhino.mode-idle .talk-orb { opacity: 0.88; }
+.rhino.mode-idle .talk-orb {
+  width: min(38vh, 300px);
+  height: min(38vh, 300px);
+  opacity: 0.72;
+}
+
 .rhino.mode-talk .talk-orb {
-  width: min(42vh, 86%);
-  height: min(42vh, 86%);
+  width: min(70vmin, 72%);
+  height: min(70vmin, 86%);
   opacity: 1;
 }
 
-.rhino.mode-talk .arc-bay::before {
-  width: min(36vh, 280px);
-  height: min(36vh, 280px);
+.rhino.mode-idle .arc-bay::before,
+.rhino.mode-idle .arc-bay::after,
+.rhino.mode-talk .arc-bay::before,
+.rhino.mode-talk .arc-bay::after {
+  display: none;
 }
 
 .panel-glass {
   position: relative;
   min-height: 0;
-  padding: 10px 12px;
+  padding: 8px 4px;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(0, 229, 255, 0.28);
-  background: linear-gradient(165deg, rgba(8, 24, 32, 0.62), rgba(2, 8, 12, 0.45));
-  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
-  backdrop-filter: blur(14px);
+  border: 0;
+  background: transparent;
+  clip-path: none;
+  backdrop-filter: none;
 }
 
 .panel-glass header {
@@ -423,7 +464,7 @@
   justify-content: space-between;
   font-family: var(--font-display);
   letter-spacing: 0.2em;
-  color: var(--ice);
+  color: #fff;
   font-size: 14px;
 }
 
@@ -453,13 +494,15 @@
 .panel-glass__go {
   align-self: flex-start;
   margin-top: auto;
-  min-height: 56px;
+  min-height: 48px;
   min-width: 96px;
-  border: 1px solid rgba(0, 229, 255, 0.35);
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
   background: transparent;
-  color: var(--ice);
+  color: #fff;
   font-family: var(--font-display);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.22em;
+  border-radius: 0;
 }
 
 .money-radar__scope {
@@ -546,10 +589,15 @@
 }
 
 .day-orbit-panel {
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .day-orbit-panel .panel-glass__job,
@@ -606,20 +654,22 @@
 @keyframes radar-sweep { to { transform: rotate(360deg); } }
 
 .orbit-strip {
-  position: absolute;
-  top: 10px;
-  left: 3vw;
-  right: 3vw;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
   z-index: 5;
   display: flex;
   align-items: center;
   gap: 28px;
-  min-height: 84px;
-  padding: 10px 22px;
-  border: 1px solid rgba(0, 229, 255, 0.35);
-  background: linear-gradient(180deg, rgba(0, 40, 52, 0.45), rgba(2, 8, 12, 0.35));
-  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
-  color: var(--ice);
+  width: 100%;
+  min-height: 72px;
+  padding: 8px 4px 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  clip-path: none;
+  color: #fff;
   text-align: left;
 }
 
@@ -660,10 +710,12 @@
 
 .orbit-strip__figs b {
   font-family: var(--font-display);
-  font-size: clamp(28px, 4.4vh, 56px);
+  font-size: clamp(32px, 5.2vh, 68px);
   letter-spacing: 0.04em;
   line-height: 1;
-  text-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
+  color: #fff;
+  text-shadow: none;
+  font-weight: 500;
 }
 
 .orbit-strip__figs em {
@@ -834,26 +886,38 @@
 
 .t1glass,
 .bevel {
-  background: linear-gradient(165deg, rgba(8, 24, 32, 0.72), rgba(2, 8, 12, 0.5));
-  border: 1px solid rgba(0, 229, 255, 0.28);
-  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 0 28px rgba(0, 229, 255, 0.08), inset 0 0 24px rgba(0, 229, 255, 0.04);
+  background: transparent;
+  border: 0;
+  clip-path: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 .t1glass {
-  padding: 16px 18px 12px;
+  padding: 4px 0;
 }
 
 .t1glass__edge {
   display: flex;
   justify-content: space-between;
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: 0.28em;
-  color: var(--ice);
-  margin-bottom: 12px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.t1glass__tick {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+  min-height: 36px;
+  min-width: 0;
 }
 
 .t1glass__locks {
@@ -949,6 +1013,21 @@
   max-height: 0;
 }
 
+.rhino.mode-talk .board__voice {
+  max-height: none;
+  align-self: end;
+  padding-bottom: 12px;
+}
+
+.rhino.mode-talk .caption {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.6vh, 42px);
+  letter-spacing: 0.12em;
+  color: #fff;
+  text-transform: uppercase;
+  text-shadow: none;
+}
+
 .board .caption,
 .board .say {
   position: static;
@@ -1013,15 +1092,17 @@
 }
 
 .wispr__chip {
-  min-height: 48px;
+  min-height: 40px;
   min-width: auto;
-  padding: 0 14px;
-  border: 1px solid rgba(0, 229, 255, 0.28);
+  padding: 0 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
   background: transparent;
-  color: var(--ice);
+  color: #fff;
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.08em;
+  border-radius: 0;
 }
 
 .wispr__chip.is-mutate { border-color: rgba(255, 200, 87, 0.4); color: var(--amber); }
@@ -1041,9 +1122,16 @@
 .wispr__confirm span { font-family: var(--font-mono); font-size: 12px; }
 
 .wispr {
-  border-top: 1px solid rgba(0, 229, 255, 0.2);
-  background: rgba(2, 8, 12, 0.72);
-  padding: 8px 16px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  padding: 6px 20px 10px;
+}
+
+.rhino.mode-talk .wispr__chips,
+.rhino.mode-talk .wispr__lanes,
+.rhino.mode-idle .wispr__chips,
+.rhino.mode-idle .wispr__lanes {
+  display: none;
 }
 
 .wispr__bar {
@@ -1058,11 +1146,11 @@
 .wispr__hear {
   min-height: var(--tap);
   min-width: var(--tap);
-  border: 1px solid rgba(0, 229, 255, 0.35);
-  background: rgba(0, 229, 255, 0.07);
-  color: var(--ice);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: #fff;
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.12em;
 }
 
@@ -1115,10 +1203,11 @@
   flex: 1;
   min-width: 0;
   min-height: var(--tap);
-  border: 1px solid rgba(0, 229, 255, 0.28);
-  background: rgba(0, 20, 28, 0.55);
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
   color: var(--ink);
-  font-size: 22px;
+  font-size: 20px;
   padding: 0 16px;
   font-family: var(--font-sans);
 }
@@ -1264,8 +1353,69 @@
 }
 
 .rhino[data-pack='cybertruck'].mode-talk .talk-orb {
-  width: min(48vh, 100%);
-  height: min(48vh, 78%);
+  width: min(72vmin, 78%);
+  height: min(72vmin, 88%);
+}
+
+/* Idle: void + WHOOP strip + dim core + three ticks. No card soup. */
+.rhino.mode-idle .money-radar header,
+.rhino.mode-idle .leak-grid header,
+.rhino.mode-idle .money-radar .panel-glass__job,
+.rhino.mode-idle .leak-grid .panel-glass__job,
+.rhino.mode-idle .money-radar .panel-glass__verdict,
+.rhino.mode-idle .leak-grid .panel-glass__verdict,
+.rhino.mode-idle .money-radar__scope,
+.rhino.mode-idle .leak-grid__cells,
+.rhino.mode-idle .t1glass__locks,
+.rhino.mode-idle .t1glass__edge span,
+.rhino.mode-idle .panel-glass__job,
+.rhino.mode-idle .day-orbit-panel__nodes {
+  display: none;
+}
+
+.rhino.mode-idle .money-radar,
+.rhino.mode-idle .leak-grid,
+.rhino.mode-idle .t1glass {
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.rhino.mode-idle .panel-glass__go,
+.rhino.mode-idle .t1glass__tick {
+  align-self: center;
+  font-size: clamp(16px, 2.2vh, 26px);
+  letter-spacing: 0.28em;
+  min-height: 48px;
+  min-width: 160px;
+}
+
+.rhino.mode-idle .t1glass__edge {
+  margin: 0;
+  justify-content: center;
+}
+
+/* Talk: orb owns the glass. Type-1 stays a right rail. Max 3. */
+.rhino.mode-talk .money-radar,
+.rhino.mode-talk .leak-grid,
+.rhino.mode-talk .day-orbit-panel {
+  display: none;
+}
+
+.rhino.mode-talk .t1glass__job,
+.rhino.mode-talk .panel-glass__job {
+  display: none;
+}
+
+.rhino.mode-talk .t1glass__lock {
+  min-height: 56px;
+  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: none;
+}
+
+.rhino.mode-talk .t1glass__lock em {
+  font-size: 16px;
+  color: #fff;
 }
 
 .rhino[data-pack='phone'] .orbit-strip__figs b {

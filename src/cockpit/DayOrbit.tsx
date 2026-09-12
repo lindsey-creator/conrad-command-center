@@ -3,6 +3,7 @@ import { brain } from '../api/brain';
 import { POLL_MODULE_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel, itemTime } from '../utils/renderItems';
+import { DayOrbitStrip } from './DayOrbitStrip';
 import type { WhoopDay } from './whoop';
 import { HOLD } from './readyAgent';
 
@@ -12,13 +13,7 @@ interface DayOrbitProps {
   onAsk: (command: string) => void;
 }
 
-function fig(n: number | null, suffix = '') {
-  if (n == null) return '00';
-  if (suffix === 'h') return `${n.toFixed(n % 1 === 0 ? 0 : 1)}H`;
-  return String(Math.round(n));
-}
-
-/** Day Orbit — calendar nodes + WHOOP. No vanity metrics. */
+/** Day Orbit — WHOOP strip + calendar nodes. No vanity metrics. */
 export function DayOrbit({ brainOnline, whoop, onAsk }: DayOrbitProps) {
   const fetchBrief = useCallback(() => brain.dailyBrief(), []);
   const fetchWeek = useCallback(() => brain.weekAhead(), []);
@@ -28,17 +23,10 @@ export function DayOrbit({ brainOnline, whoop, onAsk }: DayOrbitProps) {
   const sched = brainOnline && hasLiveData(brief.data?.today_schedule) ? brief.data?.today_schedule.items ?? [] : [];
   const weekItems = brainOnline && hasLiveData(week.data) ? week.data?.items ?? [] : [];
   const nodes = (sched.length ? sched : weekItems).slice(0, 6);
-  const calLive = nodes.length > 0;
 
   return (
-    <section className={`panel-glass day-orbit-panel orbit-strip--${whoop.workGate}`} aria-label="Day orbit">
-      <header>
-        <b>DAY ORBIT</b>
-        <i className={calLive || whoop.proven ? 'is-proven' : 'is-claimed'}>
-          {calLive || whoop.proven ? 'PROVEN' : 'CLAIMED'}
-        </i>
-      </header>
-      <p className="panel-glass__job">L1 · CAL + WHOOP · PROTECT GYM · MEETING→ACTION</p>
+    <section className={`day-orbit-panel orbit-strip--${whoop.workGate}`} aria-label="Day orbit">
+      <DayOrbitStrip day={whoop} onAsk={() => onAsk('Protect my calendar and WHOOP day.')} />
       <ol className="day-orbit-panel__nodes">
         {nodes.length ? (
           nodes.map((item, i) => (
@@ -54,22 +42,6 @@ export function DayOrbit({ brainOnline, whoop, onAsk }: DayOrbitProps) {
           </li>
         )}
       </ol>
-      <div className="day-orbit-panel__whoop">
-        <b>WHOOP</b>
-        <span>
-          <em>REC</em> {fig(whoop.recovery)}
-        </span>
-        <span>
-          <em>SLEEP</em> {fig(whoop.sleep, 'h')}
-        </span>
-        <span>
-          <em>STRAIN</em> {fig(whoop.strain)}
-        </span>
-        <p>{whoop.verdict}</p>
-      </div>
-      <button type="button" className="panel-glass__go" onClick={() => onAsk('Protect my calendar and WHOOP day.')}>
-        REPORT
-      </button>
     </section>
   );
 }

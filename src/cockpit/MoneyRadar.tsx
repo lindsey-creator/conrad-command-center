@@ -45,7 +45,7 @@ export function MoneyRadar({ brainOnline, onAsk }: MoneyRadarProps) {
         {lock ? [lock.title, lock.recommended_action || lock.why].filter(Boolean).join(' — ') : HOLD.money}
       </p>
       <button type="button" className="panel-glass__go" onClick={() => onAsk(lock ? `Money now: ${lock.title}` : 'Money now — what dollar should I move?')}>
-        REPORT
+        MONEY NOW
       </button>
     </section>
   );

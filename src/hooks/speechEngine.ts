@@ -72,17 +72,26 @@ export function speakLine(
   const synth = window.speechSynthesis;
   if (!unlocked) unlockSpeech();
 
-  return new Promise((resolve) => {
+  const waitVoices = !synth.getVoices().length
+    ? new Promise<void>((resolve) => {
+        const done = () => resolve();
+        synth.addEventListener('voiceschanged', done, { once: true });
+        window.setTimeout(done, 400);
+      })
+    : Promise.resolve();
+
+  return waitVoices.then(() => new Promise((resolve) => {
     if (opts.cancel !== false) synth.cancel();
     const utterance = new SpeechSynthesisUtterance(line);
     utterance.rate = 1.02;
     utterance.pitch = 0.95;
     utterance.volume = 1;
-    utterance.lang = 'en-US';
+    utterance.lang = 'en-GB';
 
     const voices = synth.getVoices();
     const preferred =
-      voices.find((v) => /samantha|daniel|alex|google uk english male/i.test(v.name)) ??
+      voices.find((v) => v.lang.toLowerCase().startsWith('en-gb')) ??
+      voices.find((v) => /daniel|google uk english male|uk english/i.test(v.name)) ??
       voices.find((v) => v.lang.startsWith('en') && !v.localService) ??
       voices.find((v) => v.lang.startsWith('en'));
     if (preferred) utterance.voice = preferred;
@@ -126,7 +135,7 @@ export function speakLine(
       opts.onError?.(e instanceof Error ? e.message : 'blocked');
       finish('blocked');
     }
-  });
+  }));
 }
 
 /** Speak a reply in sentence chunks so long Brain answers do not stall TTS. */

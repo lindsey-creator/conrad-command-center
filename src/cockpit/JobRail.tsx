@@ -1,4 +1,4 @@
-import { AUTO_LANE, GO_LANE, LOOP_LABEL, LOOP_PHASES, type LoopPhase, type Autonomy } from './readyAgent';
+import { LOOP_LABEL, LOOP_PHASES, type LoopPhase, type Autonomy } from './readyAgent';
 import type { JobChip } from './useAgentJobs';
 
 interface JobRailProps {
@@ -27,10 +27,6 @@ export function JobRail({ level, phase, jobs }: JobRailProps) {
           </li>
         ))}
       </ol>
-      <p className="job-rail__gate">
-        <em>{AUTO_LANE}</em>
-        <strong>{GO_LANE}</strong>
-      </p>
     </nav>
   );
 }

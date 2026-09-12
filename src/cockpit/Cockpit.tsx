@@ -42,10 +42,10 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [micLive, setMicLive] = useState(false);
   const [caption, setCaption] = useState(
     shot
-      ? 'Observe → reason → act → evidence → escalate.'
+      ? 'Talk Mode. Orb owns the center.'
       : speakDemo
         ? 'CLICK SPEAK — TTS demo.'
-        : 'Observe → reason → act → evidence → escalate.',
+        : '',
   );
   const [seed, setSeed] = useState<string | undefined>();
   const timers = useRef<number[]>([]);
@@ -161,7 +161,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <div className="rhino-top__brand">
           <b>JARVIS</b>
           <i data-on={brainOnline} />
-          <em>{brainOnline ? 'LIVE' : 'HOLDING'}</em>
+          <em>{brainOnline ? 'LIVE' : 'STANDBY'}</em>
         </div>
         <span className="rhino-top__mode">{mode === 'idle' ? autonomy : 'TALK'}</span>
         <span className="rhino-top__motion">{phase.toUpperCase()}</span>

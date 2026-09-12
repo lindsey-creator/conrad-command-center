@@ -56,7 +56,7 @@ export function LeakGrid({ brainOnline, onAsk }: LeakGridProps) {
       </div>
       <p className="panel-glass__verdict">{verdict}</p>
       <button type="button" className="panel-glass__go" onClick={() => onAsk("What's leaking?")}>
-        REPORT
+        LEAKING
       </button>
     </section>
   );

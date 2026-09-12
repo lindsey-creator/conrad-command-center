@@ -16,7 +16,9 @@ export function Type1Glass({ locks, risen, sinking, onLock }: Type1GlassProps) {
       aria-label="Type-1 targeting"
     >
       <header className="t1glass__edge">
-        <span>TYPE-1</span>
+        <button type="button" className="t1glass__tick" onClick={() => onLock('Go/approve Type-1')}>
+          TYPE-1
+        </button>
         <span>L3 GO · MAX {TYPE1_QUEUE_CAP}</span>
       </header>
       <p className="panel-glass__job">ESCALATE ONLY · RISE ≠ NON-QM · NO AUTO-SEND</p>
