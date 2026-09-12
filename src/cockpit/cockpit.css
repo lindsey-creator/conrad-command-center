@@ -2243,10 +2243,11 @@
 
 .talk-orb__mark {
   font-family: var(--font-mark, var(--font-display));
-  font-size: clamp(16px, 2.4vh, 28px);
+  font-size: clamp(18px, 2.8vh, 32px);
   letter-spacing: 0.42em;
   font-weight: 500;
-  text-shadow: 0 0 22px rgba(180, 230, 255, 0.35);
+  color: #fff;
+  text-shadow: 0 0 28px rgba(180, 230, 255, 0.55);
 }
 
 .talk-orb__mark span {
@@ -2416,23 +2417,28 @@
 .idle-deck__range { align-self: center; }
 
 .idle-deck__hero {
-  font-size: clamp(64px, 11vh, 120px);
-  letter-spacing: 0.02em;
+  font-size: clamp(72px, 12vh, 140px);
+  letter-spacing: 0.16em;
   font-weight: 400;
   line-height: 0.85;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.idle-deck__hero small {
+  font-size: 0.28em;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .idle-deck__unit {
-  margin: 0 0 10px;
-  font-family: var(--font-display);
-  font-size: clamp(22px, 3.2vh, 36px);
-  letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.72);
+  display: none;
 }
 
 .idle-deck__reactor {
-  width: min(38vh, 300px);
-  height: min(38vh, 300px);
+  width: min(46vh, 360px);
+  height: min(46vh, 360px);
 }
 
 .idle-deck__reactor i {
@@ -2511,6 +2517,8 @@
 .rhino.mode-talk .wispr__go,
 .rhino.mode-talk .wispr__end,
 .rhino.mode-talk .wispr__hear {
+  appearance: none;
+  -webkit-appearance: none;
   min-height: 40px;
   min-width: 72px;
   border-radius: 0;
@@ -2518,6 +2526,7 @@
   border: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.22);
   font-size: 12px;
+  box-shadow: none;
 }
 
 .rhino.mode-idle .wispr__go,

@@ -54,14 +54,15 @@ function discFill(count: number, maxR: number, minR: number): Particle[] {
   return pts;
 }
 
-const SPHERE_SHELLS = [fibonacciSphere(520, 1), fibonacciSphere(280, 0.62), fibonacciSphere(140, 0.32)];
+const SPHERE_SHELLS = [fibonacciSphere(680, 1), fibonacciSphere(360, 0.64), fibonacciSphere(180, 0.34)];
 const DISC_BANDS = [
-  ringBand(220, 0.98, 0.03),
-  ringBand(190, 0.84, 0.03),
-  ringBand(160, 0.7, 0.03),
-  ringBand(130, 0.56, 0.03),
-  ringBand(100, 0.42, 0.03),
-  discFill(420, 0.96, 0.18),
+  ringBand(360, 0.99, 0.04),
+  ringBand(300, 0.86, 0.035),
+  ringBand(240, 0.72, 0.035),
+  ringBand(190, 0.58, 0.03),
+  ringBand(140, 0.44, 0.03),
+  ringBand(90, 0.3, 0.025),
+  discFill(860, 0.97, 0.14),
 ];
 
 export type CoreTint = 'blue' | 'amber' | 'red' | 'ice' | 'slate';
@@ -133,7 +134,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
       const dead = wispr === 'disabled' || motion === 'disabled-still';
       const heart = 0.8 + Math.sin((t * Math.PI * 2) / 4) * 0.08;
       const pulse = dead ? 0.78 : motion === 'idle-pulse' || motion === 'connect-spin' ? heart : 0.78 + rms * 0.28;
-      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? 0.46 : 0.5) * pulse;
+      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? (disc ? 0.48 : 0.44) : 0.5) * pulse;
 
       if (!reduce && !dead) {
         const spin =
@@ -151,6 +152,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
 
       if (disc) {
         drawDiscBloom(ctx, cx, cy, scale, rms, color, dim);
+        drawDiscAnnulus(ctx, cx, cy, scale, rms, color);
         drawDiscRings(ctx, cx, cy, scale, rms, color, t);
         drawDiscParticles(ctx, cx, cy, scale, rot, rms, color, dim, wispr);
         drawEquator(ctx, cx, cy, scale, rms, color);
@@ -232,15 +234,34 @@ function drawDiscBloom(
   color: Rgb,
   dim: boolean,
 ) {
-  const bloom = ctx.createRadialGradient(cx, cy, scale * 0.2, cx, cy, scale * (1.55 + rms * 0.25));
-  const a = dim ? 0.05 : 0.14 + rms * 0.18;
+  const bloom = ctx.createRadialGradient(cx, cy, scale * 0.18, cx, cy, scale * (1.62 + rms * 0.25));
+  const a = dim ? 0.08 : 0.28 + rms * 0.22;
   bloom.addColorStop(0, 'rgba(0,0,0,0)');
-  bloom.addColorStop(0.42, `rgba(${color[0]},${color[1]},${color[2]},${a * 0.35})`);
-  bloom.addColorStop(0.72, `rgba(${color[0]},${color[1]},${color[2]},${a})`);
+  bloom.addColorStop(0.38, `rgba(${color[0]},${color[1]},${color[2]},${a * 0.25})`);
+  bloom.addColorStop(0.7, `rgba(${color[0]},${color[1]},${color[2]},${a})`);
   bloom.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = bloom;
   ctx.beginPath();
-  ctx.arc(cx, cy, scale * 1.6, 0, Math.PI * 2);
+  ctx.arc(cx, cy, scale * 1.68, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawDiscAnnulus(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+) {
+  const glow = ctx.createRadialGradient(cx, cy, scale * 0.72, cx, cy, scale * 1.08);
+  glow.addColorStop(0, 'rgba(0,0,0,0)');
+  glow.addColorStop(0.55, `rgba(${color[0]},${color[1]},${color[2]},${0.12 + rms * 0.1})`);
+  glow.addColorStop(0.82, `rgba(255,255,255,${0.22 + rms * 0.15})`);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, scale * 1.1, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -257,8 +278,8 @@ function drawDiscRings(
     const rad = scale * (0.28 + r * 0.14) * (1 + rms * 0.03);
     ctx.beginPath();
     ctx.arc(cx, cy, rad, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.08 + (r === 5 ? 0.22 : 0.04) + rms * 0.08})`;
-    ctx.lineWidth = r === 5 ? 2.4 : 0.8;
+    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.14 + (r === 5 ? 0.38 : 0.08) + rms * 0.1})`;
+    ctx.lineWidth = r === 5 ? 3 : 1;
     ctx.stroke();
   }
   ctx.save();
@@ -297,9 +318,9 @@ function drawDiscParticles(
       const spread = 1 + rms * (outer ? 0.06 : 0.03);
       const px = cx + x1 * scale * persp * spread;
       const py = cy + p.y * scale * persp * spread + z1 * scale * 0.04;
-      const rim = Math.abs(Math.hypot(p.x, p.z) - 0.98);
-      const a = ((dim ? 0.1 : 0.16) + persp * 0.45 + (outer && rim < 0.08 ? 0.35 : 0) + rms * 0.2) * mute;
-      const size = (outer ? 1.55 : 1.15) * persp * (dim ? 0.7 : 1 + rms * 0.15);
+      const rim = Math.abs(Math.hypot(p.x, p.z) - 0.99);
+      const a = ((dim ? 0.14 : 0.32) + persp * 0.55 + (outer && rim < 0.1 ? 0.5 : 0.08) + rms * 0.22) * mute;
+      const size = (outer ? 2.35 : 1.7) * persp * (dim ? 0.7 : 1 + rms * 0.18);
       ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${Math.min(1, a)})`;
       ctx.beginPath();
       ctx.arc(px, py, size, 0, Math.PI * 2);
@@ -400,14 +421,20 @@ function drawGlassBubble(
   ctx.fill();
 
   ctx.beginPath();
-  ctx.arc(cx, cy, r * 0.78, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.22)`;
-  ctx.lineWidth = 1.1;
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.75)`;
+  ctx.lineWidth = 2.6;
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.ellipse(cx - r * 0.22, cy - r * 0.42, r * 0.18, r * 0.08, -0.5, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  ctx.arc(cx, cy, r * 0.78, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.28)`;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(cx - r * 0.22, cy - r * 0.42, r * 0.2, r * 0.09, -0.5, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
   ctx.fill();
 }
 

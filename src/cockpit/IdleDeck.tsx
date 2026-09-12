@@ -35,8 +35,9 @@ export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
     <section className="idle-deck" aria-label="Idle Cybertruck HUD">
       <div className="idle-deck__range">
         <p className="idle-deck__kicker">EST. RANGE</p>
-        <p className="idle-deck__hero">—</p>
-        <p className="idle-deck__unit">MI</p>
+        <p className="idle-deck__hero">
+          ——<small>MI</small>
+        </p>
         <p className="idle-deck__sub">CLAIMED · NO INVENTED MILES</p>
         <p className="idle-deck__sub">{brainOnline ? 'BATTERY · TRIP · ODO WAIT LIVE' : 'BRAIN STANDBY'}</p>
       </div>
