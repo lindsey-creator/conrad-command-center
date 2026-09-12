@@ -342,6 +342,22 @@ export interface ClickUpSyncStatus {
 export interface HealthResponse {
   status: string;
   service: string;
+  command?: string;
+}
+
+export interface InboxRadarItem {
+  title?: string;
+  detail?: string;
+  source?: string;
+  time?: string;
+  url?: string;
+}
+
+export interface InboxRadarResponse {
+  status: ConnectSourceStatus;
+  sources: string[];
+  items?: InboxRadarItem[];
+  town_open?: number;
 }
 
 export interface HealthMetricsResponse {
@@ -418,6 +434,18 @@ async function fetchJson<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** Unknown routes are swallowed by the SPA (200 HTML). Treat non-JSON as connect_source. */
+async function fetchJsonOrConnect<T extends { status?: string; sources?: string[] }>(
+  path: string,
+): Promise<T> {
+  const res = await fetch(`${getBase()}${path}`);
+  const ct = res.headers.get('content-type') ?? '';
+  if (!res.ok || !ct.includes('application/json')) {
+    return { status: 'connect_source', sources: [] } as unknown as T;
+  }
+  return res.json() as Promise<T>;
+}
+
 async function postJson<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${getBase()}${path}`, {
     method: 'POST',
@@ -486,6 +514,7 @@ export const brain = {
     fetchJson<ConnectSourceResponse>(`/audio/recent?limit=${limit}`),
   healthMetrics: () => fetchJson<HealthMetricsResponse>('/health/metrics'),
   weekAhead: () => fetchJson<ConnectSourceResponse>('/calendar/week'),
+  inboxRadar: () => fetchJsonOrConnect<InboxRadarResponse>('/inbox/radar'),
   metaAds: () => fetchJson<MetaAdsResponse>('/ads/meta'),
   weather: () => fetchJson<WeatherResponse>('/weather'),
   issueTask: (req: IssueTaskRequest) => postJson<IssueTaskResponse>('/tasks', req),

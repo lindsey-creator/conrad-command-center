@@ -45,8 +45,8 @@ Personal — Health & performance (Apple Health + Whoop, supplement schedule,
 peptide protocol, diet) · Calendar protection · Wellbeing check-in. All personal
 modules obey the wellbeing guardrail.
 
-**Type-1 surface:** at most **three** decision cards (authority / relationships /
-capital / judgment) — Brain-backed, never invented.
+**Type-1 surface:** exactly **three** slots — **MONEY NOW / LEAKING / EFFICIENCY** —
+Brain-backed, never invented.
 
 **Three capabilities on top of the old dashboard:**
 1. **Daily Fieldy brief** — Fieldy all day; each morning a brief of decisions,

@@ -13,7 +13,7 @@ export function Header({ brainOnline }: HeaderProps) {
         <LiveCore size="sm" online={brainOnline} label="JARVIS core" />
         <div>
           <h1 className="wordmark-gold">JARVIS · Command</h1>
-          <div className="sub">Command Center glass · Goldfront OS · Conrad Mortgage</div>
+          <div className="sub">Iron Man glass · he/him · Type-1 only</div>
         </div>
       </div>
       <div className="sync">

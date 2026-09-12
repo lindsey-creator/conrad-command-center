@@ -3,9 +3,9 @@ import './Footer.css';
 export function Footer() {
   return (
     <footer>
-      <div className="footer__primary">JARVIS · COMMAND CENTER · GOLDFRONT OS</div>
+      <div className="footer__primary">JARVIS · COMMAND CENTER · AT YOUR SERVICE, SIR</div>
       <div className="footer__cadence">
-        Sunday compounding review — patient with results, impatient with actions
+        Type-1 only — MONEY NOW · LEAKING · EFFICIENCY · nothing sends without his gate
       </div>
       <div className="legend">
         <span>

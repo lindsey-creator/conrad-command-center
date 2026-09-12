@@ -7,10 +7,23 @@ This doc locks how Lindsey Conrad's operator stack is named in product copy, pro
 | Name | What it is |
 |------|------------|
 | **JARVIS** | Sole AI command — this chat, Grok Bot, and the voice/text line in Command Center. Not Chief of Staff, Echo, Fable, or Manus. |
-| **Command Center** | The glass HUD (`conrad-command-center`) where JARVIS lives. Mobile-first cockpit for money, leaks, Type-1s, and connectors. |
+| **Command Center** | The glass HUD (`conrad-command-center`) where JARVIS lives. Cinematic blue/cyan Iron Man cockpit — command bar, Type-1s, and feed slots. |
 | **Brain** | FastAPI engine in sibling repo `Goldfront-os`. Computes every number; UI narrates only. |
 | **Supercomputer** | Knowledge / memory layer (training, decisions, ingest) — not the HUD itself. |
 | **Manus** | Named production **builds and deploy** on the always-on box only — not the assistant persona. |
+
+## HUD (LINDSEY VISION)
+
+Opening the Railway URL should feel like JARVIS, not SaaS.
+
+- **Look:** cinematic blue/cyan holographic HUD (scan grid, corner brackets, arc reactor). Not a gold dashboard.
+- **Command bar:** Speak when ready, sir — Wispr Flow into `#jarvis-command-input`, hold-to-talk fallback, **Execute**. Tasks and drafts still hit the Approval Queue.
+- **Type-1 only:** exactly three slots — **MONEY NOW** · **LEAKING** · **EFFICIENCY**. Brain-backed; empty slots stay Standby / Connect source. Never invent numbers.
+- **Feed slots:** Town · GHL apply · Calendar · WHOOP · Rise · Non-QM. Honest connect states until the Brain has the source.
+- **Through the glass:** Type-1 **Run through glass** and feed **Ask JARVIS** seed the command bar. Approvals stay on the HUD.
+
+Live production (no custom-domain work from this repo):
+**https://jarvis-brain-production-8def.up.railway.app**
 
 ## Wiring rules
 
@@ -22,7 +35,7 @@ This doc locks how Lindsey Conrad's operator stack is named in product copy, pro
 
 ## Operator
 
-- **Lindsey Conrad** — he/him in all UI and docs we maintain.
+- **Lindsey Conrad** — he/him in all UI and docs we maintain. JARVIS addresses him as **sir**.
 
 ## Header copy (canonical)
 

@@ -1,7 +1,7 @@
 /* Full viewport command deck */
 .wrap {
   position: relative;
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 12px 12px 48px;
 }
@@ -93,7 +93,7 @@
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--cyan);
   opacity: 0.8;
 }
 

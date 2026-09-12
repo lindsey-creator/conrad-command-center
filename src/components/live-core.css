@@ -129,8 +129,8 @@
 }
 
 .live-core__label--speaking {
-  color: var(--gold-2);
-  text-shadow: 0 0 12px var(--gold-glow);
+  color: var(--cyan-2);
+  text-shadow: 0 0 12px var(--cyan-glow);
 }
 
 .live-core__label--thinking {
@@ -149,8 +149,8 @@
 }
 
 .live-core--speaking .live-core__core {
-  background: radial-gradient(circle at 40% 35%, var(--gold-2), var(--gold) 55%, rgba(160, 130, 40, 0.5));
-  box-shadow: 0 0 24px var(--gold-glow);
+  background: radial-gradient(circle at 40% 35%, var(--cyan-2), var(--cyan) 55%, rgba(0, 80, 120, 0.55));
+  box-shadow: 0 0 24px var(--cyan-glow);
   animation: core-breathe 0.9s ease-in-out infinite;
 }
 

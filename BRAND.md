@@ -1,33 +1,29 @@
 # Brand & design bar — Conrad Command Center
 
-The feeling is the spec. When Lindsey opens it he should feel **"we got this."**
+The feeling is the spec. When Lindsey opens it he should feel **"we got this"** — and that JARVIS is in the room.
 
 ## Principles
-- **Elite and calm.** Uncluttered, confident, quiet luxury. Dark, deep background;
-  restrained gold accent; generous spacing. Nothing shouts.
-- **Clarity over decoration.** So clear it's hard to mess up. One screen, one glance,
-  he knows everything.
-- **Mobile-first.** Runs from a phone/tablet in a Cybertruck on Starlink. Big tap
-  targets, fast, works on a weak connection.
-- **Status you feel instantly.** Green on-track, amber watch, red critical — color
-  and a pill, never a wall of text.
-- **Nothing seen before, but never gimmicky.** Distinctive cockpit — sharper than
-  movie HUDs, zero cosplay.
+- **Iron Man movie JARVIS.** Cinematic blue/cyan holographic HUD. Command bar first. Not a SaaS dashboard.
+- **Elite and calm.** Uncluttered, confident. Deep space background; cyan accent; generous spacing.
+- **Clarity over decoration.** So clear it's hard to mess up. Type-1 only: MONEY NOW / LEAKING / EFFICIENCY.
+- **Mobile-first.** Runs from a phone/tablet in a Cybertruck on Starlink. Big tap targets, fast, works on a weak connection.
+- **Status you feel instantly.** Green on-track, amber watch, red critical — color and a pill, never a wall of text.
+- **Through the glass.** He runs money, leaks, efficiency, feeds, tasks, and approvals from the HUD.
 
 ## Assistant
 - **JARVIS** is the only name for the in-product assistant (header: **JARVIS · Command**).
 - Command Center is the glass; Brain in `Goldfront-os` is the engine.
+- Address Lindsey as **sir**. Pronouns **he/him**.
 
-## Palette (from the shell — tune freely)
-- background `#0a0c10` → panels `#12161d` / `#161b23`, hairlines `#232a34`
-- ink `#eef2f7`, muted `#8a95a5`, faint `#5b6675`
-- gold `#c8a24a` → `#e7c877` (accent only — sparingly)
-- go `#3ecf8e` · watch `#f5b53d` · critical `#ff5d5d` · info `#5aa9ff`
+## Palette
+- background `#02060d` → panels `rgba(4, 22, 36, 0.55)`
+- ink `#d8fbff`, muted `#7ec8d6`, faint `#3d7a88`
+- cyan `#00e5ff` → `#7af6ff` (primary HUD)
+- go `#3ef0c0` · watch `#ffc857` · critical `#ff4d6d`
 
 ## Type
-- System stack (SF Pro / Segoe / Inter). Tight letter-spacing on labels, uppercase
-  for section eyebrows. Big, confident numbers for metrics.
+- **Orbitron** for display / Type-1 labels. **Share Tech / Share Tech Mono** for readouts.
+- Tight letter-spacing on labels, uppercase for section eyebrows. Big, confident numbers for metrics.
 
 ## Motion
-- Subtle. Fades and gentle transitions. No bounce, no noise. It should feel like a
-  cockpit, not a toy.
+- Subtle sweeps, reactor breathe, scanlines. No bounce, no toy sparkle. Cockpit, not cosplay.

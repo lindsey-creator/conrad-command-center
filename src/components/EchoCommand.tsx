@@ -8,7 +8,17 @@ import './echo-command.css';
 interface EchoCommandProps {
   brainOnline?: boolean;
   onVoiceStateChange?: (state: EchoVoiceState) => void;
+  commandSeed?: string;
 }
+
+const COMMAND_CHIPS = [
+  'Money now — what dollar should I move?',
+  'What is leaking today?',
+  'Where is efficiency dying?',
+  'GHL apply — who needs a call?',
+  'Protect my calendar.',
+  'WHOOP recovery — hard or easy?',
+];
 
 function voiceStatusLabel(state: EchoVoiceState): string | null {
   switch (state) {
@@ -23,8 +33,14 @@ function voiceStatusLabel(state: EchoVoiceState): string | null {
   }
 }
 
-export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCommandProps) {
+export function EchoCommand({
+  brainOnline = false,
+  onVoiceStateChange,
+  commandSeed,
+}: EchoCommandProps) {
   const [message, setMessage] = useState('');
+  const [commandFocused, setCommandFocused] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [wantsDraft, setWantsDraft] = useState(false);
   const [wantsTask, setWantsTask] = useState(false);
   const [speakEnabled, setSpeakEnabled] = useState(true);
@@ -45,6 +61,13 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
   const [approvalId, setApprovalId] = useState<string | null>(null);
   const handleAskRef = useRef<(text?: string) => Promise<void>>(async () => {});
+
+  useEffect(() => {
+    if (!commandSeed) return;
+    setMessage(commandSeed);
+    inputRef.current?.focus();
+    setCommandFocused(true);
+  }, [commandSeed]);
 
   const handleTranscript = useCallback((text: string) => {
     setMessage(text);
@@ -172,6 +195,11 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
     if (voiceState === 'listening') stopListening();
   };
 
+  const focusCommandLine = () => {
+    inputRef.current?.focus();
+    setCommandFocused(true);
+  };
+
   return (
     <section className="echo-command echo-command--hero hud-corners jarvis-glass" aria-label="Ask JARVIS">
       <div className="echo-command__mesh" aria-hidden="true" />
@@ -190,9 +218,9 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
           <div className="echo-command__head">
             <div>
               <span className="echo-command__kicker">JARVIS · sole command</span>
-              <h2 className="echo-command__title">Command line</h2>
+              <h2 className="echo-command__title">Command bar</h2>
               <p className="echo-command__subtitle">
-                Voice or text — Brain narrates, never invents. Tasks and drafts hit the Approval Queue.
+                Speak when ready, sir — Wispr, hold-to-talk, or type. Everything runs through this glass.
               </p>
             </div>
             <div className="echo-command__controls">
@@ -226,15 +254,36 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
             </div>
           )}
 
+          {!brainOnline && (
+            <p className="echo-command__offline" role="status">
+              Brain offline — connect Stack before JARVIS can answer.
+            </p>
+          )}
+
           <div className="echo-command__bar">
+            <button
+              type="button"
+              className={`echo-command__speak-target${commandFocused ? ' echo-command__speak-target--armed' : ''}`}
+              onClick={focusCommandLine}
+              aria-label="Focus command line for Wispr Flow dictation"
+            >
+              <span className="echo-command__speak-label">Speak</span>
+              <span className="echo-command__speak-sub">Wispr → line</span>
+            </button>
             <div className="echo-command__input-wrap">
+              <label className="echo-command__input-label" htmlFor="jarvis-command-input">
+                Command input
+              </label>
               <textarea
-                id="echo-input"
+                id="jarvis-command-input"
+                ref={inputRef}
                 className="echo-command__input"
                 rows={2}
-                placeholder="Ask about deals, priorities, or today's brief…"
+                placeholder="Speak when ready, sir…"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                onFocus={() => setCommandFocused(true)}
+                onBlur={() => setCommandFocused(false)}
                 onKeyDown={onKeyDown}
                 aria-label="Message for JARVIS"
               />
@@ -258,12 +307,28 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
               <button
                 type="button"
                 className="echo-command__btn echo-command__btn--primary"
-                disabled={loading || !message.trim()}
+                disabled={loading || !message.trim() || !brainOnline}
                 onClick={() => void handleAsk()}
               >
-                {loading ? 'Thinking…' : 'Send'}
+                {loading ? 'Thinking…' : 'Execute'}
               </button>
             </div>
+          </div>
+
+          <div className="hud-chip-row" aria-label="Command shortcuts">
+            {COMMAND_CHIPS.map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                className="hud-chip"
+                onClick={() => {
+                  setMessage(chip);
+                  inputRef.current?.focus();
+                }}
+              >
+                {chip.split('—')[0].split('?')[0].trim()}
+              </button>
+            ))}
           </div>
 
           <div className="echo-command__meta">

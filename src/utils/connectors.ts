@@ -12,6 +12,9 @@ export const SOURCE_TO_CONNECTOR: Record<string, string> = {
   wellbeing_checkin: 'wellbeing_checkin',
   brain_scan: 'brain_scan',
   brain_memory: 'brain_memory',
+  town: 'town',
+  rise: 'rise',
+  nonqm: 'nonqm',
 };
 
 export const OPTIONAL_SOURCE_HELP: Record<string, string> = {
@@ -20,4 +23,7 @@ export const OPTIONAL_SOURCE_HELP: Record<string, string> = {
   wellbeing_checkin: 'Wellbeing check-in — in-app, no connector',
   brain_scan: 'Connect any data source below to fill blind spots',
   brain_memory: 'Train decisions in Feed the Brain',
+  town: 'Town.com — add TOWN_API_TOKEN to Brain when the radar ships',
+  rise: 'Rise sleep — add RISE_API_TOKEN to Brain when the connector ships',
+  nonqm: 'Non-QM desk — deals flow through Brain engine, never invented here',
 };
