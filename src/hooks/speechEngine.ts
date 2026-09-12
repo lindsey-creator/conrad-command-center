@@ -46,12 +46,20 @@ function armResume() {
   }, 220);
 }
 
+export function splitSpeechChunks(text: string): string[] {
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 export function speakLine(
   text: string,
   opts: {
     onStart?: () => void;
     onEnd?: () => void;
     onError?: (reason: string) => void;
+    cancel?: boolean;
   } = {},
 ): Promise<SpeakResult> {
   const line = text.trim();
@@ -65,7 +73,7 @@ export function speakLine(
   if (!unlocked) unlockSpeech();
 
   return new Promise((resolve) => {
-    synth.cancel();
+    if (opts.cancel !== false) synth.cancel();
     const utterance = new SpeechSynthesisUtterance(line);
     utterance.rate = 1.02;
     utterance.pitch = 0.95;
@@ -119,6 +127,38 @@ export function speakLine(
       finish('blocked');
     }
   });
+}
+
+/** Speak a reply in sentence chunks so long Brain answers do not stall TTS. */
+export async function speakChunks(
+  text: string,
+  opts: {
+    onStart?: () => void;
+    onEnd?: () => void;
+    onError?: (reason: string) => void;
+  } = {},
+): Promise<SpeakResult> {
+  const parts = splitSpeechChunks(text);
+  if (!parts.length) return 'empty';
+  let started = false;
+  let last: SpeakResult = 'empty';
+  for (let i = 0; i < parts.length; i++) {
+    last = await speakLine(parts[i], {
+      cancel: i === 0,
+      onStart: () => {
+        if (started) return;
+        started = true;
+        opts.onStart?.();
+      },
+      onEnd: i === parts.length - 1 ? opts.onEnd : undefined,
+      onError: opts.onError,
+    });
+    if (last === 'missing' || last === 'blocked') {
+      opts.onEnd?.();
+      return last;
+    }
+  }
+  return last;
 }
 
 export function cueTone() {

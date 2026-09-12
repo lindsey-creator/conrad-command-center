@@ -49,10 +49,6 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     timers.current.forEach((id) => window.clearTimeout(id));
     timers.current = [];
   };
-  const later = (ms: number, fn: () => void) => {
-    timers.current.push(window.setTimeout(fn, ms));
-  };
-
   const sinkThenIdle = useCallback(() => {
     if (shot || speakDemo) return;
     clearTimers();
@@ -84,19 +80,8 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       setMotion('think-swirl');
       setCaption('Thinking.');
       setSeed(undefined);
-      later(900, () => {
-        if (flare) {
-          setMotion('alert-flare');
-          setCaption('Type-1 lock.');
-        }
-      });
-      later(flare ? 1280 : 920, () => {
-        setMotion('speak-wave');
-        setCaption(rails.length === 0 ? 'Brief me. Glass stays. No extra wall.' : 'Talk Mode.');
-      });
-      later(12000, sinkThenIdle);
     },
-    [shot, sinkThenIdle],
+    [shot],
   );
 
   const ask = useCallback(
@@ -180,11 +165,13 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         onSubmit={runTalk}
         onVoiceState={onVoiceState}
         onAnswer={(spoken, claimed) => {
-          if (spoken) {
-            setCaption(claimed ? 'CLAIMED — live Brain payload missing.' : 'PROVEN — live Brain payload.');
-          }
+          if (!spoken) return;
+          setCaption(claimed ? 'CLAIMED — Brain key offline.' : 'PROVEN — Brain /chat');
         }}
-        onSpeakEnd={sinkThenIdle}
+        onSpeakEnd={() => {
+          setMicLive(false);
+          setMotion('idle-pulse');
+        }}
         onEnd={sinkThenIdle}
       />
     </div>

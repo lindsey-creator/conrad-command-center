@@ -52,7 +52,7 @@ sudo systemctl restart superman-brain   # or your process manager
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/health` | Liveness |
-| `POST` | `/chat` | JARVIS command line (drafts return `approval_id`) |
+| `POST` | `/chat` | JARVIS Talk Mode. Body `{ "message": "…" }` (`wants_draft`, `deal` optional). Claude when `ANTHROPIC_API_KEY` is set on **jarvis-brain**; otherwise `mode=fallback`, `engine=null`. |
 | `GET` | `/brief/daily` | Morning brief |
 | `GET` | `/money/top-moves` | Top money moves |
 | `GET` | `/blindspots`, `/watchlist`, `/team/pulse` | Intel modules |

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   cancelSpeech,
   recognitionCtor,
-  speakLine,
+  speakChunks,
   speechReady,
   unlockSpeech,
   type SpeakResult,
@@ -66,7 +66,7 @@ export function useEchoVoice({
         setVoiceError('tts-missing');
         return 'missing';
       }
-      const result = await speakLine(text, {
+      const result = await speakChunks(text, {
         onStart: () => {
           setVoiceError(null);
           setState('speaking');

@@ -3,6 +3,7 @@ import { brain } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState, type VoiceError } from '../hooks/useEchoVoice';
 import { ApprovalQueuePanel } from '../components/ApprovalQueuePanel';
 import { COMMANDS, needsConfirm } from './commands';
+import { BRAIN_SILENT, jarvisSpokenLine } from './talkReply';
 
 const ERR_COPY: Record<Exclude<VoiceError, null>, string> = {
   'mic-denied': 'MIC BLOCKED — allow the microphone, or type and GO. JARVIS still speaks.',
@@ -46,6 +47,8 @@ export function CommandDock({
   const [originalDraft, setOriginalDraft] = useState('');
   const [banner, setBanner] = useState(demoSpeak ? 'CLICK SPEAK — hear JARVIS, then talk or type.' : '');
   const [pending, setPending] = useState<string | null>(null);
+  const [reply, setReply] = useState('');
+  const [thinking, setThinking] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
   const askRef = useRef<(q?: string) => Promise<void>>(async () => {});
 
@@ -72,11 +75,21 @@ export function CommandDock({
     if (voice.voiceError) setBanner(ERR_COPY[voice.voiceError]);
   }, [voice.voiceError]);
 
-  const hear = async (line: string, sink = true) => {
+  const hear = async (line: string, sink = false) => {
     const result = await voice.speak(line);
     if (result === 'blocked') setBanner(ERR_COPY['tts-blocked']);
     if (result === 'missing') setBanner(ERR_COPY['tts-missing']);
     if (sink) onSpeakEnd();
+  };
+
+  const deliver = async (line: string, claimed: boolean, bannerLine: string) => {
+    setLastSaid(line);
+    setReply(line);
+    setBanner(bannerLine);
+    onAnswer(line, claimed);
+    voice.setThinking(false);
+    setThinking(false);
+    await hear(line, false);
   };
 
   const handleAsk = async (raw?: string, trusted = false) => {
@@ -90,18 +103,15 @@ export function CommandDock({
     }
     setPending(null);
     voice.stopSpeaking();
+    setText(query);
+    setReply('');
+    setThinking(true);
+    setBanner(brainOnline ? 'THINKING — Brain /chat' : 'THINKING — Brain /chat (health standby)');
+    voice.setThinking(true);
     onSubmit(query);
     setApprovalId(null);
     setDraftEdit(null);
     setOriginalDraft('');
-
-    if (!brainOnline) {
-      const line = 'Brain silent. No invented numbers, sir.';
-      setLastSaid(line);
-      onAnswer(line, true);
-      await hear(line);
-      return;
-    }
 
     try {
       const res = await brain.chat({ message: query });
@@ -110,16 +120,16 @@ export function CommandDock({
         setOriginalDraft(res.draft);
       }
       if (res.approval_id) setApprovalId(res.approval_id);
-      const spoken = res.answer ?? res.note ?? res.error ?? (res.draft ? 'Draft ready in the queue.' : '');
-      const line = spoken || 'Acknowledged, sir.';
-      setLastSaid(line);
-      onAnswer(line, !res.answer);
-      await hear(line);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Request failed';
-      setLastSaid(msg);
-      onAnswer(msg, true);
-      await hear(msg);
+      const { line, fallback } = jarvisSpokenLine(res);
+      await deliver(
+        line,
+        fallback,
+        fallback
+          ? 'CLAIMED — ANTHROPIC_API_KEY unset on jarvis-brain.'
+          : 'PROVEN — Brain /chat',
+      );
+    } catch {
+      await deliver(BRAIN_SILENT, true, 'CLAIMED — Brain /chat did not respond.');
     }
   };
   askRef.current = handleAsk;
@@ -217,8 +227,17 @@ export function CommandDock({
         </div>
       ) : null}
       {banner ? (
-        <p className={`wispr__banner${voice.voiceError ? ' is-warn' : ''}`} role="status">
+        <p className={`wispr__banner${voice.voiceError || thinking ? ' is-warn' : ''}`} role="status">
           {banner}
+        </p>
+      ) : null}
+      {reply ? (
+        <p className="wispr__reply" data-testid="jarvis-reply" aria-live="polite">
+          {reply}
+        </p>
+      ) : thinking ? (
+        <p className="wispr__reply wispr__reply--think" data-testid="jarvis-thinking">
+          Thinking.
         </p>
       ) : null}
       {draftEdit ? (

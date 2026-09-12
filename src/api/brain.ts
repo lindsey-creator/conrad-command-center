@@ -456,17 +456,33 @@ async function fetchJsonOrConnect<T extends { status?: string; sources?: string[
   return res.json() as Promise<T>;
 }
 
-async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '');
-    throw new Error(`Brain API ${path}: ${res.status}${detail ? ` — ${detail}` : ''}`);
+async function postJson<T>(path: string, body: unknown, timeoutMs?: number): Promise<T> {
+  const ctrl = new AbortController();
+  const timer = timeoutMs ? globalThis.setTimeout(() => ctrl.abort(), timeoutMs) : 0;
+  try {
+    const res = await fetch(`${getBase()}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      throw new Error(`Brain API ${path}: ${res.status}${detail ? ` — ${detail}` : ''}`);
+    }
+    const ct = res.headers.get('content-type') ?? '';
+    if (!ct.includes('application/json')) {
+      throw new Error(`Brain API ${path}: non-JSON response`);
+    }
+    return (await res.json()) as T;
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') {
+      throw new Error(`Brain API ${path}: timed out`);
+    }
+    throw e;
+  } finally {
+    if (timer) globalThis.clearTimeout(timer);
   }
-  return res.json() as Promise<T>;
 }
 
 async function patchJson<T>(path: string, body: unknown): Promise<T> {
@@ -505,7 +521,8 @@ export const brain = {
   validationShadow: () => fetchJson<ShadowValidationResult>('/validation/shadow'),
   validationShadowBatch: (deals: Record<string, unknown>[]) =>
     postJson<ShadowValidationResult>('/validation/shadow', { deals }),
-  chat: (req: ChatRequest) => postJson<ChatResponse>('/chat', req),
+  /** Goldfront-os POST /chat — Claude when ANTHROPIC_API_KEY is set. Never call a vendor from the glass. */
+  chat: (req: ChatRequest) => postJson<ChatResponse>('/chat', { message: req.message, ...(req.wants_draft ? { wants_draft: true } : {}), ...(req.deal ? { deal: req.deal } : {}) }, 40000),
   connectorsStatus: () => fetchJson<ConnectorsStatusResponse>('/connectors/status'),
   googleOAuthStatus: () => fetchJson<GoogleOAuthStatusResponse>('/connect/google/status'),
   googleOAuthConfig: (clientId: string, clientSecret: string) =>

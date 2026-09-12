@@ -20,6 +20,19 @@ Root attribute: `data-pack="cybertruck" | "phone"` on `.rhino`. Ultrawide (`min-
 - Low-recovery work gate (CLAIMED preview): `/?idle=1&whoop=low&cybertruck=1`
 - **Speak demo:** `/?speak=1`
 
+## Talk Mode — Brain `/chat` (not ChatGPT on the glass)
+
+After STT (or GO), the dock POSTs the transcript to Goldfront-os `POST /chat` `{ "message": "…" }`. Same-origin `/chat` when the Brain serves the glass; `VITE_BRAIN_API` in local dev.
+
+- Reply shows on the dock and is spoken with chunked TTS.
+- `mode=fallback` / `engine=null` / empty answer → JARVIS says **“Sir, the brain key is offline — I cannot think yet.”**
+- Timeout or HTTP error → **“Sir, the brain did not respond.”**
+- The glass never calls Anthropic or OpenAI. Human seat only.
+
+**Railway — `jarvis-brain` service must set `ANTHROPIC_API_KEY`.** Until that key is on the service, live `/chat` returns `mode: "fallback"` and `engine: null`. Set it in the Railway Variables tab for `jarvis-brain` (production). Do not put the key in the HUD repo.
+
+Prove: type **Brief me** and GO (`/?speak=1`). THINKING stays until `/chat` returns, then the dock speaks.
+
 ## Demo Speak (do this first)
 
 Speak was broken because TTS ran after `await` (Chrome drops `speechSynthesis` off a click) and SPEAK/WISPR died silently with no mic.
