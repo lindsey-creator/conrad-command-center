@@ -38,7 +38,6 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [caption, setCaption] = useState(
     shot ? 'Talk Mode. Five-panel glass.' : speakDemo ? 'CLICK SPEAK — TTS demo.' : '',
   );
-  const [line, setLine] = useState(shot ? 'SHIP TYPE-1 NOW' : '');
   const [seed, setSeed] = useState<string | undefined>();
   const timers = useRef<number[]>([]);
   const level = useAudioPulse(motion, micLive);
@@ -62,7 +61,6 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     setMode('idle');
     setMotion('idle-pulse');
     setCaption('');
-    setLine('');
   }, [shot, speakDemo]);
 
   const enterListen = useCallback(() => {
@@ -72,7 +70,6 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     setMotion('listen-ripple');
     setMicLive(true);
     setCaption('Listening.');
-    setLine('');
   }, [shot]);
 
   const runTalk = useCallback(
@@ -170,7 +167,6 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <DayOrbit brainOnline={brainOnline} whoop={whoop} onAsk={ask} />
         <div className="board__voice">
           <p className="caption">{caption}</p>
-          <p className="say">{line}</p>
         </div>
       </div>
 
@@ -184,7 +180,6 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         onSubmit={runTalk}
         onVoiceState={onVoiceState}
         onAnswer={(spoken, claimed) => {
-          setLine(spoken);
           if (spoken) {
             setCaption(claimed ? 'CLAIMED — live Brain payload missing.' : 'PROVEN — live Brain payload.');
           }
