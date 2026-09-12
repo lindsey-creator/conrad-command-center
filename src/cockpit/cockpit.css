@@ -2568,6 +2568,7 @@
 .rhino.mode-talk .arc-bay {
   position: absolute;
   inset: 0;
+  place-self: stretch;
   z-index: 1;
   pointer-events: none;
 }
@@ -2577,8 +2578,8 @@
 .rhino.mode-talk .talk-orb.is-hero,
 .rhino[data-pack='cybertruck'].mode-talk .talk-orb-wrap,
 .rhino[data-pack='cybertruck'].mode-talk .talk-orb {
-  width: min(78vmin, 72vh);
-  height: min(78vmin, 72vh);
+  width: min(70vh, 70vw);
+  height: min(70vh, 70vw);
 }
 
 .rhino.mode-talk .intent-rail,
