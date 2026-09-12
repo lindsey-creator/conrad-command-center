@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
+import { COMMAND_CHIPS, runCommandIntent } from '../utils/commandIntents';
 import { ApprovalQueuePanel } from './ApprovalQueuePanel';
 import { LiveCore } from './LiveCore';
 import './echo-command.css';
@@ -132,11 +133,13 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
       const hasDeal =
         showDeal &&
         (deal.purchase_price > 0 || deal.arv > 0 || deal.rehab_estimate > 0);
-      const res = await brain.chat({
-        message: query,
-        wants_draft: wantsDraft,
-        deal: hasDeal ? deal : undefined,
-      });
+      const res: ChatResponse = hasDeal
+        ? await brain.chat({
+            message: query,
+            wants_draft: wantsDraft,
+            deal,
+          })
+        : await runCommandIntent(query, wantsDraft);
       setResponse(res);
       if (res.draft) setDraftEdit(res.draft);
       if (res.approval_id) setApprovalId(res.approval_id);
@@ -282,7 +285,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
                 id="jarvis-command-input"
                 className="echo-command__input"
                 rows={2}
-                placeholder="Dictate with Wispr Flow or type — deals, priorities, brief…"
+                placeholder="what's leaking · apply fills · Rise status · draft LO outreach"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onFocus={() => setCommandFocused(true)}
@@ -319,6 +322,23 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
                 {loading ? 'Thinking…' : 'Execute'}
               </button>
             </div>
+          </div>
+
+          <div className="echo-command__chips" role="group" aria-label="Command intents">
+            {COMMAND_CHIPS.map((chip) => (
+              <button
+                key={chip.fill}
+                type="button"
+                className="echo-command__chip"
+                disabled={!brainOnline || loading}
+                onClick={() => {
+                  setMessage(chip.fill);
+                  void handleAsk(chip.fill);
+                }}
+              >
+                {chip.label}
+              </button>
+            ))}
           </div>
 
           <div className="echo-command__meta">

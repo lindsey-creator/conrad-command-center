@@ -4,6 +4,19 @@ Do these **in order**. Do not skip steps.
 
 ---
 
+## A0. Railway production (primary glass)
+
+**Live URL:** `https://jarvis-brain-production-8def.up.railway.app`
+
+Project `jarvis-command-center` · service `jarvis-brain` · `PORT=8000` · `GET /health`.
+
+The Brain image clones **`lindsey-creator/conrad-command-center` `main`** at build and serves `dist` next to Goldfront-os. HUD changes are live only after:
+
+1. Merge this repo to `main`
+2. Rebuild / redeploy `jarvis-brain` (new Docker build, not “redeploy last build”)
+
+Custom domain can wait — Railway URL is the glass.
+
 ## A. Manus production (always-on box)
 
 **Give this to Manus AI:** [`deploy/MANUS-AGENT-PROMPT.md`](MANUS-AGENT-PROMPT.md) (full copy-paste prompt).

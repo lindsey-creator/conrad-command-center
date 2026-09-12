@@ -6,7 +6,8 @@ operating system that runs Lindsey Conrad's lending + construction operation
 This UI sits on the **Brain** (deal-math engine + memory + training loop, in the
 separate `Goldfront-os` repo).
 
-Elite evolution of the live dashboard at **command.theconradteam.com**.
+Elite evolution of the live dashboard. **Production glass (Railway):**
+[https://jarvis-brain-production-8def.up.railway.app](https://jarvis-brain-production-8def.up.railway.app)
 
 See **`docs/JARVIS-LIVE.md`** for naming locks (JARVIS, Command Center, Brain, Manus builds).
 
@@ -32,6 +33,7 @@ See **`docs/JARVIS-LIVE.md`** for naming locks (JARVIS, Command Center, Brain, M
 
 | Where | Command |
 |-------|---------|
+| **Railway production** | Brain service `jarvis-brain` clones this repo `main` at Docker build and serves `dist`. Merge HUD → rebuild Goldfront-os. Live: `https://jarvis-brain-production-8def.up.railway.app` |
 | **Manus production** | `curl -fsSL https://raw.githubusercontent.com/lindsey-creator/conrad-command-center/main/deploy/manus-accurate.sh \| bash` |
 | **Local dev** | `./scripts/setup-dev.sh` then `./scripts/run-stack.sh` |
 | **Smoke test** | `./scripts/smoke-test.sh http://127.0.0.1:8000` |

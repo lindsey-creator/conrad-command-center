@@ -28,6 +28,26 @@ This doc locks how Lindsey Conrad's operator stack is named in product copy, pro
 
 **JARVIS · Command** with a live indicator when `/health` reports Brain reachable.
 
+## Production glass
+
+Live Brain + HUD (Railway, no custom domain required):
+
+`https://jarvis-brain-production-8def.up.railway.app`
+
+The Brain serves `conrad-command-center` `dist` cloned from `main` at image build. Merge HUD changes to `main`, then rebuild `jarvis-brain` on Railway.
+
+## Type-1 lock (max 3)
+
+Always three slots — never a fourth, never invented numbers:
+
+| Slot | Meaning | Brain |
+|------|---------|--------|
+| **MONEY NOW** | Capital / next dollar move | `GET /money/top-moves` |
+| **LEAKING** | What bites if ignored | `GET /watchlist` |
+| **EFFICIENCY** | Team / process gaps | `GET /team/pulse` |
+
+Empty slots show **Connect source** or **Clear**.
+
 ## Voice — Wispr Flow → command line
 
 On phone or Cybertruck tablet, Lindsey dictates with **[Wispr Flow](https://wisprflow.ai)** (system-wide dictation). The cockpit is built for that flow:
@@ -38,9 +58,12 @@ On phone or Cybertruck tablet, Lindsey dictates with **[Wispr Flow](https://wisp
 
 Browser hold-to-talk mic is a fallback when Wispr is unavailable. JARVIS copy uses he/him for Lindsey in UI we maintain.
 
-## Town radar & Gmail inbox (HUD lane)
+## Live feeds (HUD lane)
 
-The **Town & inbox** band calls Brain `GET /inbox/radar` when implemented. Until routes and OAuth are live:
+Six structured slots: Town mail · GHL apply fills · calendar next · WHOOP recovery · Rise QM board · Non-QM LO hunt.
 
-- **Gmail** — Connect Google (same OAuth as Calendar); the lane shows **Connect source**, never placeholder threads.
-- **Town.com** — Brain `TOWN_API_TOKEN` (and future `/inbox/radar` fields with `source: town`); Cursor JARVIS can route Town context while the HUD stays honest offline.
+Brain fills them (`/inbox/radar`, `/crm/ghl`, `/brief/daily`, `/health/metrics`, `/watchlist`). Missing routes or keys → **Connect source**, never fake threads.
+
+## Command intents
+
+The command line routes before `/chat`: *what's leaking*, *apply fills*, *Rise status*, *draft LO outreach* (plus money / efficiency / WHOOP / calendar / town). `/chat` is the fallback; chips hit live reads so the glass still answers when the model lane is slow.

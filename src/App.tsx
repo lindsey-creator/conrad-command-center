@@ -4,7 +4,7 @@ import { touchBrainLive } from './hooks/brainLive';
 import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
 import { CommandHeader } from './components/CommandHeader';
 import { Type1Decisions } from './components/Type1Decisions';
-import { TownInboxRadar } from './components/TownInboxRadar';
+import { LiveFeeds } from './components/LiveFeeds';
 import { Connections, resolveConnectorKey } from './components/Connections';
 import { ConnectorsBar } from './components/ConnectorsBar';
 import { EchoCommand } from './components/EchoCommand';
@@ -34,6 +34,9 @@ export default function App() {
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
   const [clickupConnected, setClickupConnected] = useState(false);
   const [gmailConnected, setGmailConnected] = useState(false);
+  const [ghlConnected, setGhlConnected] = useState(false);
+  const [whoopConnected, setWhoopConnected] = useState(false);
+  const [calendarConnected, setCalendarConnected] = useState(false);
 
   const checkHealth = useCallback(async () => {
     try {
@@ -44,6 +47,9 @@ export default function App() {
       setBrainOnline(healthRes.status === 'ok');
       setClickupConnected(connectorsRes?.connectors?.clickup?.connected ?? false);
       setGmailConnected(connectorsRes?.connectors?.gmail?.connected ?? false);
+      setGhlConnected(connectorsRes?.connectors?.ghl?.connected ?? false);
+      setWhoopConnected(connectorsRes?.connectors?.whoop?.connected ?? false);
+      setCalendarConnected(connectorsRes?.connectors?.google_calendar?.connected ?? false);
       touchBrainLive();
     } catch {
       setBrainOnline(false);
@@ -99,9 +105,13 @@ export default function App() {
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <EchoCommand brainOnline={brainOnline} onVoiceStateChange={setVoiceState} />
           <Type1Decisions brainOnline={brainOnline} onConnect={openConnections} />
-          <TownInboxRadar
+          <LiveFeeds
             brainOnline={brainOnline}
             gmailConnected={gmailConnected}
+            ghlConnected={ghlConnected}
+            whoopConnected={whoopConnected}
+            calendarConnected={calendarConnected}
+            clickupConnected={clickupConnected}
             onConnect={openConnections}
           />
           <QuickRunStrip clickupConnected={clickupConnected} />

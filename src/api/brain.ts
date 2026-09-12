@@ -342,6 +342,8 @@ export interface ClickUpSyncStatus {
 export interface HealthResponse {
   status: string;
   service: string;
+  command?: string;
+  glass?: string;
 }
 
 export interface HealthMetricsResponse {
@@ -433,6 +435,16 @@ async function fetchJson<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+function connectFallback<T extends ConnectSourceResponse>(
+  fallbackSources: string[],
+): T {
+  return {
+    status: 'connect_source',
+    sources: fallbackSources,
+    items: [],
+  } as unknown as T;
+}
+
 /** Brain route not shipped yet — honest connect_source instead of throwing. */
 async function fetchJsonOrConnectSource<T extends ConnectSourceResponse>(
   path: string,
@@ -440,29 +452,41 @@ async function fetchJsonOrConnectSource<T extends ConnectSourceResponse>(
 ): Promise<T> {
   const res = await fetch(`${getBase()}${path}`);
   if (res.status === 404 || res.status === 501) {
-    return {
-      status: 'connect_source',
-      sources: fallbackSources,
-      items: [],
-    } as unknown as T;
+    return connectFallback<T>(fallbackSources);
   }
   if (!res.ok) {
     throw new Error(`Brain API ${path}: ${res.status}`);
   }
+  const type = res.headers.get('content-type') ?? '';
+  if (!type.includes('application/json')) {
+    return connectFallback<T>(fallbackSources);
+  }
   return res.json() as Promise<T>;
 }
 
-async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '');
-    throw new Error(`Brain API ${path}: ${res.status}${detail ? ` — ${detail}` : ''}`);
+async function postJson<T>(path: string, body: unknown, timeoutMs = 20_000): Promise<T> {
+  const ctrl = new AbortController();
+  const timer = globalThis.setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${getBase()}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      throw new Error(`Brain API ${path}: ${res.status}${detail ? ` — ${detail}` : ''}`);
+    }
+    return res.json() as Promise<T>;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(`Brain API ${path}: timed out — try a Type-1 chip or check /chat.`);
+    }
+    throw err;
+  } finally {
+    globalThis.clearTimeout(timer);
   }
-  return res.json() as Promise<T>;
 }
 
 async function patchJson<T>(path: string, body: unknown): Promise<T> {
