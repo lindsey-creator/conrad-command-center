@@ -51,7 +51,7 @@ export function emptyWhoop(status = 'connect_source'): WhoopDay {
     status,
     proven: false,
     workGate: 'unknown',
-    verdict: 'NO LIVE WHOOP — gym stays, work gate dark.',
+    verdict: 'PROTECT GYM · leave-state kill-warmer watched. No invented WHOOP.',
   };
 }
 
@@ -60,7 +60,7 @@ export function gateWhoop(day: Omit<WhoopDay, 'workGate' | 'verdict'>): WhoopDay
     return {
       ...day,
       workGate: 'unknown',
-      verdict: 'NO LIVE WHOOP — gym stays, work gate dark.',
+      verdict: 'PROTECT GYM · leave-state kill-warmer watched. No invented WHOOP.',
     };
   }
   if (day.recovery < WHOOP_LOW_RECOVERY) {

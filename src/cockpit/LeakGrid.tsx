@@ -3,6 +3,7 @@ import { brain, type WatchlistItem } from '../api/brain';
 import { POLL_FAST_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
+import { HOLD } from './readyAgent';
 
 const CELLS = 16;
 
@@ -39,11 +40,7 @@ export function LeakGrid({ brainOnline, onAsk }: LeakGridProps) {
   }, [brainOnline, watch.data, pulse.data]);
 
   const hot = new Set(hits.map((_, i) => (3 + i * 5) % CELLS));
-  const verdict = hits[0]
-    ? hits[0]
-    : brainOnline
-      ? 'Grid quiet — no leak proven.'
-      : 'Brain offline — no invented leak.';
+  const verdict = hits[0] ?? HOLD.leak;
 
   return (
     <section className="panel-glass leak-grid" aria-label="Leaking detection">
@@ -51,14 +48,15 @@ export function LeakGrid({ brainOnline, onAsk }: LeakGridProps) {
         <b>LEAKING</b>
         <i className={hits.length ? 'is-proven' : 'is-claimed'}>{hits.length ? 'PROVEN' : 'CLAIMED'}</i>
       </header>
+      <p className="panel-glass__job">L1 · FEED OWNERS · INSTANT FORMS · DEAD PHONE</p>
       <div className="leak-grid__cells" aria-hidden>
         {Array.from({ length: CELLS }, (_, i) => (
-          <span key={i} className={hot.has(i) ? 'is-hot' : undefined} />
+          <span key={i} className={hot.has(i) ? 'is-hot' : hits.length ? undefined : 'is-hold'} />
         ))}
       </div>
       <p className="panel-glass__verdict">{verdict}</p>
       <button type="button" className="panel-glass__go" onClick={() => onAsk("What's leaking?")}>
-        SCAN
+        REPORT
       </button>
     </section>
   );

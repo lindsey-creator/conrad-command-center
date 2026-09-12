@@ -275,7 +275,7 @@ export function CommandDock({
           ref={ref}
           className="wispr__line"
           value={text}
-          placeholder="Speak when ready, sir…"
+          placeholder="Direct the agent, sir — L0 silent, L1 report, L2 Type-1 only…"
           onChange={(e) => setText(e.target.value)}
         />
         <button type="submit" className="wispr__go">

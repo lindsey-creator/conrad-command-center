@@ -11,6 +11,8 @@ import { Type1Glass } from './Type1Glass';
 import { isAlertIntent, railsForIntent, type DeckMode, type OrbMotion } from './machine';
 import { useHudPack } from './useHudPack';
 import { useType1Locks } from './useType1Locks';
+import { JobRail } from './JobRail';
+import { resolveAutonomy } from './readyAgent';
 import { useWhoopDay } from './useWhoopDay';
 
 function queryFlag(name: string): boolean {
@@ -36,13 +38,19 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [armed, setArmed] = useState(shot);
   const [micLive, setMicLive] = useState(false);
   const [caption, setCaption] = useState(
-    shot ? 'Talk Mode. Five-panel glass.' : speakDemo ? 'CLICK SPEAK — TTS demo.' : '',
+    shot
+      ? 'L1 report. Jobs holding. Type-1 max 3.'
+      : speakDemo
+        ? 'CLICK SPEAK — TTS demo.'
+        : 'L1 report — apply radar, money, leak, orbit holding.',
   );
   const [seed, setSeed] = useState<string | undefined>();
   const timers = useRef<number[]>([]);
   const level = useAudioPulse(motion, micLive);
 
   const leakHot = locks.some((l) => l.lane === 'LEAKING' && l.proven);
+  const type1Hot = armed || motion === 'alert-flare' || locks.some((l) => l.proven);
+  const autonomy = resolveAutonomy(type1Hot);
   const core: CoreTint = armed || motion === 'alert-flare' ? 'red' : leakHot ? 'amber' : 'blue';
 
   const clearTimers = () => {
@@ -117,6 +125,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       data-pack={pack}
       data-mode={mode}
       data-core={core}
+      data-autonomy={autonomy}
     >
       {!booted ? <BootIgnition onDone={() => setBooted(true)} /> : null}
 
@@ -131,20 +140,21 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <div className="rhino-top__brand">
           <b>JARVIS</b>
           <i data-on={brainOnline} />
-          <em>{brainOnline ? 'LIVE' : 'STANDBY'}</em>
+          <em>{brainOnline ? 'LIVE' : 'HOLDING'}</em>
         </div>
-        <span className="rhino-top__mode">{mode === 'idle' ? 'IDLE' : 'TALK'}</span>
+        <span className="rhino-top__mode">{mode === 'idle' ? autonomy : 'TALK'}</span>
         <span className="rhino-top__motion">{motion.replace('-', ' ').toUpperCase()}</span>
-        <span className="rhino-top__pack">{core.toUpperCase()} CORE</span>
+        <span className="rhino-top__pack">{autonomy === 'L2' ? 'L2 TYPE-1' : 'L1 AGENT'}</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
         </button>
       </header>
+      <JobRail level={autonomy} />
 
       <div className="board">
         <MoneyRadar brainOnline={brainOnline} onAsk={ask} />
         <div className="arc-bay" aria-label="Arc core">
-          <span className="arc-bay__tag">ARC CORE</span>
+          <span className="arc-bay__tag">ARC CORE · {autonomy}</span>
           <TalkOrb motion={motion} level={level} dim={mode === 'idle'} core={core} />
         </div>
         <LeakGrid brainOnline={brainOnline} onAsk={ask} />

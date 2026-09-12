@@ -3,6 +3,7 @@ import { brain, type WatchlistItem } from '../api/brain';
 import { POLL_FAST_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
+import { HOLD } from './readyAgent';
 import { capType1 } from './rhinoLock';
 
 export interface Type1Lock {
@@ -57,7 +58,7 @@ export function useType1Locks(brainOnline: boolean): Type1Lock[] {
       : {
           id: '01',
           lane: 'MONEY NOW',
-          verdict: brainOnline ? 'No capital lock — engine silent.' : 'Brain offline — no invented dollar.',
+          verdict: HOLD.type1Money,
           command: 'Money now — what dollar should I move?',
           proven: false,
         };
@@ -77,7 +78,7 @@ export function useType1Locks(brainOnline: boolean): Type1Lock[] {
       : {
           id: '02',
           lane: 'LEAKING',
-          verdict: brainOnline ? 'No leak proven on the glass.' : 'Brain offline — no invented leak.',
+          verdict: HOLD.type1Leak,
           command: 'What is leaking today?',
           proven: false,
         };
@@ -101,7 +102,7 @@ export function useType1Locks(brainOnline: boolean): Type1Lock[] {
         : {
             id: '03',
             lane: 'EFFICIENCY',
-            verdict: brainOnline ? 'No efficiency call in the Brain.' : 'Brain offline — no invented gap.',
+            verdict: HOLD.type1Wall,
             command: 'Where is efficiency dying?',
             proven: false,
           };

@@ -48,6 +48,14 @@ Speak was broken because TTS ran after `await` (Chrome drops `speechSynthesis` o
 
 States: IDLE PULSE → LISTEN RIPPLE → THINK SWIRL → SPEAK WAVE → ALERT FLARE (Type-1 / money only).
 
+## READY AGENT (KB)
+
+Always-on jobs on the glass (labels / empty states — not extra widgets): Apply radar (GHL new/cold only, Brighton owns dials) · Type-1 max 3 · MONEY NOW (payouts/fund/SLA) · LEAKING (feed owners, Instant Forms, dead phone) · Rise ≠ Non-QM firewall · Non-QM LO drafts · Meeting→action · Day Orbit (cal+WHOOP, protect gym) · Mail drafts only · Leave-state kill-warmer.
+
+Autonomy: **L0 silent** / **L1 report** / **L2 Type-1 only**. Never Team GHL. Never ChatGPT-as-him. Never auto-send.
+
+Empty panels say the job is **holding**, not vacant.
+
 ## Five-panel glass
 
 1. **Arc Core** — blue / amber (leak) / red (Type-1)

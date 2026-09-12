@@ -3,6 +3,7 @@ import { brain, type MoneyMove } from '../api/brain';
 import { POLL_FAST_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData } from '../utils/renderItems';
+import { HOLD } from './readyAgent';
 
 interface MoneyRadarProps {
   brainOnline: boolean;
@@ -23,10 +24,12 @@ export function MoneyRadar({ brainOnline, onAsk }: MoneyRadarProps) {
         <b>MONEY NOW</b>
         <i className={lock ? 'is-proven' : 'is-claimed'}>{lock ? 'PROVEN' : 'CLAIMED'}</i>
       </header>
+      <p className="panel-glass__job">L1 · PAYOUTS / FUND / SLA · APPLY RADAR GHL NEW/COLD</p>
       <div className="money-radar__scope" aria-hidden>
         <span className="money-radar__ring" />
         <span className="money-radar__ring money-radar__ring--mid" />
         <span className="money-radar__sweep" />
+        {moves.length === 0 ? <em className="money-radar__hold" /> : null}
         {moves.map((m, i) => (
           <em
             key={m.title}
@@ -39,14 +42,10 @@ export function MoneyRadar({ brainOnline, onAsk }: MoneyRadarProps) {
         ))}
       </div>
       <p className="panel-glass__verdict">
-        {lock
-          ? [lock.title, lock.recommended_action || lock.why].filter(Boolean).join(' — ')
-          : brainOnline
-            ? 'Radar clear — no capital lock.'
-            : 'Brain offline — no invented dollar.'}
+        {lock ? [lock.title, lock.recommended_action || lock.why].filter(Boolean).join(' — ') : HOLD.money}
       </p>
       <button type="button" className="panel-glass__go" onClick={() => onAsk(lock ? `Money now: ${lock.title}` : 'Money now — what dollar should I move?')}>
-        LOCK
+        REPORT
       </button>
     </section>
   );

@@ -4,6 +4,7 @@ import { POLL_MODULE_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel, itemTime } from '../utils/renderItems';
 import type { WhoopDay } from './whoop';
+import { HOLD } from './readyAgent';
 
 interface DayOrbitProps {
   brainOnline: boolean;
@@ -37,6 +38,7 @@ export function DayOrbit({ brainOnline, whoop, onAsk }: DayOrbitProps) {
           {calLive || whoop.proven ? 'PROVEN' : 'CLAIMED'}
         </i>
       </header>
+      <p className="panel-glass__job">L1 · CAL + WHOOP · PROTECT GYM · MEETING→ACTION</p>
       <ol className="day-orbit-panel__nodes">
         {nodes.length ? (
           nodes.map((item, i) => (
@@ -48,7 +50,7 @@ export function DayOrbit({ brainOnline, whoop, onAsk }: DayOrbitProps) {
         ) : (
           <li className="is-empty">
             <em>—</em>
-            <span>{brainOnline ? 'No calendar node on the glass.' : 'Calendar dark — no invented day.'}</span>
+            <span>{HOLD.orbit}</span>
           </li>
         )}
       </ol>
@@ -66,7 +68,7 @@ export function DayOrbit({ brainOnline, whoop, onAsk }: DayOrbitProps) {
         <p>{whoop.verdict}</p>
       </div>
       <button type="button" className="panel-glass__go" onClick={() => onAsk('Protect my calendar and WHOOP day.')}>
-        ORBIT
+        REPORT
       </button>
     </section>
   );
