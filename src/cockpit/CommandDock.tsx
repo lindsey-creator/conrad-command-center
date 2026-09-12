@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { brain } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState, type VoiceError } from '../hooks/useEchoVoice';
 import { ApprovalQueuePanel } from '../components/ApprovalQueuePanel';
+import { COMMANDS, needsConfirm } from './commands';
 
 const ERR_COPY: Record<Exclude<VoiceError, null>, string> = {
   'mic-denied': 'MIC BLOCKED — allow the microphone, or type and GO. JARVIS still speaks.',
@@ -44,6 +45,7 @@ export function CommandDock({
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
   const [originalDraft, setOriginalDraft] = useState('');
   const [banner, setBanner] = useState(demoSpeak ? 'CLICK SPEAK — hear JARVIS, then talk or type.' : '');
+  const [pending, setPending] = useState<string | null>(null);
   const ref = useRef<HTMLInputElement>(null);
   const askRef = useRef<(q?: string) => Promise<void>>(async () => {});
 
@@ -77,10 +79,16 @@ export function CommandDock({
     if (sink) onSpeakEnd();
   };
 
-  const handleAsk = async (raw?: string) => {
+  const handleAsk = async (raw?: string, trusted = false) => {
     const query = (raw ?? text).trim();
     if (!query) return;
     voice.unlock();
+    if (!trusted && needsConfirm(query)) {
+      setPending(query);
+      setBanner('CONFIRM on glass — nothing executes yet.');
+      return;
+    }
+    setPending(null);
     voice.stopSpeaking();
     onSubmit(query);
     setApprovalId(null);
@@ -159,6 +167,55 @@ export function CommandDock({
 
   return (
     <footer className={`wispr${talking ? ' wispr--talk' : ''}`}>
+      <nav className="wispr__chips" aria-label="Command bar">
+        {COMMANDS.map((cmd) => (
+          <button
+            key={cmd.id}
+            type="button"
+            className={`wispr__chip${cmd.mutate ? ' is-mutate' : ''}`}
+            onClick={() => {
+              setText(cmd.text);
+              ref.current?.focus();
+              if (!cmd.mutate) {
+                void handleAsk(cmd.text, true);
+                return;
+              }
+              if (cmd.text.includes('[X]')) {
+                setPending(null);
+                setBanner('Fill [X], then GO. Confirm required — nothing executes yet.');
+                return;
+              }
+              setPending(cmd.text);
+              setBanner('CONFIRM on glass — nothing executes yet.');
+            }}
+          >
+            {cmd.label}
+          </button>
+        ))}
+      </nav>
+      {pending ? (
+        <div className="wispr__confirm" role="alertdialog" aria-label="Confirm command">
+          <p>Confirm: {pending}</p>
+          <span>State change — does not auto-execute.</span>
+          <button
+            type="button"
+            className="wispr__go"
+            onClick={() => void handleAsk(text.trim() || pending, true)}
+          >
+            CONFIRM
+          </button>
+          <button
+            type="button"
+            className="wispr__end"
+            onClick={() => {
+              setPending(null);
+              setBanner('');
+            }}
+          >
+            ABORT
+          </button>
+        </div>
+      ) : null}
       {banner ? (
         <p className={`wispr__banner${voice.voiceError ? ' is-warn' : ''}`} role="status">
           {banner}

@@ -3,13 +3,13 @@ import type { EchoVoiceState } from '../hooks/useEchoVoice';
 import { useAudioPulse } from '../hooks/useAudioPulse';
 import { BootIgnition } from './BootIgnition';
 import { CommandDock } from './CommandDock';
-import { DayOrbitStrip } from './DayOrbitStrip';
-import { TalkOrb } from './TalkOrb';
+import { DayOrbit } from './DayOrbit';
+import { LeakGrid } from './LeakGrid';
+import { MoneyRadar } from './MoneyRadar';
+import { TalkOrb, type CoreTint } from './TalkOrb';
 import { Type1Glass } from './Type1Glass';
-import { FeedGlass } from './FeedGlass';
-import { isAlertIntent, railsForIntent, type DeckMode, type OrbMotion, type RailId } from './machine';
+import { isAlertIntent, railsForIntent, type DeckMode, type OrbMotion } from './machine';
 import { useHudPack } from './useHudPack';
-import { useRhinoFeeds } from './useRhinoFeeds';
 import { useType1Locks } from './useType1Locks';
 import { useWhoopDay } from './useWhoopDay';
 
@@ -29,27 +29,27 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const speakDemo = useMemo(() => queryFlag('speak'), []);
   const pack = useHudPack();
   const whoop = useWhoopDay(brainOnline);
+  const locks = useType1Locks(brainOnline);
   const [booted, setBooted] = useState(shot || idleShot || speakDemo);
   const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
   const [motion, setMotion] = useState<OrbMotion>(shot ? 'speak-wave' : 'idle-pulse');
-  const [risen, setRisen] = useState<RailId[]>(shot ? ['type1'] : []);
-  const [sinking, setSinking] = useState(false);
+  const [armed, setArmed] = useState(shot);
   const [micLive, setMicLive] = useState(false);
   const [caption, setCaption] = useState(
-    shot ? 'Talk Mode. Orb owns the center.' : speakDemo ? 'CLICK SPEAK — TTS demo.' : '',
+    shot ? 'Talk Mode. Five-panel glass.' : speakDemo ? 'CLICK SPEAK — TTS demo.' : '',
   );
   const [line, setLine] = useState(shot ? 'SHIP TYPE-1 NOW' : '');
   const [seed, setSeed] = useState<string | undefined>();
   const timers = useRef<number[]>([]);
-  const locks = useType1Locks(brainOnline);
-  const feeds = useRhinoFeeds(brainOnline);
   const level = useAudioPulse(motion, micLive);
+
+  const leakHot = locks.some((l) => l.lane === 'LEAKING' && l.proven);
+  const core: CoreTint = armed || motion === 'alert-flare' ? 'red' : leakHot ? 'amber' : 'blue';
 
   const clearTimers = () => {
     timers.current.forEach((id) => window.clearTimeout(id));
     timers.current = [];
   };
-
   const later = (ms: number, fn: () => void) => {
     timers.current.push(window.setTimeout(fn, ms));
   };
@@ -57,24 +57,18 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const sinkThenIdle = useCallback(() => {
     if (shot || speakDemo) return;
     clearTimers();
-    setSinking(true);
     setMicLive(false);
-    later(520, () => {
-      setRisen([]);
-      setSinking(false);
-      setMode('idle');
-      setMotion('idle-pulse');
-      setCaption('');
-      setLine('');
-    });
+    setArmed(false);
+    setMode('idle');
+    setMotion('idle-pulse');
+    setCaption('');
+    setLine('');
   }, [shot, speakDemo]);
 
   const enterListen = useCallback(() => {
     if (shot) return;
     clearTimers();
     setMode('talk');
-    setSinking(false);
-    setRisen([]);
     setMotion('listen-ripple');
     setMicLive(true);
     setCaption('Listening.');
@@ -88,60 +82,59 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       const rails = railsForIntent(q);
       const flare = isAlertIntent(rails);
       setMode('talk');
-      setSinking(false);
       setMicLive(false);
-      setRisen([]);
+      setArmed(flare);
       setMotion('think-swirl');
       setCaption('Thinking.');
       setSeed(undefined);
-
       later(900, () => {
         if (flare) {
           setMotion('alert-flare');
           setCaption('Type-1 lock.');
         }
-        setRisen(rails);
       });
       later(flare ? 1280 : 920, () => {
         setMotion('speak-wave');
-        setCaption(
-          rails.length === 0
-            ? 'Talk Mode. Brief me does not raise a wall.'
-            : rails.includes('type1')
-              ? 'Talk Mode. Type-1 queue — three cards.'
-              : 'Talk Mode. Day Orbit only.',
-        );
+        setCaption(rails.length === 0 ? 'Brief me. Glass stays. No extra wall.' : 'Talk Mode.');
       });
       later(12000, sinkThenIdle);
     },
     [shot, sinkThenIdle],
   );
 
-  const onVoiceState = useCallback((state: EchoVoiceState) => {
-    if (shot) return;
-    if (state === 'listening') {
-      setMode('talk');
-      setMotion('listen-ripple');
-      setMicLive(true);
-      setCaption('Listening.');
-    }
-    if (state === 'speaking') {
-      setMotion('speak-wave');
-      setMicLive(false);
-      setCaption('Speaking.');
-    }
-    if (state === 'thinking') setMotion('think-swirl');
-  }, [shot]);
+  const ask = useCallback(
+    (q: string) => {
+      setSeed(q);
+      runTalk(q);
+    },
+    [runTalk],
+  );
 
-  const type1Open = risen.includes('type1');
-  const orbitOpen = risen.includes('orbit');
-  const flare: 'amber' | 'red' | undefined = type1Open ? 'red' : undefined;
+  const onVoiceState = useCallback(
+    (state: EchoVoiceState) => {
+      if (shot) return;
+      if (state === 'listening') {
+        setMode('talk');
+        setMotion('listen-ripple');
+        setMicLive(true);
+        setCaption('Listening.');
+      }
+      if (state === 'speaking') {
+        setMotion('speak-wave');
+        setMicLive(false);
+        setCaption('Speaking.');
+      }
+      if (state === 'thinking') setMotion('think-swirl');
+    },
+    [shot],
+  );
 
   return (
     <div
-      className={`rhino mode-${mode} motion-${motion}${booted ? ' is-live' : ''}${sinking ? ' is-sinking' : ''}${shot ? ' is-shot' : ''}`}
+      className={`rhino mode-${mode} motion-${motion} core-${core}${booted ? ' is-live' : ''}${shot ? ' is-shot' : ''}`}
       data-pack={pack}
       data-mode={mode}
+      data-core={core}
     >
       {!booted ? <BootIgnition onDone={() => setBooted(true)} /> : null}
 
@@ -160,70 +153,21 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         </div>
         <span className="rhino-top__mode">{mode === 'idle' ? 'IDLE' : 'TALK'}</span>
         <span className="rhino-top__motion">{motion.replace('-', ' ').toUpperCase()}</span>
-        <span className="rhino-top__pack">{pack === 'cybertruck' ? 'CYBERTRUCK' : 'PHONE'}</span>
+        <span className="rhino-top__pack">{core.toUpperCase()} CORE</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
         </button>
       </header>
 
-      <div className="rhino__stage">
-        <TalkOrb motion={motion} level={level} dim={mode === 'idle'} flare={flare} />
-
-        {mode === 'idle' ? (
-          <>
-            <DayOrbitStrip
-              day={whoop}
-              onAsk={() => {
-                setSeed('WHOOP recovery');
-                runTalk('WHOOP recovery');
-              }}
-            />
-            <nav className="t1-rails" aria-label="Type-1 queue">
-              {locks.map((lock) => (
-                <button
-                  key={lock.id}
-                  type="button"
-                  className={`t1-card t1-card--${lock.lane === 'MONEY NOW' ? 'money' : lock.lane === 'LEAKING' ? 'leak' : 'eff'}`}
-                  onClick={() => {
-                    setSeed(lock.command);
-                    runTalk(lock.command);
-                  }}
-                >
-                  <b>{lock.lane}</b>
-                  <em>{lock.verdict}</em>
-                  <i className={lock.proven ? 'is-proven' : 'is-claimed'}>{lock.proven ? 'PROVEN' : 'CLAIMED'}</i>
-                </button>
-              ))}
-            </nav>
-            <FeedGlass
-              feeds={feeds}
-              onAsk={(command) => {
-                setSeed(command);
-                runTalk(command);
-              }}
-            />
-          </>
-        ) : null}
-
-        {mode === 'talk' ? (
-          <div className={`rise-deck${sinking ? ' sink' : ''}`}>
-            {type1Open ? (
-              <Type1Glass
-                locks={locks}
-                risen={!sinking}
-                sinking={sinking}
-                onLock={(command) => {
-                  setSeed(command);
-                  runTalk(command);
-                }}
-              />
-            ) : null}
-            {orbitOpen ? (
-              <DayOrbitStrip day={whoop} compact onAsk={() => runTalk('WHOOP recovery')} />
-            ) : null}
-          </div>
-        ) : null}
-
+      <div className="board">
+        <MoneyRadar brainOnline={brainOnline} onAsk={ask} />
+        <div className="arc-bay" aria-label="Arc core">
+          <span className="arc-bay__tag">ARC CORE</span>
+          <TalkOrb motion={motion} level={level} dim={mode === 'idle'} core={core} />
+        </div>
+        <LeakGrid brainOnline={brainOnline} onAsk={ask} />
+        <Type1Glass locks={locks} risen sinking={false} onLock={ask} />
+        <DayOrbit brainOnline={brainOnline} whoop={whoop} onAsk={ask} />
         <p className="caption">{caption}</p>
         <p className="say">{line}</p>
       </div>

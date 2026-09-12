@@ -25,10 +25,12 @@ function fibonacciSphere(count: number, radius: number): Particle[] {
 
 const SHELLS = [fibonacciSphere(360, 1), fibonacciSphere(220, 0.66), fibonacciSphere(120, 0.36)];
 
-function tint(motion: OrbMotion, flare: 'amber' | 'red'): [number, number, number] {
-  if (motion === 'alert-flare') return flare === 'amber' ? [255, 200, 87] : [255, 77, 109];
-  if (motion === 'speak-wave') return [0, 229, 255];
-  if (motion === 'listen-ripple') return [0, 229, 255];
+export type CoreTint = 'blue' | 'amber' | 'red';
+
+function tint(motion: OrbMotion, core: CoreTint): [number, number, number] {
+  if (core === 'red' || motion === 'alert-flare') return [255, 77, 109];
+  if (core === 'amber') return [255, 200, 87];
+  if (motion === 'speak-wave' || motion === 'listen-ripple') return [0, 229, 255];
   if (motion === 'think-swirl') return [122, 246, 255];
   return [0, 180, 220];
 }
@@ -37,10 +39,10 @@ interface TalkOrbProps {
   motion: OrbMotion;
   level: number;
   dim?: boolean;
-  flare?: 'amber' | 'red';
+  core?: CoreTint;
 }
 
-export function TalkOrb({ motion, level, dim = false, flare = 'red' }: TalkOrbProps) {
+export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export function TalkOrb({ motion, level, dim = false, flare = 'red' }: TalkOrbPr
     let raf = 0;
     let rot = 0;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const color = tint(motion, flare);
+    const color = tint(motion, core);
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -89,8 +91,8 @@ export function TalkOrb({ motion, level, dim = false, flare = 'red' }: TalkOrbPr
       }
 
       const body = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale * 1.05);
-      const core = motion === 'alert-flare' ? 0.62 : dim ? 0.16 : 0.5;
-      body.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},${core + level * 0.28})`);
+      const glowA = motion === 'alert-flare' ? 0.62 : dim ? 0.16 : 0.5;
+      body.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},${glowA + level * 0.28})`);
       body.addColorStop(0.35, `rgba(${color[0]},${color[1]},${color[2]},${dim ? 0.1 : 0.22})`);
       body.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = body;
@@ -157,7 +159,7 @@ export function TalkOrb({ motion, level, dim = false, flare = 'red' }: TalkOrbPr
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [motion, level, dim, flare]);
+  }, [motion, level, dim, core]);
 
   return <canvas className="talk-orb" ref={canvasRef} aria-hidden="true" />;
 }

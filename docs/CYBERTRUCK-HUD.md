@@ -15,8 +15,8 @@ Root attribute: `data-pack="cybertruck" | "phone"` on `.rhino`. Ultrawide (`min-
 
 ## Preview URLs (local `npm run preview`)
 
-- Idle landscape + WHOOP strip: `/?idle=1&cybertruck=1`
-- Talk Mode 70vh orb: `/?talk=1&cybertruck=1`
+- Idle five-panel glass: `/?idle=1&cybertruck=1`
+- Talk Mode (enlarged arc core): `/?talk=1&cybertruck=1`
 - Low-recovery work gate (CLAIMED preview): `/?idle=1&whoop=low&cybertruck=1`
 - **Speak demo:** `/?speak=1`
 
@@ -35,16 +35,17 @@ Speak was broken because TTS ran after `await` (Chrome drops `speechSynthesis` o
 
 States: IDLE PULSE → LISTEN RIPPLE → THINK SWIRL → SPEAK WAVE → ALERT FLARE (Type-1 / money only).
 
-## Type-1 + feeds (Rhino lock)
+## Five-panel glass
 
-HUD decision glass is **only** Type-1 cards: MONEY NOW / LEAKING / EFFICIENCY. Queue cap **3**.
+1. **Arc Core** — blue / amber (leak) / red (Type-1)
+2. **Type-1 Targeting Queue** — max 3
+3. **MONEY NOW radar** — blips, not a table
+4. **LEAKING detection grid** — scan cells, not a table
+5. **Day Orbit** — calendar nodes + WHOOP
 
-Feeds (Idle glass strip, not SaaS cards):
+**Off glass:** raw feeds, pipeline tables, vanity metrics, FYIs, mixed Rise/Non-QM.
 
-- Town — **pattern-match** only
-- GHL — **new/cold apply fills** only (personal location, 216-250-9078)
-- Rise — **QM weekly blockers** only (never a sleep score)
-- Non-QM — **milestones** only
+Command bar: Brief me · What’s leaking? · Put [X] on [board] · Sharpen [X] · Go/approve Type-1. Mutating commands **confirm** — they never auto-execute.
 
 Operator: Lindsey — he/him. JARVIS says sir. Railway URL only.
 

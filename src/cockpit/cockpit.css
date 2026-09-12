@@ -21,6 +21,7 @@
 
 .rhino:not(.is-live) .rhino-top,
 .rhino:not(.is-live) .rhino__stage,
+.rhino:not(.is-live) .board,
 .rhino:not(.is-live) .wispr {
   visibility: hidden;
 }
@@ -183,47 +184,242 @@
   letter-spacing: 0.18em;
 }
 
-.rhino__stage {
+.board {
   position: relative;
+  z-index: 3;
   min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
+  grid-template-areas:
+    'money core leak'
+    'type1 type1 type1'
+    'orbit orbit orbit'
+    'cap cap cap';
+  gap: 8px;
+  padding: 8px 16px 4px;
+}
+
+.money-radar { grid-area: money; }
+.arc-bay { grid-area: core; }
+.leak-grid { grid-area: leak; }
+.board .t1glass {
+  grid-area: type1;
+  animation: none;
+}
+
+.board .t1glass__locks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.board .t1glass.is-up { transform: none; }
+.day-orbit-panel { grid-area: orbit; }
+
+.arc-bay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  background: radial-gradient(circle at 50% 45%, rgba(0, 229, 255, 0.12), rgba(2, 8, 12, 0.2));
+}
+
+.rhino.core-amber .arc-bay {
+  background: radial-gradient(circle at 50% 45%, rgba(255, 200, 87, 0.16), rgba(2, 8, 12, 0.2));
+  border-color: rgba(255, 200, 87, 0.4);
+}
+
+.rhino.core-red .arc-bay {
+  background: radial-gradient(circle at 50% 45%, rgba(255, 77, 109, 0.18), rgba(2, 8, 12, 0.2));
+  border-color: rgba(255, 77, 109, 0.45);
+}
+
+.arc-bay__tag {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  color: var(--ice);
 }
 
 .talk-orb {
-  position: absolute;
-  left: 50%;
-  top: 48%;
-  transform: translate(-50%, -50%);
+  width: min(28vh, 240px);
+  height: min(28vh, 240px);
   pointer-events: none;
-  z-index: 1;
 }
 
-.rhino.mode-idle .talk-orb {
-  width: min(26vh, 220px);
-  height: min(26vh, 220px);
-  opacity: 0.55;
-}
-
+.rhino.mode-idle .talk-orb { opacity: 0.62; }
 .rhino.mode-talk .talk-orb {
-  width: 70vh;
-  height: 70vh;
-  max-width: 92vw;
+  width: min(46vh, 100%);
+  height: min(46vh, 72%);
   opacity: 1;
 }
 
-.rhino.mode-talk .rhino__stage::before {
-  content: '';
+.panel-glass {
+  position: relative;
+  min-height: 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  background: linear-gradient(165deg, rgba(8, 24, 32, 0.62), rgba(2, 8, 12, 0.45));
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  backdrop-filter: blur(14px);
+}
+
+.panel-glass header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  letter-spacing: 0.2em;
+  color: var(--ice);
+  font-size: 14px;
+}
+
+.panel-glass header i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.panel-glass header i.is-proven { color: #3ef0c0; }
+.panel-glass header i.is-claimed { color: var(--amber); }
+
+.panel-glass__verdict {
+  margin: 8px 0 0;
+  font-size: clamp(15px, 2vh, 22px);
+  line-height: 1.2;
+}
+
+.panel-glass__go {
+  align-self: flex-start;
+  margin-top: auto;
+  min-height: 56px;
+  min-width: 96px;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  background: transparent;
+  color: var(--ice);
+  font-family: var(--font-display);
+  letter-spacing: 0.16em;
+}
+
+.money-radar__scope {
+  position: relative;
+  width: min(100%, 220px);
+  aspect-ratio: 1;
+  margin: 8px auto;
+}
+
+.money-radar__ring,
+.money-radar__ring--mid,
+.money-radar__sweep {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.28);
+}
+
+.money-radar__ring--mid { inset: 24%; }
+.money-radar__sweep {
+  inset: 6%;
+  border: 0;
+  background: conic-gradient(from 0deg, transparent 0 78%, rgba(0, 229, 255, 0.35) 100%);
+  animation: radar-sweep 3.6s linear infinite;
+}
+
+.money-radar__blip {
   position: absolute;
   left: 50%;
-  top: 48%;
-  width: 70vh;
-  height: 70vh;
-  transform: translate(-50%, -50%);
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.3) 0%, rgba(0, 229, 255, 0.08) 42%, transparent 70%);
-  box-shadow: 0 0 120px rgba(0, 229, 255, 0.22);
-  pointer-events: none;
-  z-index: 0;
+  background: #3ef0c0;
+  box-shadow: 0 0 10px #3ef0c0;
+  transform: rotate(var(--a)) translateY(calc(-1 * var(--r)));
 }
+
+.leak-grid__cells {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin: 10px 0 0;
+}
+
+.leak-grid__cells span {
+  aspect-ratio: 1;
+  border: 1px solid rgba(0, 229, 255, 0.16);
+  background: rgba(0, 229, 255, 0.04);
+}
+
+.leak-grid__cells span.is-hot {
+  border-color: var(--amber);
+  background: rgba(255, 200, 87, 0.28);
+  box-shadow: 0 0 12px rgba(255, 200, 87, 0.35);
+}
+
+.day-orbit-panel {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.day-orbit-panel__nodes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.day-orbit-panel__nodes li {
+  display: flex;
+  flex-direction: column;
+  min-width: 88px;
+}
+
+.day-orbit-panel__nodes em {
+  font-style: normal;
+  font-family: var(--font-mono);
+  color: var(--ice);
+}
+
+.day-orbit-panel__whoop {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.4vh, 28px);
+}
+
+.day-orbit-panel__whoop em {
+  display: block;
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--mute);
+}
+
+.day-orbit-panel__whoop p {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  max-width: 28ch;
+}
+
+@keyframes radar-sweep { to { transform: rotate(360deg); } }
 
 .orbit-strip {
   position: absolute;
@@ -558,11 +754,17 @@
 .bevel-money b { color: #3ef0c0; }
 .bevel-leaking b { color: var(--amber); }
 
+.board .caption,
+.board .say {
+  position: static;
+  grid-area: cap;
+  right: auto;
+  left: auto;
+  bottom: auto;
+}
+
 .caption,
 .say {
-  position: absolute;
-  left: 4vw;
-  right: 36vw;
   margin: 0;
   z-index: 4;
   pointer-events: none;
@@ -591,6 +793,41 @@
 .rhino.mode-idle .say {
   right: 4vw;
 }
+
+.wispr__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.wispr__chip {
+  min-height: 48px;
+  min-width: auto;
+  padding: 0 14px;
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  background: transparent;
+  color: var(--ice);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.wispr__chip.is-mutate { border-color: rgba(255, 200, 87, 0.4); color: var(--amber); }
+
+.wispr__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 200, 87, 0.45);
+  color: var(--amber);
+}
+
+.wispr__confirm p { margin: 0; font-size: 18px; }
+.wispr__confirm span { font-family: var(--font-mono); font-size: 12px; }
 
 .wispr {
   border-top: 1px solid rgba(0, 229, 255, 0.2);
@@ -801,10 +1038,9 @@
   font-size: clamp(32px, 5vh, 56px);
 }
 
-.rhino[data-pack='cybertruck'].mode-talk .talk-orb,
-.rhino[data-pack='cybertruck'].mode-talk .rhino__stage::before {
-  width: 70vh;
-  height: 70vh;
+.rhino[data-pack='cybertruck'].mode-talk .talk-orb {
+  width: min(48vh, 100%);
+  height: min(48vh, 78%);
 }
 
 .rhino[data-pack='phone'] .orbit-strip__figs b {
@@ -837,7 +1073,8 @@
   .rise-deck > *,
   .boot__ring,
   .boot__core,
-  .rhino__holo {
+  .rhino__holo,
+  .money-radar__sweep {
     animation: none !important;
   }
 }
