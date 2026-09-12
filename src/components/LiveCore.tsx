@@ -1,6 +1,10 @@
 import type { EchoVoiceState } from '../hooks/useEchoVoice';
 import './live-core.css';
 
+function jarvisActiveRing(state: EchoVoiceState, online: boolean): boolean {
+  return online && (state === 'listening' || state === 'speaking' || state === 'thinking');
+}
+
 interface LiveCoreProps {
   state?: EchoVoiceState;
   size?: 'sm' | 'md' | 'lg' | 'hero';
@@ -35,12 +39,18 @@ export function LiveCore({
           ? ' live-core--hero'
           : '';
 
+  const idleOnline = online && state === 'idle';
+
   return (
     <div
-      className={`live-core${stateClass}${sizeClass}${showParticles ? ' live-core--particles' : ''}${online ? ' live-core--online' : ''}`}
+      className={`live-core${stateClass}${sizeClass}${showParticles ? ' live-core--particles' : ''}${online ? ' live-core--online' : ''}${idleOnline ? ' live-core--reactor' : ''}`}
       role="img"
       aria-label={label}
     >
+      <div
+        className={`live-core__status-ring${jarvisActiveRing(state, online) ? ' live-core__status-ring--active' : ''}`}
+        aria-hidden="true"
+      />
       {showParticles && (
         <div className="live-core__field" aria-hidden="true">
           {Array.from({ length: 10 }).map((_, i) => (

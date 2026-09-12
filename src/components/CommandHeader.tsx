@@ -85,7 +85,9 @@ export function CommandHeader({
 
       <div className="command-header__inner">
         <div className="command-header__identity">
-          <LiveCore state={voiceState} online={brainOnline} label={statusLabel} />
+          <div className="command-header__core-wrap">
+            <LiveCore state={voiceState} online={brainOnline} size="lg" label={statusLabel} />
+          </div>
           <div className="command-header__status-block">
             <span className="command-header__label">{statusLabel}</span>
             <h2 className="command-header__name font-serif-name">Lindsey</h2>

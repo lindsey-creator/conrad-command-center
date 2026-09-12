@@ -35,7 +35,11 @@ Smoke test (Brain running):
 ./scripts/smoke-test.sh http://127.0.0.1:8000
 ```
 
-## Production layout
+## Production (Railway)
+
+`https://jarvis-brain-production-8def.up.railway.app` — same origin for HUD + API (`VITE_BRAIN_API` empty in the production build).
+
+## Production layout (Manus sibling)
 
 The Brain serves the built React app when this path exists:
 
