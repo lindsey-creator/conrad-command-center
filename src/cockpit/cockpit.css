@@ -2617,7 +2617,7 @@
   box-shadow: none;
 }
 
-.rhino.mode-idle .idle-deck {
+.rhino.mode-idle .idle-deck:not(.idle-deck--v2) {
   grid-template-columns: minmax(200px, 0.72fr) minmax(0, 1.3fr) minmax(140px, 0.5fr);
   grid-template-rows: minmax(0, 1fr) auto;
   align-items: center;
@@ -2686,42 +2686,73 @@
 
 .idle-deck__chrome { display: none; }
 
-/* ===== Higgsfield V2 ===== */
-.holo-rail {
-  grid-area: intents;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 16px;
-  z-index: 2;
+/* ===== Higgsfield V2 — harder match ===== */
+.rhino.mode-talk .board {
+  position: relative;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'core'
+    'cap';
 }
 
-.holo-rail--right {
-  grid-area: auto;
+.rhino.mode-talk .arc-bay {
+  position: absolute;
+  inset: 0;
+  place-self: stretch;
+  z-index: 1;
+  pointer-events: none;
+  min-height: 70vh;
+}
+
+.rhino.mode-talk .talk-orb-wrap,
+.rhino.mode-talk .talk-orb,
+.rhino.mode-talk .talk-orb.is-hero,
+.rhino[data-pack='cybertruck'].mode-talk .talk-orb-wrap,
+.rhino[data-pack='cybertruck'].mode-talk .talk-orb {
+  width: min(70vh, 70vw);
+  height: min(70vh, 70vw);
+}
+
+.holo-rail {
+  position: absolute;
+  inset: 12% 3vw 16%;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(168px, 228px) 1fr minmax(168px, 228px);
+  grid-template-rows: 1fr 1fr;
+  gap: 22px 0;
+  pointer-events: none;
 }
 
 .holo-plate {
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  min-height: 120px;
+  min-height: 128px;
   width: 100%;
-  max-width: 220px;
-  padding: 18px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  max-width: 228px;
+  padding: 20px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(8, 14, 20, 0.42);
   color: #fff;
   text-align: left;
   box-shadow: none;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
+
+.holo-plate:nth-child(1) { grid-column: 1; grid-row: 1; align-self: end; }
+.holo-plate:nth-child(2) { grid-column: 1; grid-row: 2; align-self: start; }
+.holo-plate:nth-child(3) { grid-column: 3; grid-row: 1; align-self: end; justify-self: end; }
+.holo-plate:nth-child(4) { grid-column: 3; grid-row: 2; align-self: start; justify-self: end; }
 
 .holo-plate__ico {
   width: 22px;
   height: 22px;
-  color: rgba(200, 230, 255, 0.7);
+  color: rgba(200, 230, 255, 0.72);
 }
 
 .holo-plate b {
@@ -2740,23 +2771,48 @@
 }
 
 .holo-plate.is-on {
-  border-color: rgba(0, 229, 255, 0.4);
+  border-color: rgba(0, 229, 255, 0.45);
+}
+
+.t1glass--locks,
+.rhino.mode-talk .t1glass.t1glass--locks,
+.board .t1glass.t1glass--locks {
+  position: absolute;
+  top: 18px;
+  right: 28px;
+  z-index: 4;
+  grid-area: unset;
+  width: min(220px, 22vw);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  animation: none;
+}
+
+.t1glass--locks .t1glass__ring {
+  pointer-events: auto;
 }
 
 .t1glass__rings {
   list-style: none;
-  margin: 0 0 14px;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .t1glass__ring {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 36px;
+  min-height: 28px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -2764,11 +2820,11 @@
 }
 
 .t1glass__ring i {
-  width: 18px;
-  height: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
-  box-shadow: inset 0 0 0 4px #020508, 0 0 8px rgba(0, 229, 255, 0.2);
+  box-shadow: inset 0 0 0 4px #020508, 0 0 8px rgba(0, 229, 255, 0.22);
 }
 
 .t1glass__ring b {
@@ -2777,8 +2833,16 @@
   letter-spacing: 0.18em;
 }
 
+.t1glass__ring em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--mute);
+}
+
 .t1glass__cap {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.2em;
@@ -2787,30 +2851,82 @@
 
 .talk-orb__speak {
   position: absolute;
-  right: 8%;
-  bottom: 10%;
+  right: 6%;
+  bottom: 8%;
   margin: 0;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.28em;
-  color: #fff;
+  letter-spacing: 0.32em;
+  color: #e8fbff;
+}
+
+.rhino.mode-talk .intent-rail,
+.rhino.mode-talk .intent-rail__chip,
+.rhino.mode-talk .t1glass__edge,
+.rhino.mode-talk .t1glass__locks,
+.rhino.mode-talk .t1glass__lock {
+  display: none;
+}
+
+.rhino.is-speak-demo .holo-rail,
+.rhino.is-speak-demo .t1glass,
+.rhino.is-speak-demo .rhino-top,
+.rhino.is-speak-demo .rhino__frame,
+.rhino.is-speak-demo .rhino__hash,
+.rhino.is-speak-demo .rhino__omega,
+.rhino.is-speak-demo .arc-bay__floor,
+.rhino.is-speak-demo .caption,
+.rhino.is-speak-demo .board__voice,
+.rhino.is-speak-demo .wispr__chips,
+.rhino.is-speak-demo .wispr__lanes {
+  display: none;
+}
+
+.rhino.is-shot .wispr__chips,
+.rhino.is-shot .wispr__lanes,
+.rhino.is-shot .rhino-top__stack {
+  display: none;
 }
 
 .idle-deck--v2 {
-  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.2fr) minmax(200px, 0.7fr);
-  grid-template-rows: 1fr;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    'whoop stage range'
+    'dash dash dash';
   align-items: center;
+  min-height: 0;
 }
 
 .idle-deck__whoop--gauges {
+  grid-area: whoop;
   align-items: flex-start;
+  text-align: left;
 }
+.idle-deck__stage { grid-area: stage; }
+.idle-deck__range { grid-area: range; text-align: right; }
+.idle-dash { grid-area: dash; }
 
 .idle-deck__stage {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
+}
+
+.idle-deck--v2 .idle-deck__reactor {
+  width: min(16vh, 128px);
+  height: min(16vh, 128px);
+}
+
+.idle-deck__ready {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: #9ef7ff;
 }
 
 .idle-deck__beast {
@@ -2819,43 +2935,124 @@
   text-align: center;
 }
 
-.idle-deck__beast svg {
-  width: min(36vw, 320px);
-  height: auto;
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
-}
-
 .idle-deck__beast figcaption {
-  margin-top: 8px;
+  margin-top: 10px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--mute);
 }
 
-.idle-deck--v2 .idle-deck__reactor {
-  width: min(18vh, 140px);
-  height: min(18vh, 140px);
+.idle-deck__truck {
+  position: relative;
+  display: block;
+  width: min(36vw, 320px);
+  height: 118px;
+  margin: 0 auto;
 }
 
-.idle-deck--v2 .idle-deck__range {
-  text-align: right;
+.idle-deck__cabin {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  width: 78%;
+  height: 58px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #1c222b 0%, #0a0c10 55%, #050608 100%);
+  clip-path: polygon(12% 38%, 22% 0, 78% 0, 88% 38%, 96% 100%, 4% 100%);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 40px rgba(0, 229, 255, 0.08);
 }
 
-.rhino.mode-talk .intent-rail,
-.rhino.mode-talk .intent-rail__chip {
-  display: none;
+.idle-deck__visor {
+  position: absolute;
+  left: 50%;
+  bottom: 56px;
+  width: 42%;
+  height: 18px;
+  transform: translateX(-50%);
+  background: rgba(0, 16, 24, 0.88);
+  clip-path: polygon(8% 100%, 18% 0, 82% 0, 92% 100%);
 }
 
-.rhino.mode-talk .t1glass__edge,
-.rhino.mode-talk .t1glass__locks,
-.rhino.mode-talk .t1glass__lock {
+.idle-deck__bar {
+  position: absolute;
+  left: 50%;
+  bottom: 70px;
+  width: 54%;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 99px;
+  background: #f4ffff;
+  box-shadow: 0 0 10px #fff, 0 0 28px #9ef7ff, 0 0 48px rgba(0, 229, 255, 0.45);
+}
+
+.idle-deck__wheel {
+  position: absolute;
+  bottom: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #1a1f26, #05070a 70%);
+  box-shadow: inset 0 0 0 2px #1a222c, 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.idle-deck__wheel--l { left: 18%; }
+.idle-deck__wheel--r { right: 18%; }
+
+.idle-dash {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding: 10px 0 0;
+}
+
+.idle-dash__tick {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: rgba(232, 251, 255, 0.38);
+}
+
+.idle-yoke {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 6px;
+  height: 2px;
+  pointer-events: none;
+}
+
+.idle-yoke i {
+  display: block;
+  height: 2px;
+  border-radius: 99px;
+  background: #e8fbff;
+  box-shadow: 0 0 12px #9ef7ff;
+}
+
+.rhino.mode-idle .wispr__chips,
+.rhino.mode-idle .wispr__lanes,
+.rhino.mode-talk .wispr__chips,
+.rhino.mode-talk .wispr__lanes {
   display: none;
 }
 
 @media (min-aspect-ratio: 2.2/1) {
-  .rhino[data-pack='cybertruck'].mode-idle .idle-deck--v2 {
+  .idle-deck--v2 {
+    grid-template-columns: 120px minmax(200px, 0.8fr) minmax(0, 1.2fr) minmax(220px, 0.8fr);
+    grid-template-areas: 'dash whoop stage range';
     padding: 0 4vw;
+  }
+  .idle-dash {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 14px;
+    padding: 0;
   }
   .rhino[data-pack='cybertruck'].mode-idle .idle-deck__hero {
     font-size: clamp(56px, 10vh, 120px);

@@ -20,7 +20,7 @@ Root attribute: `data-pack="cybertruck" | "phone"` on `.rhino`. Ultrawide (`min-
 - Wispr states: `/?talk=1&wispr=listening&cybertruck=1` · `connecting` · `thinking` · `speaking` · `error` · `disabled`
 - **Speak demo:** `/?speak=1`
 
-**Rhino lock:** Match Higgsfield stills in `public/hud-targets/`. Talk = giant ring orb ~70% + INTENT chips + Type-1 decision chips. Idle = dim Arc + EST. RANGE (never invent miles) + WHOOP Day Orbit rings (PROVEN/CLAIMED only). Speak = glass multi-shell orb + equatorial waveform. Wispr = idle / connecting / listening / thinking / speaking / error / disabled. Intent panels max 4. Type-1 max 3. No SaaS cards or tables.
+**Rhino lock:** Match Higgsfield V2 stills in `public/hud-targets/v2/`. Talk = giant ice sphere ~70% + 4 holographic plates + Type-1 lock rings. Idle = WHOOP gauges + Arc + filled Cybertruck + TRUCK DISTANCE (never invent miles). Speak = glass multi-shell orb + through-equator waveform, plates/locks hidden. Intent panels max 4. Type-1 max 3. No SaaS cards or tables.
 
 ## Talk Mode — Brain `/chat` (not ChatGPT on the glass)
 
@@ -31,7 +31,7 @@ After STT (or GO), the dock POSTs the transcript to Goldfront-os `POST /chat` `{
 - Timeout or HTTP error → **“Sir, the brain did not respond.”**
 - The glass never calls Anthropic or OpenAI. Human seat only.
 
-**Railway — `jarvis-brain` service must set `ANTHROPIC_API_KEY`.** Until that key is on the service, live `/chat` returns `mode: "fallback"` and `engine: null`. Set it in the Railway Variables tab for `jarvis-brain` (production). Do not put the key in the HUD repo.
+**Railway — `ANTHROPIC_API_KEY` is live on `jarvis-brain`.** Live `/chat` returns `mode: "claude"`. The glass never holds the key. Fallback copy stays for a missing/empty answer only.
 
 Prove: type **Brief me** and GO (`/?speak=1`). THINKING stays until `/chat` returns, then the dock speaks.
 

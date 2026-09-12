@@ -8,17 +8,15 @@ interface Type1GlassProps {
   onLock: (command: string) => void;
 }
 
-/** V2 Talk — Type-1 lock rings + two holographic plates. */
+/** V2 Talk — Type-1 lock rings only, top-right. */
 export function Type1Glass({ locks, risen, sinking, onLock }: Type1GlassProps) {
-  const rows = capType1(locks);
-  const plates = rows.slice(0, 2);
   return (
     <section
-      className={`t1glass${risen ? ' is-up' : ''}${sinking ? ' is-down' : ''}`}
+      className={`t1glass t1glass--locks${risen ? ' is-up' : ''}${sinking ? ' is-down' : ''}`}
       aria-label="Type-1 targeting"
     >
       <ol className="t1glass__rings">
-        {rows.map((row, i) => (
+        {capType1(locks).map((row, i) => (
           <li key={row.id}>
             <button type="button" className="t1glass__ring" onClick={() => onLock(row.command)}>
               <i />
@@ -28,16 +26,7 @@ export function Type1Glass({ locks, risen, sinking, onLock }: Type1GlassProps) {
           </li>
         ))}
       </ol>
-      <div className="holo-rail holo-rail--right">
-        {plates.map((row) => (
-          <button key={row.id} type="button" className="holo-plate" onClick={() => onLock(row.command)}>
-            <b>{row.lane}</b>
-            <em>{row.verdict}</em>
-            <u className={row.proven ? 'is-proven' : 'is-claimed'}>{row.proven ? 'PROVEN' : 'CLAIMED'}</u>
-          </button>
-        ))}
-      </div>
-      <p className="t1glass__cap">TYPE-1 · MAX {TYPE1_QUEUE_CAP} · NO AUTO-SEND</p>
+      <p className="t1glass__cap">MAX {TYPE1_QUEUE_CAP} · NO AUTO-SEND</p>
     </section>
   );
 }

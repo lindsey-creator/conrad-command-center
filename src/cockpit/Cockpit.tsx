@@ -85,7 +85,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       : wispr === 'error'
         ? 'red'
         : wispr === 'thinking'
-          ? 'amber'
+          ? 'ice'
           : wispr === 'speaking' || wispr === 'connecting'
             ? 'ice'
             : wispr === 'listening'
@@ -184,7 +184,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
   return (
     <div
-      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot || speakDemo ? ' is-shot' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
+      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot || speakDemo ? ' is-shot' : ''}${speakDemo ? ' is-speak-demo' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
       style={{ ['--rms' as string]: String(level) }}
       data-pack={pack}
       data-mode={mode}
@@ -219,16 +219,19 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
       <header className="rhino-top">
         <div className="rhino-top__brand">
-          <b>STARK INDUSTRIES</b>
+          <b>{mode === 'talk' ? 'J.A.R.V.I.S.' : 'JARVIS'}</b>
           <i data-on={brainOnline} />
-          <em>J.A.R.V.I.S.</em>
-          <small>{mode === 'idle' ? 'IDLE MODE' : 'VOICE INTERFACE'}</small>
+          <em>{mode === 'idle' ? 'IDLE MODE' : 'VOICE INTERFACE ACTIVE'}</em>
+          <small>{mode === 'talk' ? 'TONY STARK' : 'MARK III'}</small>
         </div>
-        {mode === 'idle' ? <span className="rhino-top__truck">CYBERTRUCK</span> : null}
-        <span className="rhino-top__mark">MARK III</span>
-        <span className={`rhino-top__sys${brainOnline ? ' is-on' : ''}`}>
-          {brainOnline ? 'SYSTEMS ONLINE' : 'STANDBY'}
-        </span>
+        {mode === 'idle' ? <span className="rhino-top__truck">MARK III</span> : null}
+        {mode === 'idle' ? (
+          <span className="rhino-top__mark">STARK INDUSTRIES</span>
+        ) : (
+          <span className={`rhino-top__sys${brainOnline ? ' is-on' : ''}`}>
+            {brainOnline ? 'SYSTEMS ONLINE' : 'STANDBY'}
+          </span>
+        )}
         <span className={`rhino-top__wispr is-${wispr}`}>{mode === 'talk' ? WISPR_LABEL[wispr] : 'DAY ORBIT'}</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
@@ -250,7 +253,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
               state={wispr}
             />
             <p className="arc-bay__floor" aria-hidden="true">
-              J.A.R.V.I.S. · AUDIO REACTIVE
+              J.A.R.V.I.S. · I'M ON IT, TONY · AUDIO REACTIVE
             </p>
           </div>
         ) : null}

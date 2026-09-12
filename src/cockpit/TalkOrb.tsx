@@ -73,8 +73,8 @@ function tint(state: WisprState, motion: OrbMotion, core: CoreTint): Rgb {
   if (state === 'disabled' || core === 'slate') return [118, 128, 136];
   if (state === 'error' || core === 'red' || motion === 'alert-flare') return [255, 77, 109];
   if (state === 'listening' || motion === 'listen-ripple') return [0, 229, 255];
-  if (state === 'speaking' || motion === 'speak-wave') return [220, 240, 255];
-  return [236, 244, 248];
+  if (state === 'speaking' || motion === 'speak-wave') return [64, 214, 255];
+  return [0, 229, 255];
 }
 
 interface TalkOrbProps {
@@ -131,7 +131,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
       const dead = wispr === 'disabled' || motion === 'disabled-still';
       const heart = 0.8 + Math.sin((t * Math.PI * 2) / 4) * 0.08;
       const pulse = dead ? 0.78 : motion === 'idle-pulse' || motion === 'connect-spin' ? heart : 0.78 + rms * 0.28;
-      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? 0.46 : 0.5) * pulse;
+      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? 0.5 : 0.5) * pulse;
 
       if (!reduce && !dead) {
         const spin =
@@ -167,7 +167,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
         if (wispr === 'listening' || motion === 'listen-ripple') drawRipples(ctx, cx, cy, scale, t, rms, accent);
         if (hero) {
           drawCrosshair(ctx, cx, cy, scale, color);
-          drawEquatorWave(ctx, cx, cy, scale, now, rms, color, wispr === 'speaking');
+          drawEquatorWave(ctx, cx, cy, scale, now, rms, color, wispr === 'speaking' || hero);
           drawEquatorRing3D(ctx, cx, cy, scale, now, rms, color);
         }
       }
@@ -469,8 +469,8 @@ function drawEquatorWave(
   color: Rgb,
   wide = false,
 ) {
-  const n = wide ? 200 : 160;
-  const span = wide ? 1.55 : 1.18;
+  const n = wide ? 220 : 160;
+  const span = wide ? 1.72 : 1.18;
   ctx.beginPath();
   for (let i = 0; i <= n; i++) {
     const x = i / n * 2 - 1;
@@ -499,11 +499,11 @@ function drawNestedGlass(
   state: WisprState,
 ) {
   if (state === 'disabled') return;
-  for (const f of [0.38, 0.62, 0.82]) {
+  for (const f of [0.28, 0.46, 0.64, 0.82, 0.98]) {
     ctx.beginPath();
     ctx.arc(cx, cy, scale * f * (1 + rms * 0.03), 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.16 + f * 0.12})`;
-    ctx.lineWidth = f > 0.7 ? 1.8 : 1.1;
+    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.14 + f * 0.18})`;
+    ctx.lineWidth = f > 0.9 ? 2.2 : f > 0.7 ? 1.6 : 1.1;
     ctx.stroke();
   }
 }
@@ -639,7 +639,7 @@ function drawSphereShells(
       const spread = 1 + (s === 0 ? rms * 0.16 : s === 1 ? rms * 0.08 : rms * 0.03);
       const px = cx + x1 * scale * persp * spread;
       const py = cy + p.y * scale * persp * spread;
-      const a = ((dim ? 0.1 : 0.2) + persp * 0.5 + rms * 0.22) * mute;
+      const a = ((dim ? 0.08 : 0.12) + persp * 0.32 + rms * 0.14) * mute;
       ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${Math.min(1, a)})`;
       ctx.beginPath();
       ctx.arc(px, py, (s === 2 ? 2.6 : 1.7) * persp * (dim ? 0.65 : 1 + rms * 0.2), 0, Math.PI * 2);

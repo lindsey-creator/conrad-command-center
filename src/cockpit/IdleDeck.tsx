@@ -22,7 +22,14 @@ function fig(n: number | null, kind: 'pct' | 'hrs' | 'n') {
   return n % 1 === 0 ? String(n) : n.toFixed(1);
 }
 
-/** V2 Idle — WHOOP gauges, Arc, Cybertruck, claimed distance. No invented miles. */
+const DASH: { label: string; text: string }[] = [
+  { label: 'DAY ORBIT', text: 'Protect my calendar and WHOOP day.' },
+  { label: 'TYPE-1', text: 'Go/approve Type-1' },
+  { label: 'LEAKING', text: "What's leaking?" },
+  { label: 'MONEY NOW', text: 'Money now — what dollar should I move?' },
+];
+
+/** V2 Idle — WHOOP gauges, Arc, filled Cybertruck, claimed distance. */
 export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
   return (
     <section className="idle-deck idle-deck--v2" aria-label="Idle Cybertruck HUD">
@@ -58,15 +65,15 @@ export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
           <i />
           <b />
         </div>
+        <p className="idle-deck__ready">TALK MODE READY</p>
         <figure className="idle-deck__beast">
-          <svg viewBox="0 0 280 130" aria-hidden="true">
-            <path d="M36 78 L58 42 H222 L244 78 Z" fill="none" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M78 42 L92 22 H188 L202 42" fill="none" stroke="currentColor" strokeWidth="1.3" />
-            <rect x="72" y="50" width="136" height="3.5" fill="currentColor" />
-            <path d="M58 78 H222" stroke="currentColor" strokeWidth="2" />
-            <rect x="64" y="80" width="22" height="26" rx="3" fill="none" stroke="currentColor" strokeWidth="1.3" />
-            <rect x="194" y="80" width="22" height="26" rx="3" fill="none" stroke="currentColor" strokeWidth="1.3" />
-          </svg>
+          <span className="idle-deck__truck">
+            <span className="idle-deck__cabin" />
+            <span className="idle-deck__visor" />
+            <span className="idle-deck__bar" />
+            <span className="idle-deck__wheel idle-deck__wheel--l" />
+            <span className="idle-deck__wheel idle-deck__wheel--r" />
+          </span>
           <figcaption>CYBERTRUCK · MARK III</figcaption>
         </figure>
       </div>
@@ -78,6 +85,17 @@ export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
         </p>
         <p className="idle-deck__sub">CLAIMED · NO INVENTED MILES</p>
         <p className="idle-deck__sub">{brainOnline ? 'EST. RANGE · BATTERY WAIT LIVE' : 'BRAIN STANDBY'}</p>
+      </div>
+
+      <nav className="idle-dash" aria-label="Ultrawide commands">
+        {DASH.map((row) => (
+          <button key={row.label} type="button" className="idle-dash__tick" onClick={() => onAsk(row.text)}>
+            {row.label}
+          </button>
+        ))}
+      </nav>
+      <div className="idle-yoke" aria-hidden="true">
+        <i />
       </div>
     </section>
   );

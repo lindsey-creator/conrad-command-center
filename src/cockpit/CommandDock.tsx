@@ -132,7 +132,7 @@ export function CommandDock({
         line,
         fallback,
         fallback
-          ? 'CLAIMED — ANTHROPIC_API_KEY unset on jarvis-brain.'
+          ? 'CLAIMED — Brain /chat fallback.'
           : 'PROVEN — Brain /chat',
       );
     } catch {

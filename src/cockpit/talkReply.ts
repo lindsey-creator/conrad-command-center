@@ -1,6 +1,6 @@
 import type { ChatResponse } from '../api/brain';
 
-/** Spoken when Brain /chat is fallback or empty (ANTHROPIC_API_KEY unset). */
+/** Spoken when Brain /chat is fallback or empty. */
 export const KEY_OFFLINE = 'Sir, the brain key is offline — I cannot think yet.';
 
 /** Spoken when /chat times out or errors. */
