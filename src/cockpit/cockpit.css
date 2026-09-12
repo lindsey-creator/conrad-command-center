@@ -2685,3 +2685,179 @@
 }
 
 .idle-deck__chrome { display: none; }
+
+/* ===== Higgsfield V2 ===== */
+.holo-rail {
+  grid-area: intents;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  z-index: 2;
+}
+
+.holo-rail--right {
+  grid-area: auto;
+}
+
+.holo-plate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 120px;
+  width: 100%;
+  max-width: 220px;
+  padding: 18px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(8, 18, 28, 0.35), rgba(2, 6, 10, 0.2));
+  color: #fff;
+  text-align: left;
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+}
+
+.holo-plate__ico {
+  width: 22px;
+  height: 22px;
+  color: rgba(200, 230, 255, 0.7);
+}
+
+.holo-plate b {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.holo-plate em,
+.holo-plate u {
+  font-style: normal;
+  text-decoration: none;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(180, 196, 206, 0.7);
+}
+
+.holo-plate.is-on {
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+.t1glass__rings {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.t1glass__ring {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.t1glass__ring i {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 4px #020508, 0 0 8px rgba(0, 229, 255, 0.2);
+}
+
+.t1glass__ring b {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+.t1glass__cap {
+  margin: 10px 0 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+}
+
+.talk-orb__speak {
+  position: absolute;
+  right: 8%;
+  bottom: 10%;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: #fff;
+}
+
+.idle-deck--v2 {
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.2fr) minmax(200px, 0.7fr);
+  grid-template-rows: 1fr;
+  align-items: center;
+}
+
+.idle-deck__whoop--gauges {
+  align-items: flex-start;
+}
+
+.idle-deck__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.idle-deck__beast {
+  margin: 0;
+  color: #fff;
+  text-align: center;
+}
+
+.idle-deck__beast svg {
+  width: min(36vw, 320px);
+  height: auto;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
+}
+
+.idle-deck__beast figcaption {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--mute);
+}
+
+.idle-deck--v2 .idle-deck__reactor {
+  width: min(18vh, 140px);
+  height: min(18vh, 140px);
+}
+
+.idle-deck--v2 .idle-deck__range {
+  text-align: right;
+}
+
+.rhino.mode-talk .intent-rail,
+.rhino.mode-talk .intent-rail__chip {
+  display: none;
+}
+
+.rhino.mode-talk .t1glass__edge,
+.rhino.mode-talk .t1glass__locks,
+.rhino.mode-talk .t1glass__lock {
+  display: none;
+}
+
+@media (min-aspect-ratio: 2.2/1) {
+  .rhino[data-pack='cybertruck'].mode-idle .idle-deck--v2 {
+    padding: 0 4vw;
+  }
+  .rhino[data-pack='cybertruck'].mode-idle .idle-deck__hero {
+    font-size: clamp(56px, 10vh, 120px);
+  }
+}

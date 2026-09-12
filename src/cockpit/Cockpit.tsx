@@ -250,7 +250,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
               state={wispr}
             />
             <p className="arc-bay__floor" aria-hidden="true">
-              J.A.R.V.I.S. · VOICE MODE
+              J.A.R.V.I.S. · AUDIO REACTIVE
             </p>
           </div>
         ) : null}

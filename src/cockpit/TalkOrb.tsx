@@ -91,7 +91,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
   const levelRef = useRef(level);
   levelRef.current = level;
   const wispr = state ?? inferState(motion);
-  const disc = hero && wispr !== 'speaking' && wispr !== 'error';
+  const disc = false;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -131,7 +131,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
       const dead = wispr === 'disabled' || motion === 'disabled-still';
       const heart = 0.8 + Math.sin((t * Math.PI * 2) / 4) * 0.08;
       const pulse = dead ? 0.78 : motion === 'idle-pulse' || motion === 'connect-spin' ? heart : 0.78 + rms * 0.28;
-      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? (disc ? 0.48 : 0.44) : 0.5) * pulse;
+      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? 0.46 : 0.5) * pulse;
 
       if (!reduce && !dead) {
         const spin =
@@ -159,12 +159,15 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
         drawBloom(ctx, cx, cy, scale, rms, color, dim, wispr);
         drawHalo(ctx, cx, cy, scale, rms, color, dim, wispr);
         drawGlassBubble(ctx, cx, cy, scale, rms, color, dim, wispr);
+        drawNestedGlass(ctx, cx, cy, scale, rms, color, wispr);
         drawSphereShells(ctx, cx, cy, scale, rot, t, rms, color, dim, wispr);
+        drawLatitudeRings(ctx, cx, cy, scale, rot, rms, color);
         drawSpeakCore(ctx, cx, cy, scale, rms, color, dim, wispr);
         if (wispr === 'connecting' || motion === 'connect-spin') drawConnectRing(ctx, cx, cy, scale, t, color);
         if (wispr === 'listening' || motion === 'listen-ripple') drawRipples(ctx, cx, cy, scale, t, rms, accent);
-        if (wispr === 'speaking' || motion === 'speak-wave' || wispr === 'error') {
-          drawEquatorWave(ctx, cx, cy, scale, now, rms, color);
+        if (hero) {
+          drawCrosshair(ctx, cx, cy, scale, color);
+          drawEquatorWave(ctx, cx, cy, scale, now, rms, color, wispr === 'speaking');
           drawEquatorRing3D(ctx, cx, cy, scale, now, rms, color);
         }
       }
@@ -179,21 +182,6 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
     };
   }, [motion, dim, hero, core, wispr, disc]);
 
-  const mark =
-    wispr === 'speaking'
-      ? null
-      : wispr === 'listening'
-        ? 'LISTEN'
-        : wispr === 'thinking'
-          ? 'THINK'
-          : wispr === 'connecting'
-            ? 'LINK'
-            : wispr === 'error'
-              ? 'FAULT'
-              : wispr === 'disabled'
-                ? 'OFF'
-                : 'TALK MODE';
-
   return (
     <div className={`talk-orb-wrap${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''} is-${wispr}${disc ? ' is-disc' : ' is-sphere'}`}>
       <canvas
@@ -202,10 +190,9 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
         data-orb={wispr}
         aria-hidden="true"
       />
-      {hero && wispr !== 'speaking' ? (
-        <p className="talk-orb__mark" aria-hidden="true">
-          J.A.R.V.I.S.
-          <span>{mark}</span>
+      {hero && wispr === 'speaking' ? (
+        <p className="talk-orb__speak" aria-hidden="true">
+          SPEAK
         </p>
       ) : null}
     </div>
@@ -480,24 +467,84 @@ function drawEquatorWave(
   now: number,
   rms: number,
   color: Rgb,
+  wide = false,
 ) {
-  const n = 160;
+  const n = wide ? 200 : 160;
+  const span = wide ? 1.55 : 1.18;
   ctx.beginPath();
   for (let i = 0; i <= n; i++) {
     const x = i / n * 2 - 1;
     const env = 1 - x * x;
-    const amp = (0.04 + rms * 0.14) * env * (0.4 + Math.abs(Math.sin(now / 70 + i * 0.38)));
-    const px = cx + x * scale * 1.22;
-    const py = cy + Math.sin(x * Math.PI * 12 + now / 160) * scale * amp;
+    const amp = (0.05 + rms * 0.16) * env * (0.4 + Math.abs(Math.sin(now / 70 + i * 0.38)));
+    const px = cx + x * scale * span;
+    const py = cy + Math.sin(x * Math.PI * 14 + now / 160) * scale * amp;
     if (i === 0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   }
   ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.92)`;
-  ctx.lineWidth = 2.1;
+  ctx.lineWidth = wide ? 2.4 : 1.8;
   ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},0.8)`;
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 14;
   ctx.stroke();
   ctx.shadowBlur = 0;
+}
+
+function drawNestedGlass(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+  state: WisprState,
+) {
+  if (state === 'disabled') return;
+  for (const f of [0.38, 0.62, 0.82]) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, scale * f * (1 + rms * 0.03), 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.16 + f * 0.12})`;
+    ctx.lineWidth = f > 0.7 ? 1.8 : 1.1;
+    ctx.stroke();
+  }
+}
+
+function drawLatitudeRings(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rot: number,
+  rms: number,
+  color: Rgb,
+) {
+  for (const [rx, ry] of [
+    [0.98, 0.18],
+    [0.78, 0.14],
+    [0.58, 0.1],
+  ] as const) {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, scale * rx * (1 + rms * 0.03), scale * ry, rot * 0.08, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.35)`;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  }
+}
+
+function drawCrosshair(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  color: Rgb,
+) {
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.18)`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - scale * 1.02);
+  ctx.lineTo(cx, cy + scale * 1.02);
+  ctx.moveTo(cx - scale * 1.02, cy);
+  ctx.lineTo(cx + scale * 1.02, cy);
+  ctx.stroke();
 }
 
 function drawEquatorRing3D(
