@@ -23,22 +23,60 @@ function fibonacciSphere(count: number, radius: number): Particle[] {
   return pts;
 }
 
-const SHELLS = [fibonacciSphere(360, 1), fibonacciSphere(220, 0.66), fibonacciSphere(120, 0.36)];
+function ringBand(count: number, radius: number, thickness: number): Particle[] {
+  const pts: Particle[] = [];
+  for (let i = 0; i < count; i++) {
+    const theta = (i / count) * Math.PI * 2 + (i % 3) * 0.01;
+    const jitter = ((i * 17) % 11) / 11;
+    const r = radius + (jitter - 0.5) * thickness;
+    pts.push({
+      x: Math.cos(theta) * r,
+      y: ((i % 9) - 4) * 0.006,
+      z: Math.sin(theta) * r,
+    });
+  }
+  return pts;
+}
+
+function discFill(count: number, maxR: number, minR: number): Particle[] {
+  const pts: Particle[] = [];
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i++) {
+    const u = (i + 0.5) / count;
+    const r = Math.sqrt(minR * minR + u * (maxR * maxR - minR * minR));
+    const theta = i * golden;
+    pts.push({
+      x: Math.cos(theta) * r,
+      y: ((i % 5) - 2) * 0.004,
+      z: Math.sin(theta) * r,
+    });
+  }
+  return pts;
+}
+
+const SPHERE_SHELLS = [fibonacciSphere(520, 1), fibonacciSphere(280, 0.62), fibonacciSphere(140, 0.32)];
+const DISC_BANDS = [
+  ringBand(220, 0.98, 0.03),
+  ringBand(190, 0.84, 0.03),
+  ringBand(160, 0.7, 0.03),
+  ringBand(130, 0.56, 0.03),
+  ringBand(100, 0.42, 0.03),
+  discFill(420, 0.96, 0.18),
+];
 
 export type CoreTint = 'blue' | 'amber' | 'red' | 'ice' | 'slate';
 
 type Rgb = [number, number, number];
 
-/** VoiceOrbs-class tints — white primary, cyan only on listen. */
 function tint(state: WisprState, motion: OrbMotion, core: CoreTint): Rgb {
   if (state === 'disabled' || core === 'slate') return [118, 128, 136];
   if (state === 'error' || core === 'red' || motion === 'alert-flare') return [255, 77, 109];
   if (state === 'thinking' || core === 'amber' || motion === 'think-swirl') return [255, 200, 87];
   if (state === 'listening' || motion === 'listen-ripple') return [0, 229, 255];
   if (state === 'speaking' || motion === 'speak-wave') return [120, 230, 255];
-  if (core === 'ice') return [232, 246, 255];
+  if (core === 'ice') return [200, 236, 255];
   if (state === 'connecting' || motion === 'connect-spin') return [220, 232, 240];
-  return [236, 244, 248];
+  return [210, 230, 245];
 }
 
 interface TalkOrbProps {
@@ -55,6 +93,7 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
   const levelRef = useRef(level);
   levelRef.current = level;
   const wispr = state ?? inferState(motion);
+  const disc = hero && wispr !== 'speaking' && wispr !== 'error';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -93,33 +132,42 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
       const t = now / 1000;
       const dead = wispr === 'disabled' || motion === 'disabled-still';
       const heart = 0.8 + Math.sin((t * Math.PI * 2) / 4) * 0.08;
-      const pulse = dead ? 0.78 : motion === 'idle-pulse' || motion === 'connect-spin' ? heart : 0.78 + rms * 0.36;
-      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? 0.7 : 0.5) * pulse;
+      const pulse = dead ? 0.78 : motion === 'idle-pulse' || motion === 'connect-spin' ? heart : 0.78 + rms * 0.28;
+      const scale = Math.min(w, h) * (dim ? 0.34 : hero ? 0.46 : 0.5) * pulse;
 
       if (!reduce && !dead) {
         const spin =
           motion === 'think-swirl'
-            ? 0.03
+            ? 0.024
             : motion === 'connect-spin'
-              ? 0.02
+              ? 0.018
               : motion === 'listen-ripple'
-                ? 0.012
-                : 0.006;
-        rot += spin + rms * (motion === 'think-swirl' ? 0.045 : 0.022);
+                ? 0.01
+                : disc
+                  ? 0.004
+                  : 0.006;
+        rot += spin + rms * (motion === 'think-swirl' ? 0.04 : 0.018);
       }
 
-      drawBloom(ctx, cx, cy, scale, rms, color, dim, wispr);
-      drawHalo(ctx, cx, cy, scale, rms, color, dim, wispr);
-      drawGlassBubble(ctx, cx, cy, scale, rms, color, dim, wispr);
-      drawGlass(ctx, cx, cy, scale, rms, color, dim, wispr);
-      if (wispr === 'connecting' || motion === 'connect-spin') drawConnectRing(ctx, cx, cy, scale, t, color);
-      if (wispr === 'listening' || motion === 'listen-ripple') drawRipples(ctx, cx, cy, scale, t, rms, accent);
-      drawShells(ctx, cx, cy, scale, rot, t, rms, color, dim, wispr);
-      if (wispr === 'speaking' || motion === 'speak-wave' || wispr === 'error') {
-        drawEquatorWave(ctx, cx, cy, scale, now, rms, color);
-        drawWaveformRing(ctx, cx, cy, scale, now, rms, color, wispr === 'error');
-      } else if (hero && rms > 0.35 && !dead) {
-        drawWaveformRing(ctx, cx, cy, scale, now, rms, color, false);
+      if (disc) {
+        drawDiscBloom(ctx, cx, cy, scale, rms, color, dim);
+        drawDiscRings(ctx, cx, cy, scale, rms, color, t);
+        drawDiscParticles(ctx, cx, cy, scale, rot, rms, color, dim, wispr);
+        drawEquator(ctx, cx, cy, scale, rms, color);
+        if (wispr === 'listening' || motion === 'listen-ripple') drawRipples(ctx, cx, cy, scale, t, rms, accent);
+        if (wispr === 'connecting' || motion === 'connect-spin') drawConnectRing(ctx, cx, cy, scale, t, color);
+      } else {
+        drawBloom(ctx, cx, cy, scale, rms, color, dim, wispr);
+        drawHalo(ctx, cx, cy, scale, rms, color, dim, wispr);
+        drawGlassBubble(ctx, cx, cy, scale, rms, color, dim, wispr);
+        drawSphereShells(ctx, cx, cy, scale, rot, t, rms, color, dim, wispr);
+        drawSpeakCore(ctx, cx, cy, scale, rms, color, dim, wispr);
+        if (wispr === 'connecting' || motion === 'connect-spin') drawConnectRing(ctx, cx, cy, scale, t, color);
+        if (wispr === 'listening' || motion === 'listen-ripple') drawRipples(ctx, cx, cy, scale, t, rms, accent);
+        if (wispr === 'speaking' || motion === 'speak-wave' || wispr === 'error') {
+          drawEquatorWave(ctx, cx, cy, scale, now, rms, color);
+          drawEquatorRing3D(ctx, cx, cy, scale, now, rms, color);
+        }
       }
 
       raf = requestAnimationFrame(draw);
@@ -130,20 +178,35 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [motion, dim, hero, core, wispr]);
+  }, [motion, dim, hero, core, wispr, disc]);
+
+  const mark =
+    wispr === 'speaking'
+      ? null
+      : wispr === 'listening'
+        ? 'LISTEN'
+        : wispr === 'thinking'
+          ? 'THINK'
+          : wispr === 'connecting'
+            ? 'LINK'
+            : wispr === 'error'
+              ? 'FAULT'
+              : wispr === 'disabled'
+                ? 'OFF'
+                : 'TALK MODE';
 
   return (
-    <div className={`talk-orb-wrap${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''} is-${wispr}`}>
+    <div className={`talk-orb-wrap${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''} is-${wispr}${disc ? ' is-disc' : ' is-sphere'}`}>
       <canvas
         className={`talk-orb${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''} is-${wispr}`}
         ref={canvasRef}
         data-orb={wispr}
         aria-hidden="true"
       />
-      {hero ? (
+      {hero && wispr !== 'speaking' ? (
         <p className="talk-orb__mark" aria-hidden="true">
           J.A.R.V.I.S.
-          <span>{wispr === 'speaking' ? 'TALK MODE' : wispr.toUpperCase()}</span>
+          <span>{mark}</span>
         </p>
       ) : null}
     </div>
@@ -160,7 +223,116 @@ function inferState(motion: OrbMotion): WisprState {
   return 'idle';
 }
 
-/** EliseyRotar-style bloom — soft field, not a second orb. */
+function drawDiscBloom(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+  dim: boolean,
+) {
+  const bloom = ctx.createRadialGradient(cx, cy, scale * 0.2, cx, cy, scale * (1.55 + rms * 0.25));
+  const a = dim ? 0.05 : 0.14 + rms * 0.18;
+  bloom.addColorStop(0, 'rgba(0,0,0,0)');
+  bloom.addColorStop(0.42, `rgba(${color[0]},${color[1]},${color[2]},${a * 0.35})`);
+  bloom.addColorStop(0.72, `rgba(${color[0]},${color[1]},${color[2]},${a})`);
+  bloom.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bloom;
+  ctx.beginPath();
+  ctx.arc(cx, cy, scale * 1.6, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawDiscRings(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+  t: number,
+) {
+  for (let r = 0; r < 6; r++) {
+    const rad = scale * (0.28 + r * 0.14) * (1 + rms * 0.03);
+    ctx.beginPath();
+    ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.08 + (r === 5 ? 0.22 : 0.04) + rms * 0.08})`;
+    ctx.lineWidth = r === 5 ? 2.4 : 0.8;
+    ctx.stroke();
+  }
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(t * 0.08);
+  ctx.setLineDash([3, 10]);
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.12)`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, 0, scale * 1.02, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawDiscParticles(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rot: number,
+  rms: number,
+  color: Rgb,
+  dim: boolean,
+  state: WisprState,
+) {
+  const mute = state === 'disabled' ? 0.28 : 1;
+  const cos = Math.cos(rot);
+  const sin = Math.sin(rot);
+  for (let s = 0; s < DISC_BANDS.length; s++) {
+    const band = DISC_BANDS[s];
+    const outer = s < 5;
+    for (const p of band) {
+      const x1 = p.x * cos - p.z * sin;
+      const z1 = p.x * sin + p.z * cos;
+      const persp = 2.4 / (2.4 + z1 * 0.55);
+      const spread = 1 + rms * (outer ? 0.06 : 0.03);
+      const px = cx + x1 * scale * persp * spread;
+      const py = cy + p.y * scale * persp * spread + z1 * scale * 0.04;
+      const rim = Math.abs(Math.hypot(p.x, p.z) - 0.98);
+      const a = ((dim ? 0.1 : 0.16) + persp * 0.45 + (outer && rim < 0.08 ? 0.35 : 0) + rms * 0.2) * mute;
+      const size = (outer ? 1.55 : 1.15) * persp * (dim ? 0.7 : 1 + rms * 0.15);
+      ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${Math.min(1, a)})`;
+      ctx.beginPath();
+      ctx.arc(px, py, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawEquator(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+) {
+  const glow = ctx.createLinearGradient(cx - scale * 1.15, cy, cx + scale * 1.15, cy);
+  glow.addColorStop(0, 'rgba(0,0,0,0)');
+  glow.addColorStop(0.2, `rgba(${color[0]},${color[1]},${color[2]},0.15)`);
+  glow.addColorStop(0.5, `rgba(255,255,255,${0.85 + rms * 0.15})`);
+  glow.addColorStop(0.8, `rgba(${color[0]},${color[1]},${color[2]},0.15)`);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.strokeStyle = glow;
+  ctx.lineWidth = 2.6 + rms * 2;
+  ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},0.85)`;
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.moveTo(cx - scale * 1.12, cy);
+  ctx.lineTo(cx + scale * 1.12, cy);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
 function drawBloom(
   ctx: CanvasRenderingContext2D,
   cx: number,
@@ -172,14 +344,14 @@ function drawBloom(
   state: WisprState,
 ) {
   if (state === 'disabled') return;
-  const bloom = ctx.createRadialGradient(cx, cy, scale * 0.1, cx, cy, scale * (1.85 + rms * 0.4));
-  const a = dim ? 0.06 : 0.16 + rms * 0.22;
+  const bloom = ctx.createRadialGradient(cx, cy, scale * 0.08, cx, cy, scale * (1.7 + rms * 0.35));
+  const a = dim ? 0.06 : 0.2 + rms * 0.22;
   bloom.addColorStop(0, `rgba(255,255,255,${a})`);
-  bloom.addColorStop(0.35, `rgba(${color[0]},${color[1]},${color[2]},${a * 0.55})`);
+  bloom.addColorStop(0.32, `rgba(${color[0]},${color[1]},${color[2]},${a * 0.5})`);
   bloom.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = bloom;
   ctx.beginPath();
-  ctx.arc(cx, cy, scale * (1.9 + rms * 0.35), 0, Math.PI * 2);
+  ctx.arc(cx, cy, scale * (1.75 + rms * 0.3), 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -193,55 +365,17 @@ function drawHalo(
   dim: boolean,
   state: WisprState,
 ) {
-  const glowA = state === 'error' ? 0.7 : state === 'disabled' ? 0.08 : dim ? 0.12 : 0.38 + rms * 0.4;
-  const halo = ctx.createRadialGradient(cx, cy, scale * 0.18, cx, cy, scale * (1.42 + rms * 0.32));
+  const glowA = state === 'error' ? 0.7 : state === 'disabled' ? 0.08 : dim ? 0.12 : 0.28 + rms * 0.32;
+  const halo = ctx.createRadialGradient(cx, cy, scale * 0.16, cx, cy, scale * (1.28 + rms * 0.22));
   halo.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},${glowA})`);
-  halo.addColorStop(0.42, `rgba(${color[0]},${color[1]},${color[2]},${dim ? 0.06 : 0.14 + rms * 0.1})`);
+  halo.addColorStop(0.5, `rgba(${color[0]},${color[1]},${color[2]},${dim ? 0.05 : 0.1 + rms * 0.08})`);
   halo.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(cx, cy, scale * (1.4 + rms * 0.26), 0, Math.PI * 2);
+  ctx.arc(cx, cy, scale * (1.28 + rms * 0.2), 0, Math.PI * 2);
   ctx.fill();
 }
 
-function drawGlass(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  scale: number,
-  rms: number,
-  color: Rgb,
-  dim: boolean,
-  state: WisprState,
-) {
-  const inner = scale * (0.2 + rms * 0.05);
-  const glass = ctx.createRadialGradient(cx - scale * 0.12, cy - scale * 0.16, scale * 0.04, cx, cy, scale * 0.52);
-  const a = state === 'disabled' ? 0.18 : dim ? 0.28 : 0.55;
-  glass.addColorStop(0, `rgba(255,255,255,${dim ? 0.35 : 0.72})`);
-  glass.addColorStop(0.35, `rgba(${color[0]},${color[1]},${color[2]},${a})`);
-  glass.addColorStop(0.78, `rgba(8,14,18,${dim ? 0.35 : 0.22})`);
-  glass.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = glass;
-  ctx.beginPath();
-  ctx.arc(cx, cy, scale * 0.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, inner, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${dim ? 0.35 : 0.88})`;
-  ctx.fill();
-
-  for (let r = 0; r < 3; r++) {
-    const rad = scale * (0.42 + r * 0.2) * (1 + rms * 0.06);
-    ctx.beginPath();
-    ctx.arc(cx, cy, rad, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(255,255,255,${(dim ? 0.08 : 0.16 + rms * 0.2) * (1 - r * 0.22)})`;
-    ctx.lineWidth = r === 0 ? 2.2 : 1.2;
-    ctx.stroke();
-  }
-}
-
-/** Higgsfield speak-orb — outer glass sphere + specular. */
 function drawGlassBubble(
   ctx: CanvasRenderingContext2D,
   cx: number,
@@ -253,20 +387,55 @@ function drawGlassBubble(
   state: WisprState,
 ) {
   if (dim || state === 'disabled') return;
-  const r = scale * (0.98 + rms * 0.04);
-  const rim = ctx.createRadialGradient(cx - r * 0.28, cy - r * 0.34, r * 0.05, cx, cy, r);
-  rim.addColorStop(0, 'rgba(255,255,255,0.28)');
-  rim.addColorStop(0.22, `rgba(${color[0]},${color[1]},${color[2]},0.08)`);
-  rim.addColorStop(0.82, 'rgba(0,0,0,0)');
-  rim.addColorStop(1, `rgba(${color[0]},${color[1]},${color[2]},0.35)`);
+  const r = scale * (0.98 + rms * 0.03);
+  const rim = ctx.createRadialGradient(cx - r * 0.32, cy - r * 0.38, r * 0.04, cx, cy, r);
+  rim.addColorStop(0, 'rgba(255,255,255,0.42)');
+  rim.addColorStop(0.18, `rgba(${color[0]},${color[1]},${color[2]},0.1)`);
+  rim.addColorStop(0.72, 'rgba(0,0,0,0)');
+  rim.addColorStop(0.92, `rgba(${color[0]},${color[1]},${color[2]},0.22)`);
+  rim.addColorStop(1, `rgba(${color[0]},${color[1]},${color[2]},0.55)`);
   ctx.fillStyle = rim;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.78, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.22)`;
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(cx - r * 0.22, cy - r * 0.42, r * 0.18, r * 0.08, -0.5, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  ctx.fill();
+}
+
+function drawSpeakCore(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+  dim: boolean,
+  state: WisprState,
+) {
+  if (state === 'disabled') return;
+  const r = scale * (0.16 + rms * 0.05);
+  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  core.addColorStop(0, 'rgba(255,255,255,0.95)');
+  core.addColorStop(0.45, `rgba(${color[0]},${color[1]},${color[2]},0.85)`);
+  core.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = core;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.4)`;
-  ctx.lineWidth = 1.6;
+  ctx.fill();
+  if (dim) return;
+  ctx.beginPath();
+  ctx.arc(cx, cy, scale * 0.28, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.2)`;
+  ctx.lineWidth = 1;
   ctx.stroke();
 }
 
@@ -279,19 +448,48 @@ function drawEquatorWave(
   rms: number,
   color: Rgb,
 ) {
-  const n = 120;
+  const n = 160;
   ctx.beginPath();
   for (let i = 0; i <= n; i++) {
     const x = i / n * 2 - 1;
     const env = 1 - x * x;
-    const amp = (0.05 + rms * 0.16) * env * (0.45 + Math.abs(Math.sin(now / 70 + i * 0.35)));
-    const px = cx + x * scale * 1.08;
-    const py = cy + Math.sin(x * Math.PI * 10 + now / 180) * scale * amp;
+    const amp = (0.04 + rms * 0.14) * env * (0.4 + Math.abs(Math.sin(now / 70 + i * 0.38)));
+    const px = cx + x * scale * 1.22;
+    const py = cy + Math.sin(x * Math.PI * 12 + now / 160) * scale * amp;
     if (i === 0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   }
-  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.85)`;
-  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.92)`;
+  ctx.lineWidth = 2.1;
+  ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},0.8)`;
+  ctx.shadowBlur = 12;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+function drawEquatorRing3D(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  now: number,
+  rms: number,
+  color: Rgb,
+) {
+  const n = 180;
+  ctx.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const wave = Math.sin(a * 16 + now / 90) * (0.035 + rms * 0.09);
+    const rx = scale * (0.94 + wave);
+    const ry = scale * (0.16 + wave * 0.35);
+    const px = cx + Math.cos(a) * rx;
+    const py = cy + Math.sin(a) * ry;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.55 + rms * 0.35})`;
+  ctx.lineWidth = 1.6;
   ctx.stroke();
 }
 
@@ -324,17 +522,17 @@ function drawRipples(
   rms: number,
   color: Rgb,
 ) {
-  for (let i = 0; i < 5; i++) {
-    const r = ((t * 0.7 + i * 0.2) % 1) * scale * (1.7 + rms * 0.4);
+  for (let i = 0; i < 4; i++) {
+    const r = ((t * 0.7 + i * 0.25) % 1) * scale * (1.55 + rms * 0.3);
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${(0.32 + rms * 0.25) * (1 - r / (scale * 2.1))})`;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${(0.28 + rms * 0.2) * (1 - r / (scale * 2))})`;
+    ctx.lineWidth = 1.6;
     ctx.stroke();
   }
 }
 
-function drawShells(
+function drawSphereShells(
   ctx: CanvasRenderingContext2D,
   cx: number,
   cy: number,
@@ -350,49 +548,22 @@ function drawShells(
   const speeds = [1, -0.74, 1.38];
   const swirl = state === 'thinking' ? t * (1.4 + rms * 1.2) : 0;
 
-  for (let s = 0; s < SHELLS.length; s++) {
+  for (let s = 0; s < SPHERE_SHELLS.length; s++) {
     const ang = rot * speeds[s] + swirl * (0.12 + s * 0.06);
     const cos = Math.cos(ang);
     const sin = Math.sin(ang);
-    for (const p of SHELLS[s]) {
+    for (const p of SPHERE_SHELLS[s]) {
       const x1 = p.x * cos - p.z * sin;
       const z1 = p.x * sin + p.z * cos;
       const persp = 2.15 / (2.15 + z1);
-      const spread = 1 + (s === 0 ? rms * 0.22 : s === 1 ? rms * 0.1 : rms * 0.04);
+      const spread = 1 + (s === 0 ? rms * 0.16 : s === 1 ? rms * 0.08 : rms * 0.03);
       const px = cx + x1 * scale * persp * spread;
       const py = cy + p.y * scale * persp * spread;
-      const a = ((dim ? 0.12 : 0.24) + persp * 0.55 + rms * 0.28) * mute;
+      const a = ((dim ? 0.1 : 0.2) + persp * 0.5 + rms * 0.22) * mute;
       ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${Math.min(1, a)})`;
       ctx.beginPath();
-      ctx.arc(px, py, (s === 2 ? 3.4 : 2.2) * persp * (dim ? 0.65 : 1 + rms * 0.25), 0, Math.PI * 2);
+      ctx.arc(px, py, (s === 2 ? 2.6 : 1.7) * persp * (dim ? 0.65 : 1 + rms * 0.2), 0, Math.PI * 2);
       ctx.fill();
     }
-  }
-}
-
-function drawWaveformRing(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  scale: number,
-  now: number,
-  rms: number,
-  color: Rgb,
-  alert: boolean,
-) {
-  const bars = 72;
-  const inner = scale * 0.8;
-  for (let i = 0; i < bars; i++) {
-    const ang = (i / bars) * Math.PI * 2;
-    const spat = 0.32 + 0.68 * Math.abs(Math.sin((i / bars) * Math.PI * 8 + now / 160));
-    const travel = Math.abs(Math.sin(now / 70 + i * 0.22));
-    const n = 0.08 + rms * spat + travel * rms * 0.4;
-    const len = (alert ? 22 : 10) + n * (52 + rms * 36);
-    ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.22 + n * 0.6})`;
-    ctx.lineWidth = 1.8;
-    ctx.beginPath();
-    ctx.moveTo(cx + Math.cos(ang) * inner, cy + Math.sin(ang) * inner);
-    ctx.lineTo(cx + Math.cos(ang) * (inner + len), cy + Math.sin(ang) * (inner + len));
-    ctx.stroke();
   }
 }

@@ -52,17 +52,15 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [booted, setBooted] = useState(shot || idleShot || speakDemo);
   const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
   const [wispr, setWispr] = useState<WisprState>(
-    forcedWispr ?? (shot || speakDemo ? 'speaking' : 'idle'),
+    forcedWispr ?? (speakDemo ? 'speaking' : shot ? 'listening' : 'idle'),
   );
   const [armed, setArmed] = useState(shot && !forcedWispr);
   const [caption, setCaption] = useState(
     forcedWispr
       ? WISPR_CAPTION[forcedWispr]
-      : shot
-        ? WISPR_CAPTION.speaking
-        : speakDemo
-          ? 'CLICK SPEAK — TTS demo.'
-          : '',
+      : speakDemo
+        ? 'CLICK SPEAK — TTS demo.'
+        : '',
   );
   const [seed, setSeed] = useState<string | undefined>();
   const [intents, setIntents] = useState<IntentId[]>(shot || speakDemo ? ALL_INTENTS : []);
@@ -221,15 +219,17 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
       <header className="rhino-top">
         <div className="rhino-top__brand">
-          <b>JARVIS</b>
+          <b>STARK INDUSTRIES</b>
           <i data-on={brainOnline} />
-          <em>{brainOnline ? 'LIVE' : 'STANDBY'}</em>
-          <small>OS v5.0.0</small>
+          <em>J.A.R.V.I.S.</em>
+          <small>{mode === 'idle' ? 'IDLE MODE' : 'VOICE INTERFACE'}</small>
         </div>
-        <span className="rhino-top__truck">CYBERTRUCK</span>
-        <span className="rhino-top__mode">{mode === 'idle' ? 'IDLE MODE' : 'VOICE INTERFACE'}</span>
+        {mode === 'idle' ? <span className="rhino-top__truck">CYBERTRUCK</span> : null}
+        <span className="rhino-top__mark">MARK III</span>
+        <span className={`rhino-top__sys${brainOnline ? ' is-on' : ''}`}>
+          {brainOnline ? 'SYSTEMS ONLINE' : 'STANDBY'}
+        </span>
         <span className={`rhino-top__wispr is-${wispr}`}>{mode === 'talk' ? WISPR_LABEL[wispr] : 'DAY ORBIT'}</span>
-        <span className="rhino-top__pack">{autonomy} CORE</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
         </button>
@@ -249,6 +249,9 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
               core={core}
               state={wispr}
             />
+            <p className="arc-bay__floor" aria-hidden="true">
+              J.A.R.V.I.S. · VOICE MODE
+            </p>
           </div>
         ) : null}
         {mode === 'talk' ? (
