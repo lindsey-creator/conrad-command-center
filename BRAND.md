@@ -3,7 +3,7 @@
 The feeling is the spec. When Lindsey opens it he should feel **"we got this"** — and that JARVIS is in the room.
 
 ## Principles
-- **Iron Man movie JARVIS.** Cinematic blue/cyan holographic HUD. Command bar first. Not a SaaS dashboard.
+- **From the future, Cybertruck-ready.** Landscape HUD. Dark void + ice cyan `#00E5FF`. Giant type. 72px taps. Arm’s-length readable.
 - **Elite and calm.** Uncluttered, confident. Deep space background; cyan accent; generous spacing.
 - **Clarity over decoration.** So clear it's hard to mess up. Type-1 only: MONEY NOW / LEAKING / EFFICIENCY.
 - **Mobile-first.** Runs from a phone/tablet in a Cybertruck on Starlink. Big tap targets, fast, works on a weak connection.

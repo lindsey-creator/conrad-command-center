@@ -2,22 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { brain } from './api/brain';
 import { touchBrainLive } from './hooks/brainLive';
 import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
-import { CommandHeader } from './components/CommandHeader';
-import { Type1Decisions } from './components/Type1Decisions';
-import { FeedSlots } from './components/FeedSlots';
 import { Connections, resolveConnectorKey } from './components/Connections';
-import { EchoCommand } from './components/EchoCommand';
 import { FeedTheBrain } from './components/FeedTheBrain';
-import { Footer } from './components/Footer';
-import { Header } from './components/Header';
-import { ModuleGrid } from './components/ModuleGrid';
+import { Cockpit } from './cockpit/Cockpit';
 import { Nav, type Page } from './components/Nav';
-import { PendingApprovals } from './components/PendingApprovals';
-import type { EchoVoiceState } from './hooks/useEchoVoice';
 import './styles/tokens.css';
 import './styles/layout.css';
 import './styles/feed.css';
-import './styles/hud.css';
+import './cockpit/cockpit.css';
 
 function pageFromHash(): Page {
   const id = window.location.hash.replace(/^#/, '').split('/')[0].toLowerCase();
@@ -30,9 +22,6 @@ export default function App() {
   const [page, setPageState] = useState<Page>(pageFromHash);
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
-  const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
-  const [pendingCommand, setPendingCommand] = useState<string | undefined>();
-  const [seedNonce, setSeedNonce] = useState(0);
 
   const checkHealth = useCallback(async () => {
     try {
@@ -81,58 +70,21 @@ export default function App() {
     setPage('connections');
   }, [setPage]);
 
-  const runThroughGlass = useCallback((text: string) => {
-    setPage('dashboard');
-    setPendingCommand(text);
-    setSeedNonce((n) => n + 1);
-    window.requestAnimationFrame(() => {
-      document.getElementById('jarvis-command-input')?.focus();
-      document.querySelector('.echo-command')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-  }, [setPage]);
+  if (page === 'dashboard') {
+    return <Cockpit brainOnline={brainOnline} onConnect={openConnections} />;
+  }
 
   return (
-    <div className="wrap command-deck hud-root">
-      <div className="hud-atmosphere" aria-hidden="true">
-        <div className="hud-atmosphere__ring" />
-        <div className="hud-atmosphere__sweep" />
-        <div className="hud-atmosphere__vignette" />
-      </div>
-      <Header brainOnline={brainOnline} />
+    <div className="stack-sheet">
+      <button type="button" className="stack-sheet__back" onClick={() => setPage('dashboard')}>
+        HUD
+      </button>
       <Nav page={page} onChange={setPage} />
-      {page === 'dashboard' ? (
-        <div className="command-deck__main">
-          <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
-          <EchoCommand
-            key={seedNonce}
-            brainOnline={brainOnline}
-            onVoiceStateChange={setVoiceState}
-            commandSeed={pendingCommand}
-          />
-          <Type1Decisions
-            brainOnline={brainOnline}
-            onConnect={openConnections}
-            onCommand={runThroughGlass}
-          />
-          <FeedSlots
-            brainOnline={brainOnline}
-            onConnect={openConnections}
-            onCommand={runThroughGlass}
-          />
-          <PendingApprovals />
-          <details className="intel-fold hud-corners">
-            <summary>Expand full intel deck</summary>
-            <div className="intel-fold__body">
-              <ModuleGrid onConnect={openConnections} />
-            </div>
-          </details>
-        </div>
-      ) : page === 'echo' ? (
+      {page === 'echo' ? (
         <FeedTheBrain />
       ) : (
         <Connections focusSource={connectFocus} />
       )}
-      <Footer />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 :root {
   /* Iron Man JARVIS — cinematic blue/cyan holographic HUD */
-  --bg: #02060d;
+  --bg: #020508;
   --bg-elevated: #061018;
   --panel: rgba(4, 22, 36, 0.55);
   --panel-solid: #071520;
@@ -57,10 +57,12 @@
 
 * { box-sizing: border-box; }
 
-html, body {
+html, body, #root {
   margin: 0;
+  height: 100%;
   min-height: 100%;
   background-color: var(--bg);
+  overflow: hidden;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -69,7 +71,8 @@ html, body {
 }
 
 body::before {
-  content: '';
+  content: none;
+  display: none;
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -88,7 +91,8 @@ body::before {
 }
 
 body::after {
-  content: '';
+  content: none;
+  display: none;
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -106,8 +110,8 @@ a { color: inherit; text-decoration: none; }
 button {
   font: inherit;
   cursor: pointer;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 72px;
+  min-width: 72px;
   transition: border-color var(--transition), color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
 }
 

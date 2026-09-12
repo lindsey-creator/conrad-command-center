@@ -12,15 +12,16 @@ This doc locks how Lindsey Conrad's operator stack is named in product copy, pro
 | **Supercomputer** | Knowledge / memory layer (training, decisions, ingest) — not the HUD itself. |
 | **Manus** | Named production **builds and deploy** on the always-on box only — not the assistant persona. |
 
-## HUD (LINDSEY VISION)
+## HUD (LINDSEY VISUAL LOCK)
 
-Opening the Railway URL should feel like JARVIS, not SaaS.
+Opening the Railway URL should feel like JARVIS from the future — Cybertruck landscape glass, not SaaS.
 
-- **Look:** cinematic blue/cyan holographic HUD (scan grid, corner brackets, arc reactor). Not a gold dashboard.
-- **Command bar:** Speak when ready, sir — Wispr Flow into `#jarvis-command-input`, hold-to-talk fallback, **Execute**. Tasks and drafts still hit the Approval Queue.
-- **Type-1 only:** exactly three slots — **MONEY NOW** · **LEAKING** · **EFFICIENCY**. Brain-backed; empty slots stay Standby / Connect source. Never invent numbers.
-- **Feed slots:** Town · GHL apply · Calendar · WHOOP · Rise · Non-QM. Honest connect states until the Brain has the source.
-- **Through the glass:** Type-1 **Run through glass** and feed **Ask JARVIS** seed the command bar. Approvals stay on the HUD.
+- **Look:** dark void + ice cyan `#00E5FF`, amber warn, red critical. Subtle scanlines, particle depth, corner brackets. No video. No neon-gamer clutter.
+- **Arc Core:** pulses IDLE / THINKING / ACTING / TYPE-1. Always-working scan line.
+- **Boot:** reactor ignition ≤2s, then the live board.
+- **Panels only:** Arc Core · Type-1 Targeting (max 3) · MONEY NOW · LEAKING · Day Orbit. Command bar on the bottom.
+- **PROVEN vs CLAIMED** on every panel. Giant type, 72px tap targets, readable at arm’s length.
+- **Command bar:** Speak when ready, sir — Wispr into `#jarvis-command-input`, hold-to-talk, **EXECUTE**. Approvals stay on the glass.
 
 Live production (no custom-domain work from this repo):
 **https://jarvis-brain-production-8def.up.railway.app**
