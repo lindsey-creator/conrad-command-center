@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { EchoVoiceState } from '../hooks/useEchoVoice';
 import { useAudioPulse } from '../hooks/useAudioPulse';
 import { BootIgnition } from './BootIgnition';
@@ -8,7 +8,20 @@ import { LeakGrid } from './LeakGrid';
 import { MoneyRadar } from './MoneyRadar';
 import { TalkOrb, type CoreTint } from './TalkOrb';
 import { Type1Glass } from './Type1Glass';
-import { isAlertIntent, railsForIntent, type DeckMode, type OrbMotion } from './machine';
+import {
+  ALL_INTENTS,
+  WISPR_CAPTION,
+  WISPR_LABEL,
+  intentsForQuery,
+  isAlertIntent,
+  motionForWispr,
+  reduceWispr,
+  wisprFromSearch,
+  type DeckMode,
+  type IntentId,
+  type WisprEvent,
+  type WisprState,
+} from './machine';
 import { useHudPack } from './useHudPack';
 import { useType1Locks } from './useType1Locks';
 import { JobRail } from './JobRail';
@@ -30,6 +43,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const shot = useMemo(() => queryFlag('talk'), []);
   const idleShot = useMemo(() => queryFlag('idle'), []);
   const speakDemo = useMemo(() => queryFlag('speak'), []);
+  const forcedWispr = useMemo(() => wisprFromSearch(), []);
   const pack = useHudPack();
   const whoop = useWhoopDay(brainOnline);
   const locks = useType1Locks(brainOnline);
@@ -37,19 +51,24 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [tick, setTick] = useState(0);
   const [booted, setBooted] = useState(shot || idleShot || speakDemo);
   const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
-  const [motion, setMotion] = useState<OrbMotion>(shot ? 'speak-wave' : 'idle-pulse');
+  const [wispr, setWispr] = useState<WisprState>(
+    forcedWispr ?? (shot || speakDemo ? 'speaking' : 'idle'),
+  );
   const [armed, setArmed] = useState(shot);
-  const [micLive, setMicLive] = useState(false);
   const [caption, setCaption] = useState(
-    shot
-      ? 'Talk Mode. Orb owns the center.'
-      : speakDemo
-        ? 'CLICK SPEAK — TTS demo.'
-        : '',
+    forcedWispr
+      ? WISPR_CAPTION[forcedWispr]
+      : shot
+        ? WISPR_CAPTION.speaking
+        : speakDemo
+          ? 'CLICK SPEAK — TTS demo.'
+          : '',
   );
   const [seed, setSeed] = useState<string | undefined>();
-  const timers = useRef<number[]>([]);
-  const level = useAudioPulse(motion, micLive);
+  const [intents, setIntents] = useState<IntentId[]>(shot || speakDemo ? ALL_INTENTS : []);
+  const locked = shot || Boolean(forcedWispr);
+  const motion = motionForWispr(wispr, armed);
+  const level = useAudioPulse(motion, wispr === 'listening');
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,57 +78,49 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
   const phase = nextLoopPhase(tick);
   const type1Proven = locks.some((l) => l.proven);
-  const goArmed = armed || motion === 'alert-flare';
+  const goArmed = armed || wispr === 'error';
   const autonomy = resolveAutonomy({ phase, type1Proven, goArmed });
   const leakHot = locks.some((l) => l.lane === 'LEAKING' && l.proven);
-  const core: CoreTint = autonomy === 'L3' ? 'red' : autonomy === 'L2' || leakHot ? 'amber' : 'blue';
-  const loopMotion =
-    phase === 'reason'
-      ? 'think-swirl'
-      : phase === 'act'
-        ? 'listen-ripple'
-        : phase === 'escalate' && type1Proven
-          ? 'alert-flare'
-          : 'idle-pulse';
-  const orbMotion = mode === 'talk' ? motion : loopMotion;
+  const core: CoreTint =
+    wispr === 'error' || autonomy === 'L3' ? 'red' : autonomy === 'L2' || leakHot ? 'amber' : 'blue';
 
-  const clearTimers = () => {
-    timers.current.forEach((id) => window.clearTimeout(id));
-    timers.current = [];
-  };
+  const apply = useCallback(
+    (event: WisprEvent) => {
+      if (locked) return;
+      setWispr((s) => reduceWispr(s, event));
+    },
+    [locked],
+  );
+
   const sinkThenIdle = useCallback(() => {
-    if (shot || speakDemo) return;
-    clearTimers();
-    setMicLive(false);
+    if (locked || speakDemo) return;
     setArmed(false);
     setMode('idle');
-    setMotion('idle-pulse');
+    apply({ type: 'end' });
     setCaption('');
-  }, [shot, speakDemo]);
+    setIntents([]);
+  }, [apply, locked, speakDemo]);
 
   const enterListen = useCallback(() => {
-    if (shot) return;
-    clearTimers();
+    if (locked) return;
     setMode('talk');
-    setMotion('listen-ripple');
-    setMicLive(true);
-    setCaption('Listening.');
-  }, [shot]);
+    apply({ type: 'listen' });
+    setCaption(WISPR_CAPTION.listening);
+    setIntents((cur) => (cur.length ? cur : ['type1']));
+  }, [apply, locked]);
 
   const runTalk = useCallback(
     (q: string) => {
-      if (shot) return;
-      clearTimers();
-      const rails = railsForIntent(q);
-      const flare = isAlertIntent(rails);
+      if (locked) return;
+      const raised = intentsForQuery(q);
       setMode('talk');
-      setMicLive(false);
-      setArmed(flare);
-      setMotion('think-swirl');
-      setCaption('Thinking.');
+      setArmed(isAlertIntent(raised));
+      apply({ type: 'ask' });
+      setCaption(WISPR_CAPTION.thinking);
+      setIntents(raised);
       setSeed(undefined);
     },
-    [shot],
+    [apply, locked],
   );
 
   const ask = useCallback(
@@ -122,31 +133,40 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
   const onVoiceState = useCallback(
     (state: EchoVoiceState) => {
-      if (shot) return;
+      if (locked) return;
       if (state === 'listening') {
         setMode('talk');
-        setMotion('listen-ripple');
-        setMicLive(true);
-        setCaption('Listening.');
+        apply({ type: 'listen' });
+        setCaption(WISPR_CAPTION.listening);
       }
       if (state === 'speaking') {
-        setMotion('speak-wave');
-        setMicLive(false);
-        setCaption('Speaking.');
+        apply({ type: 'reply' });
+        setCaption(WISPR_CAPTION.speaking);
       }
-      if (state === 'thinking') setMotion('think-swirl');
+      if (state === 'thinking') {
+        apply({ type: 'ask' });
+        setCaption(WISPR_CAPTION.thinking);
+      }
+      if (state === 'error') {
+        apply({ type: 'fail' });
+        setCaption(WISPR_CAPTION.error);
+      }
     },
-    [shot],
+    [apply, locked],
   );
+
+  const raise = (id: IntentId) => (mode === 'talk' ? intents.includes(id) : true);
 
   return (
     <div
-      className={`rhino mode-${mode} motion-${orbMotion} core-${core}${booted ? ' is-live' : ''}${shot ? ' is-shot' : ''}`}
+      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${shot ? ' is-shot' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
       data-pack={pack}
       data-mode={mode}
       data-core={core}
       data-autonomy={autonomy}
       data-phase={phase}
+      data-wispr={wispr}
+      data-intents={intents.join(',')}
     >
       {!booted ? <BootIgnition onDone={() => setBooted(true)} /> : null}
 
@@ -155,7 +175,12 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <div className="rhino__holo" />
         <div className="rhino__vignette" />
       </div>
-      <div className="rhino__frame" aria-hidden="true" />
+      <div className="rhino__frame" aria-hidden="true">
+        <i className="rhino__cut rhino__cut--tl" />
+        <i className="rhino__cut rhino__cut--tr" />
+        <i className="rhino__cut rhino__cut--bl" />
+        <i className="rhino__cut rhino__cut--br" />
+      </div>
 
       <header className="rhino-top">
         <div className="rhino-top__brand">
@@ -164,7 +189,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
           <em>{brainOnline ? 'LIVE' : 'STANDBY'}</em>
         </div>
         <span className="rhino-top__mode">{mode === 'idle' ? autonomy : 'TALK'}</span>
-        <span className="rhino-top__motion">{phase.toUpperCase()}</span>
+        <span className={`rhino-top__wispr is-${wispr}`}>{mode === 'talk' ? WISPR_LABEL[wispr] : phase.toUpperCase()}</span>
         <span className="rhino-top__pack">{autonomy} CORE</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
@@ -173,20 +198,21 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       <JobRail level={autonomy} phase={phase} jobs={jobs} />
 
       <div className="board">
-        <MoneyRadar brainOnline={brainOnline} onAsk={ask} />
+        {raise('money') ? <MoneyRadar brainOnline={brainOnline} onAsk={ask} /> : null}
         <div className="arc-bay" aria-label="Arc core">
-          <span className="arc-bay__tag">ARC CORE · {autonomy} · {phase.toUpperCase()}</span>
           <TalkOrb
-            motion={orbMotion}
+            motion={motion}
             level={level}
             dim={mode === 'idle'}
             hero={mode === 'talk'}
             core={core}
           />
         </div>
-        <LeakGrid brainOnline={brainOnline} onAsk={ask} />
-        <Type1Glass locks={locks} risen sinking={false} onLock={ask} />
-        <DayOrbit brainOnline={brainOnline} whoop={whoop} onAsk={ask} />
+        {raise('leak') ? <LeakGrid brainOnline={brainOnline} onAsk={ask} /> : null}
+        {raise('type1') ? (
+          <Type1Glass locks={locks} risen={mode === 'talk'} sinking={false} onLock={ask} />
+        ) : null}
+        {raise('orbit') ? <DayOrbit brainOnline={brainOnline} whoop={whoop} onAsk={ask} /> : null}
         <div className="board__voice">
           <p className="caption">{caption}</p>
         </div>
@@ -195,7 +221,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       <CommandDock
         brainOnline={brainOnline}
         talking={mode === 'talk'}
-        listening={motion === 'listen-ripple' && mode === 'talk'}
+        listening={wispr === 'listening'}
         seed={seed}
         demoSpeak={speakDemo}
         onWispr={enterListen}
@@ -203,12 +229,10 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         onVoiceState={onVoiceState}
         onAnswer={(spoken, claimed) => {
           if (!spoken) return;
-          setCaption(claimed ? 'CLAIMED — Brain key offline.' : 'PROVEN — Brain /chat');
+          apply({ type: 'reply' });
+          setCaption(claimed ? 'CLAIMED — Brain key offline.' : spoken);
         }}
-        onSpeakEnd={() => {
-          setMicLive(false);
-          setMotion('idle-pulse');
-        }}
+        onSpeakEnd={() => apply({ type: 'spoke' })}
         onEnd={sinkThenIdle}
       />
     </div>

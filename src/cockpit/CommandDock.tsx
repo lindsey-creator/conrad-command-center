@@ -136,6 +136,16 @@ export function CommandDock({
 
   const onSpeakClick = async () => {
     voice.unlock();
+    if (voice.voiceState === 'speaking') {
+      voice.stopSpeaking();
+      onWispr();
+      const barged = await voice.startListening();
+      if (barged === 'denied' || barged === 'missing') {
+        setBanner(ERR_COPY[barged === 'denied' ? 'mic-denied' : 'mic-missing']);
+        onVoiceState?.('error');
+      }
+      return;
+    }
     if (demoSpeak && !text.trim() && !listening) {
       const line = 'JARVIS online, sir.';
       setLastSaid(line);
@@ -155,6 +165,7 @@ export function CommandDock({
       const line = 'Microphone blocked. Type the command, sir.';
       setLastSaid(line);
       onAnswer(line, true);
+      onVoiceState?.('error');
       await hear(line, false);
       return;
     }
@@ -164,6 +175,7 @@ export function CommandDock({
       const line = 'I cannot hear you. Type the command, sir.';
       setLastSaid(line);
       onAnswer(line, true);
+      onVoiceState?.('error');
       await hear(line, false);
     }
   };
@@ -173,10 +185,17 @@ export function CommandDock({
       ? 'LISTENING'
       : voice.voiceState === 'speaking'
         ? 'SPEAKING'
-        : 'SPEAK';
+        : voice.voiceState === 'thinking'
+          ? 'THINKING'
+          : voice.voiceState === 'error'
+            ? 'ERROR'
+            : 'SPEAK';
 
   return (
-    <footer className={`wispr${talking ? ' wispr--talk' : ''}`}>
+    <footer className={`wispr${talking ? ' wispr--talk' : ''} wispr--${voice.voiceState}`} data-wispr={voice.voiceState}>
+      <p className={`wispr__state is-${voice.voiceState}`} aria-live="polite">
+        {speakLabel === 'SPEAK' ? 'IDLE' : speakLabel}
+      </p>
       <p className="wispr__lanes" aria-label="Auto versus GO">
         <em>AUTO · drafts · research · assign · schedule · board</em>
         <strong>GO · send · publish · spend · outreach · sign · $</strong>

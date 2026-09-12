@@ -1,28 +1,26 @@
-import type { EchoVoiceState } from '../hooks/useEchoVoice';
+import { WISPR_LABEL, type WisprState } from './machine';
 
-export type AgentState = 'idle' | 'thinking' | 'acting' | 'type1';
+/** Wispr lock — idle / listening / thinking / speaking / error. */
+export type AgentState = WisprState;
 
 export function resolveAgentState(
-  voice: EchoVoiceState,
+  voice: WisprState,
   loading: boolean,
   type1Armed: boolean,
-): AgentState {
-  if (type1Armed) return 'type1';
+): WisprState {
+  if (voice === 'error') return 'error';
   if (loading || voice === 'thinking') return 'thinking';
-  if (voice === 'listening' || voice === 'speaking') return 'acting';
+  if (voice === 'listening' || voice === 'speaking') return voice;
+  if (type1Armed) return 'thinking';
   return 'idle';
 }
 
-export const AGENT_LABEL: Record<AgentState, string> = {
-  idle: 'IDLE',
-  thinking: 'THINKING',
-  acting: 'ACTING',
-  type1: 'TYPE-1',
-};
+export const AGENT_LABEL = WISPR_LABEL;
 
-export const AGENT_WORK: Record<AgentState, string> = {
+export const AGENT_WORK: Record<WisprState, string> = {
   idle: 'SYSTEMS NOMINAL',
+  listening: 'EARS OPEN',
   thinking: 'COMPUTING',
-  acting: 'EXECUTING',
-  type1: 'TARGET LOCK',
+  speaking: 'ON THE LINE',
+  error: 'FAULT',
 };

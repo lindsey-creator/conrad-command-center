@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { WisprState } from '../cockpit/machine';
 import {
   cancelSpeech,
   recognitionCtor,
@@ -8,7 +9,7 @@ import {
   type SpeakResult,
 } from './speechEngine';
 
-export type EchoVoiceState = 'idle' | 'listening' | 'speaking' | 'thinking';
+export type EchoVoiceState = WisprState;
 export type VoiceError = 'mic-denied' | 'mic-missing' | 'rec-failed' | 'tts-missing' | 'tts-blocked' | null;
 
 interface UseEchoVoiceOptions {
@@ -64,6 +65,7 @@ export function useEchoVoice({
       if (!speakEnabled) return 'empty';
       if (!speechReady()) {
         setVoiceError('tts-missing');
+        setState('error');
         return 'missing';
       }
       const result = await speakChunks(text, {
@@ -78,10 +80,19 @@ export function useEchoVoice({
             return next;
           });
         },
-        onError: () => setVoiceError('tts-blocked'),
+        onError: () => {
+          setVoiceError('tts-blocked');
+          setState('error');
+        },
       });
-      if (result === 'blocked') setVoiceError('tts-blocked');
-      if (result === 'missing') setVoiceError('tts-missing');
+      if (result === 'blocked') {
+        setVoiceError('tts-blocked');
+        setState('error');
+      }
+      if (result === 'missing') {
+        setVoiceError('tts-missing');
+        setState('error');
+      }
       return result;
     },
     [setState, speakEnabled],
@@ -107,6 +118,7 @@ export function useEchoVoice({
     const Ctor = recognitionCtor();
     if (!Ctor && !navigator.mediaDevices?.getUserMedia) {
       setVoiceError('mic-missing');
+      setState('error');
       return 'missing';
     }
 
@@ -115,12 +127,14 @@ export function useEchoVoice({
         streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
       } catch {
         setVoiceError('mic-denied');
+        setState('error');
         return 'denied';
       }
     }
 
     if (!Ctor) {
       setVoiceError('mic-missing');
+      setState('error');
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
       return 'missing';
@@ -150,7 +164,7 @@ export function useEchoVoice({
       recognitionRef.current = null;
       if (code === 'not-allowed' || code === 'service-not-allowed') setVoiceError('mic-denied');
       else if (code !== 'aborted' && code !== 'no-speech') setVoiceError('rec-failed');
-      setState('idle');
+      setState(code === 'aborted' || code === 'no-speech' ? 'idle' : 'error');
     };
 
     recognition.onend = () => {
@@ -170,6 +184,7 @@ export function useEchoVoice({
       return 'listening';
     } catch {
       setVoiceError('rec-failed');
+      setState('error');
       return 'missing';
     }
   }, [setState, stopListening, stopSpeaking]);

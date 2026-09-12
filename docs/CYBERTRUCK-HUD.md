@@ -16,10 +16,11 @@ Root attribute: `data-pack="cybertruck" | "phone"` on `.rhino`. Ultrawide (`min-
 ## Preview URLs (local `npm run preview`)
 
 - Idle void + WHOOP strip + dim Arc: `/?idle=1&whoop=low&cybertruck=1`
-- Talk Mode (orb ~70%): `/?talk=1&cybertruck=1`
+- Talk Mode (orb center, 4 intents): `/?talk=1&cybertruck=1`
+- Wispr states: `/?talk=1&wispr=listening&cybertruck=1` · `thinking` · `speaking` · `error`
 - **Speak demo:** `/?speak=1`
 
-Idle is cinematic: Day Orbit WHOOP strip, dim Arc Core, three ticks (TYPE-1 / MONEY NOW / LEAKING). Talk Mode gives the orb the glass. No SaaS cards. White type, cyan accent only.
+**Rhino lock:** Idle = cinematic angular dark glass. Talk = gigantic orb always central. Wispr = idle / listening / thinking / speaking / error. Intent panels max 4. Type-1 card max 3. Verdicts + motion surfaces only — no SaaS cards or tables.
 
 ## Talk Mode — Brain `/chat` (not ChatGPT on the glass)
 
@@ -47,7 +48,7 @@ Speak was broken because TTS ran after `await` (Chrome drops `speechSynthesis` o
 5. JARVIS replies with TTS (SPEAKING). **HEAR** replays the last line.
 6. If the mic is blocked: amber banner, JARVIS says to type, **GO** still speaks.
 
-States: IDLE PULSE → LISTEN RIPPLE → THINK SWIRL → SPEAK WAVE → ALERT FLARE (Type-1 / money only).
+Wispr: IDLE → LISTENING → THINKING → SPEAKING. ERROR on mic/TTS fault. SPEAK while speaking barges in. Orb motion follows the state.
 
 ## READY AGENT (KB)
 

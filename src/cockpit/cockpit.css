@@ -94,26 +94,21 @@
 
 .rhino__frame::before,
 .rhino__frame::after {
-  content: '';
+  display: none;
+}
+
+.rhino__cut {
   position: absolute;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--ice);
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  pointer-events: none;
 }
 
-.rhino__frame::before {
-  top: -1px;
-  left: -1px;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-.rhino__frame::after {
-  bottom: -1px;
-  right: -1px;
-  border-left: 0;
-  border-top: 0;
-}
+.rhino__cut--tl { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.rhino__cut--tr { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+.rhino__cut--bl { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+.rhino__cut--br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
 
 .rhino-top,
 .rhino__stage,
@@ -179,6 +174,11 @@
   font-size: 12px;
   letter-spacing: 0.16em;
   color: var(--ice-2);
+}
+
+.rhino-top__wispr {
+  min-width: 7em;
+  text-align: right;
 }
 
 .rhino.mode-idle .job-rail,
@@ -301,13 +301,14 @@
 }
 
 .rhino.mode-talk .board {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr) minmax(220px, 0.72fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(160px, 0.7fr) minmax(0, 1.6fr) minmax(220px, 0.78fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto auto;
   grid-template-areas:
-    'cap core type1'
-    'cap core type1'
-    '. core type1';
-  padding: 4px 24px 0;
+    'money core type1'
+    'leak  core type1'
+    'orbit orbit orbit'
+    'cap   cap   cap';
+  padding: 8px 28px 0;
 }
 
 .money-radar { grid-area: money; }
@@ -1399,11 +1400,18 @@
   justify-content: center;
 }
 
-/* Talk: orb owns the glass. Type-1 stays a right rail. Max 3. */
+/* Talk: orb dead-center. Intent panels max 4. Type-1 card max 3. */
+.rhino.mode-talk .arc-bay {
+  place-self: center;
+  z-index: 1;
+}
+
 .rhino.mode-talk .money-radar,
 .rhino.mode-talk .leak-grid,
-.rhino.mode-talk .day-orbit-panel {
-  display: none;
+.rhino.mode-talk .day-orbit-panel,
+.rhino.mode-talk .t1glass {
+  z-index: 2;
+  animation: panel-rise 0.48s cubic-bezier(0.16, 0.84, 0.32, 1) both;
 }
 
 .rhino.mode-talk .t1glass__job,
@@ -1411,16 +1419,79 @@
   display: none;
 }
 
+.rhino.mode-talk .panel-glass__go {
+  display: none;
+}
+
+.rhino.mode-talk .board .t1glass__locks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rhino.mode-talk .t1glass {
+  justify-content: center;
+  padding: 8px 4px 8px 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
 .rhino.mode-talk .t1glass__lock {
-  min-height: 56px;
+  min-height: 52px;
   border-left: 1px solid rgba(255, 255, 255, 0.28);
   box-shadow: none;
 }
 
 .rhino.mode-talk .t1glass__lock em {
-  font-size: 16px;
+  font-size: 15px;
   color: #fff;
 }
+
+.rhino.mode-talk .day-orbit-panel__nodes {
+  display: none;
+}
+
+.rhino.mode-talk .orbit-strip {
+  min-height: 56px;
+  padding: 4px 0;
+}
+
+.rhino.mode-talk .orbit-strip__figs b {
+  font-size: clamp(20px, 3.2vh, 36px);
+}
+
+.rhino.mode-talk .money-radar__scope {
+  width: min(100%, 140px);
+  margin: 4px auto;
+}
+
+.rhino-top__wispr,
+.wispr__state {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+}
+
+.rhino-top__wispr.is-listening,
+.wispr__state.is-listening { color: var(--ice); }
+.rhino-top__wispr.is-thinking,
+.wispr__state.is-thinking { color: var(--amber); }
+.rhino-top__wispr.is-speaking,
+.wispr__state.is-speaking { color: #fff; }
+.rhino-top__wispr.is-error,
+.wispr__state.is-error { color: var(--crit); }
+
+.wispr__state {
+  margin: 0 0 6px;
+}
+
+.rhino.mode-idle .wispr__state {
+  display: none;
+}
+
+.rhino[data-wispr='error'] .caption { color: var(--crit); }
+.rhino[data-wispr='thinking'] .caption { color: var(--amber); }
+.rhino[data-wispr='listening'] .caption { color: var(--ice); }
 
 .rhino[data-pack='phone'] .orbit-strip__figs b {
   font-size: 28px;
