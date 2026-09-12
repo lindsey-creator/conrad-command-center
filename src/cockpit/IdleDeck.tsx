@@ -59,18 +59,13 @@ export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
           <b />
         </div>
         <figure className="idle-deck__beast">
-          <svg viewBox="0 0 240 110" aria-hidden="true">
-            <path d="M40 78 H200" stroke="currentColor" strokeWidth="2.2" />
-            <path
-              d="M48 78 L62 52 H178 L192 78"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-            />
-            <path d="M70 52 L78 28 H162 L170 52" fill="none" stroke="currentColor" strokeWidth="1.4" />
-            <rect x="74" y="36" width="92" height="3" fill="currentColor" opacity="0.9" />
-            <circle cx="84" cy="86" r="10" fill="none" stroke="currentColor" strokeWidth="1.3" />
-            <circle cx="156" cy="86" r="10" fill="none" stroke="currentColor" strokeWidth="1.3" />
+          <svg viewBox="0 0 280 130" aria-hidden="true">
+            <path d="M36 78 L58 42 H222 L244 78 Z" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M78 42 L92 22 H188 L202 42" fill="none" stroke="currentColor" strokeWidth="1.3" />
+            <rect x="72" y="50" width="136" height="3.5" fill="currentColor" />
+            <path d="M58 78 H222" stroke="currentColor" strokeWidth="2" />
+            <rect x="64" y="80" width="22" height="26" rx="3" fill="none" stroke="currentColor" strokeWidth="1.3" />
+            <rect x="194" y="80" width="22" height="26" rx="3" fill="none" stroke="currentColor" strokeWidth="1.3" />
           </svg>
           <figcaption>CYBERTRUCK · MARK III</figcaption>
         </figure>

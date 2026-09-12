@@ -2711,7 +2711,7 @@
   padding: 18px 16px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 2px;
-  background: linear-gradient(180deg, rgba(8, 18, 28, 0.35), rgba(2, 6, 10, 0.2));
+  background: rgba(255, 255, 255, 0.03);
   color: #fff;
   text-align: left;
   box-shadow: none;
