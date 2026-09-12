@@ -286,10 +286,19 @@ function drawDiscRings(
   ctx.translate(cx, cy);
   ctx.rotate(t * 0.08);
   ctx.setLineDash([3, 10]);
-  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.12)`;
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.2)`;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.arc(0, 0, scale * 1.02, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+  ctx.save();
+  ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},0.85)`;
+  ctx.shadowBlur = 22;
+  ctx.strokeStyle = `rgba(255,255,255,${0.55 + rms * 0.25})`;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, scale * 0.99, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
 }
@@ -314,13 +323,13 @@ function drawDiscParticles(
     for (const p of band) {
       const x1 = p.x * cos - p.z * sin;
       const z1 = p.x * sin + p.z * cos;
-      const persp = 2.4 / (2.4 + z1 * 0.55);
+      const persp = 2.6 / (2.6 + p.y * 8);
       const spread = 1 + rms * (outer ? 0.06 : 0.03);
       const px = cx + x1 * scale * persp * spread;
-      const py = cy + p.y * scale * persp * spread + z1 * scale * 0.04;
+      const py = cy + z1 * scale * persp * spread * 0.92;
       const rim = Math.abs(Math.hypot(p.x, p.z) - 0.99);
-      const a = ((dim ? 0.14 : 0.32) + persp * 0.55 + (outer && rim < 0.1 ? 0.5 : 0.08) + rms * 0.22) * mute;
-      const size = (outer ? 2.35 : 1.7) * persp * (dim ? 0.7 : 1 + rms * 0.18);
+      const a = ((dim ? 0.16 : 0.38) + persp * 0.5 + (outer && rim < 0.1 ? 0.45 : 0.12) + rms * 0.2) * mute;
+      const size = (outer ? 2.1 : 1.45) * persp * (dim ? 0.7 : 1 + rms * 0.16);
       ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${Math.min(1, a)})`;
       ctx.beginPath();
       ctx.arc(px, py, size, 0, Math.PI * 2);
