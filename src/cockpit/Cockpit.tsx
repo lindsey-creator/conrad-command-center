@@ -188,7 +188,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
   return (
     <div
-      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot ? ' is-shot' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
+      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot || speakDemo ? ' is-shot' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
       style={{ ['--rms' as string]: String(level) }}
       data-pack={pack}
       data-mode={mode}
