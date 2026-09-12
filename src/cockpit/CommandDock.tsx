@@ -194,9 +194,13 @@ export function CommandDock({
         ? 'SPEAKING'
         : voice.voiceState === 'thinking'
           ? 'THINKING'
-          : voice.voiceState === 'error'
-            ? 'ERROR'
-            : 'SPEAK';
+          : voice.voiceState === 'connecting'
+            ? 'CONNECTING'
+            : voice.voiceState === 'error'
+              ? 'ERROR'
+              : voice.voiceState === 'disabled'
+                ? 'DISABLED'
+                : 'SPEAK';
 
   return (
     <footer className={`wispr${talking ? ' wispr--talk' : ''} wispr--${voice.voiceState}`} data-wispr={voice.voiceState}>
@@ -299,7 +303,7 @@ export function CommandDock({
       >
         <button
           type="button"
-          className={`wispr__speak${listening || voice.voiceState === 'listening' ? ' is-hot' : ''}${voice.voiceState === 'speaking' ? ' is-say' : ''}${voice.voiceState === 'thinking' ? ' is-think' : ''}${voice.voiceState === 'error' ? ' is-err' : ''}`}
+          className={`wispr__speak${listening || voice.voiceState === 'listening' ? ' is-hot' : ''}${voice.voiceState === 'speaking' ? ' is-say' : ''}${voice.voiceState === 'thinking' ? ' is-think' : ''}${voice.voiceState === 'connecting' ? ' is-link' : ''}${voice.voiceState === 'error' ? ' is-err' : ''}${voice.voiceState === 'disabled' ? ' is-off' : ''}`}
           aria-pressed={voice.voiceState === 'listening'}
           onClick={() => void onSpeakClick()}
         >

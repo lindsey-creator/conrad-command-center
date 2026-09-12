@@ -17,10 +17,10 @@ Root attribute: `data-pack="cybertruck" | "phone"` on `.rhino`. Ultrawide (`min-
 
 - Idle void + WHOOP strip + dim Arc: `/?idle=1&whoop=low&cybertruck=1`
 - Talk Mode (orb center, 4 intents): `/?talk=1&cybertruck=1`
-- Wispr states: `/?talk=1&wispr=listening&cybertruck=1` · `thinking` · `speaking` · `error`
+- Wispr states: `/?talk=1&wispr=listening&cybertruck=1` · `connecting` · `thinking` · `speaking` · `error` · `disabled`
 - **Speak demo:** `/?speak=1`
 
-**Rhino lock:** Idle = cinematic angular dark glass. Talk = gigantic orb always central. Wispr = idle / listening / thinking / speaking / error. Intent panels max 4. Type-1 card max 3. Verdicts + motion surfaces only — no SaaS cards or tables.
+**Rhino lock:** Idle = landscape void + WHOOP Day Orbit + dim Arc. Talk = gigantic orb always central. Wispr = idle / connecting / listening / thinking / speaking / error / disabled. Intent panels max 4. Type-1 max 3. Holographic summon — no SaaS cards or tables.
 
 ## Talk Mode — Brain `/chat` (not ChatGPT on the glass)
 
@@ -48,7 +48,7 @@ Speak was broken because TTS ran after `await` (Chrome drops `speechSynthesis` o
 5. JARVIS replies with TTS (SPEAKING). **HEAR** replays the last line.
 6. If mic/TTS is blocked, a red **error chip** stays on the dock. Type and GO still talks.
 
-Wispr: IDLE → LISTENING → THINKING → SPEAKING. ERROR on mic/TTS fault. SPEAK while speaking barges in. Orb motion follows the state.
+Wispr: IDLE → CONNECTING → LISTENING → THINKING → SPEAKING. ERROR on mic/TTS fault. DISABLED if no mic and no TTS. SPEAK while speaking barges in. Orb motion follows the 7-state machine.
 
 ## READY AGENT (KB)
 

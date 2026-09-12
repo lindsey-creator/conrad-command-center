@@ -40,9 +40,10 @@
   --shadow-hover: 0 0 36px rgba(0, 229, 255, 0.18);
   --glass-blur: blur(14px);
 
-  --font-sans: 'Share Tech', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Orbitron', 'Share Tech', sans-serif;
-  --font-serif: 'Orbitron', sans-serif;
+  --font-sans: 'IBM Plex Sans', 'Share Tech', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'IBM Plex Sans', 'Share Tech', sans-serif;
+  --font-mark: 'Orbitron', 'IBM Plex Sans', sans-serif;
+  --font-serif: 'IBM Plex Sans', sans-serif;
   --font-kicker: 'Share Tech Mono', 'IBM Plex Mono', ui-monospace, monospace;
   --font-mono: 'Share Tech Mono', 'IBM Plex Mono', ui-monospace, monospace;
 

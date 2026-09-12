@@ -44,8 +44,8 @@
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 50% at 50% 46%, rgba(0, 229, 255, 0.06), transparent 58%),
-    radial-gradient(ellipse 36% 28% at 78% 18%, rgba(255, 255, 255, 0.03), transparent 70%);
+    radial-gradient(ellipse 80% 42% at 50% 48%, rgba(255, 255, 255, 0.045), transparent 62%),
+    radial-gradient(ellipse 36% 28% at 78% 18%, rgba(255, 255, 255, 0.02), transparent 70%);
 }
 
 .rhino__holo {
@@ -54,12 +54,13 @@
   background:
     repeating-linear-gradient(
       180deg,
-      transparent 0 2px,
-      rgba(0, 229, 255, 0.035) 2px 3px
+      transparent 0 6px,
+      rgba(255, 255, 255, 0.012) 6px 7px
     );
   mix-blend-mode: screen;
-  animation: holo-drift 9s ease-in-out infinite;
+  animation: holo-drift 14s ease-in-out infinite;
   pointer-events: none;
+  opacity: 0.35;
 }
 
 @keyframes holo-drift {
@@ -70,19 +71,20 @@
 .rhino__scan {
   position: absolute;
   inset: 0;
+  opacity: 0.22;
   background: repeating-linear-gradient(
     0deg,
     transparent,
-    transparent 3px,
-    rgba(0, 229, 255, 0.02) 3px,
-    rgba(0, 229, 255, 0.02) 4px
+    transparent 5px,
+    rgba(255, 255, 255, 0.018) 5px,
+    rgba(255, 255, 255, 0.018) 6px
   );
 }
 
 .rhino__vignette {
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 0 180px 56px rgba(0, 4, 8, 0.9);
+  box-shadow: inset 0 0 160px 64px rgba(0, 2, 6, 0.82);
 }
 
 .rhino__flare {
@@ -103,7 +105,7 @@
   position: absolute;
   inset: 8px;
   z-index: 2;
-  border: 1px solid rgba(0, 229, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .rhino__frame::before,
@@ -137,7 +139,7 @@
   align-items: center;
   gap: 20px;
   padding: 0 28px;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.14);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .rhino-top__brand {
@@ -147,7 +149,7 @@
 }
 
 .rhino-top__brand b {
-  font-family: var(--font-display);
+  font-family: var(--font-mark, var(--font-display));
   font-size: 18px;
   letter-spacing: 0.32em;
   color: #fff;
@@ -180,7 +182,7 @@
 
 .rhino-top__mode {
   margin-left: auto;
-  color: var(--ice);
+  color: #fff;
 }
 
 .rhino-top__pack {
@@ -687,13 +689,16 @@
   gap: 28px;
   width: 100%;
   min-height: 72px;
-  padding: 8px 4px 10px;
-  border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: transparent;
+  padding: 10px 16px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   clip-path: none;
   color: #fff;
   text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .orbit-strip.is-compact {
@@ -1058,7 +1063,7 @@
   color: #fff;
   text-transform: uppercase;
   line-height: 0.95;
-  text-shadow: 0 0 calc(18px + var(--rms, 0.2) * 40px) rgba(0, 229, 255, calc(0.2 + var(--rms, 0.2) * 0.45));
+  text-shadow: 0 0 calc(12px + var(--rms, 0.2) * 28px) rgba(255, 255, 255, calc(0.16 + var(--rms, 0.2) * 0.28));
 }
 
 .board .caption,
@@ -1317,11 +1322,11 @@
 
 .boot__title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-mark, var(--font-display));
   font-size: 42px;
   letter-spacing: 0.42em;
-  color: var(--ice);
-  text-shadow: 0 0 24px rgba(0, 229, 255, 0.5);
+  color: #fff;
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.28);
 }
 
 .boot__line {
@@ -1528,6 +1533,8 @@
   color: var(--mute);
 }
 
+.rhino-top__wispr.is-connecting,
+.wispr__state.is-connecting { color: #dce8ee; }
 .rhino-top__wispr.is-listening,
 .wispr__state.is-listening { color: var(--ice); }
 .rhino-top__wispr.is-thinking,
@@ -1536,6 +1543,11 @@
 .wispr__state.is-speaking { color: #fff; }
 .rhino-top__wispr.is-error,
 .wispr__state.is-error { color: var(--crit); }
+.rhino-top__wispr.is-disabled,
+.wispr__state.is-disabled { color: #6e7a82; }
+
+.wispr__speak.is-link { color: #dce8ee; }
+.wispr__speak.is-off { color: #6e7a82; border-bottom-color: #6e7a82; }
 
 .wispr__state {
   margin: 0 0 6px;
@@ -1548,6 +1560,8 @@
 .rhino[data-wispr='error'] .caption { color: var(--crit); }
 .rhino[data-wispr='thinking'] .caption { color: var(--amber); }
 .rhino[data-wispr='listening'] .caption { color: var(--ice); }
+.rhino[data-wispr='connecting'] .caption { color: #dce8ee; }
+.rhino[data-wispr='disabled'] .caption { color: #6e7a82; }
 
 .rhino[data-pack='phone'] .orbit-strip__figs b {
   font-size: 28px;
@@ -1575,6 +1589,74 @@
   }
 }
 
+/* Mark III holographic summon — z-depth, not SaaS cards */
+.holo-summon {
+  position: relative;
+  transform: perspective(1100px) translateZ(0) rotateX(4deg);
+  transform-origin: 50% 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 28px 56px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.rhino.mode-talk .holo-summon {
+  animation: holo-summon 0.64s cubic-bezier(0.16, 0.84, 0.32, 1) both;
+}
+
+.rhino.mode-idle .holo-summon {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: none;
+}
+
+@keyframes holo-summon {
+  from {
+    transform: perspective(1100px) translateZ(-90px) translateY(28px) rotateX(14deg);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  to {
+    transform: perspective(1100px) translateZ(0) rotateX(4deg);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.holo-glass {
+  position: relative;
+}
+
+.rhino.mode-talk .money-radar header,
+.rhino.mode-talk .leak-grid header,
+.rhino.mode-talk .money-radar__scope {
+  display: none;
+}
+
+.rhino.mode-talk .money-radar,
+.rhino.mode-talk .leak-grid {
+  justify-content: center;
+  padding: 10px 12px;
+  min-height: 0;
+}
+
+.rhino.mode-talk .money-radar .panel-glass__verdict,
+.rhino.mode-talk .leak-grid .panel-glass__verdict {
+  margin: 0;
+  font-size: clamp(14px, 1.8vh, 18px);
+  color: #fff;
+}
+
+.rhino.is-shot .holo-summon,
+.rhino.is-shot.mode-talk .holo-summon {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise-deck > *,
   .boot__ring,
@@ -1582,7 +1664,8 @@
   .rhino__holo,
   .money-radar__sweep,
   .rhino.mode-idle .talk-orb,
-  .rhino__flare {
+  .rhino__flare,
+  .rhino.mode-talk .holo-summon {
     animation: none !important;
   }
 }

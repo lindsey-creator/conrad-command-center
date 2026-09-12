@@ -2,23 +2,35 @@
 
 export type DeckMode = 'idle' | 'talk';
 
-export type WisprState = 'idle' | 'listening' | 'thinking' | 'speaking' | 'error';
+/** VoiceOrbs-class 7-state machine. */
+export type WisprState =
+  | 'idle'
+  | 'connecting'
+  | 'listening'
+  | 'thinking'
+  | 'speaking'
+  | 'error'
+  | 'disabled';
 
 export type WisprEvent =
+  | { type: 'connect' }
   | { type: 'listen' }
   | { type: 'ask' }
   | { type: 'reply' }
   | { type: 'spoke' }
   | { type: 'fail' }
   | { type: 'end' }
-  | { type: 'barge' };
+  | { type: 'barge' }
+  | { type: 'disable' };
 
 export type OrbMotion =
   | 'idle-pulse'
+  | 'connect-spin'
   | 'listen-ripple'
   | 'think-swirl'
   | 'speak-wave'
-  | 'alert-flare';
+  | 'alert-flare'
+  | 'disabled-still';
 
 export type IntentId = 'money' | 'leak' | 'type1' | 'orbit';
 export type RailId = 'type1' | 'orbit';
@@ -26,21 +38,34 @@ export type RailId = 'type1' | 'orbit';
 export const INTENT_CAP = 4;
 export const TYPE1_CARD_CAP = 3;
 export const ALL_INTENTS: IntentId[] = ['money', 'leak', 'type1', 'orbit'];
+export const WISPR_STATES: WisprState[] = [
+  'idle',
+  'connecting',
+  'listening',
+  'thinking',
+  'speaking',
+  'error',
+  'disabled',
+];
 
 export const WISPR_LABEL: Record<WisprState, string> = {
   idle: 'IDLE',
+  connecting: 'CONNECTING',
   listening: 'LISTENING',
   thinking: 'THINKING',
   speaking: 'SPEAKING',
   error: 'ERROR',
+  disabled: 'DISABLED',
 };
 
 export const WISPR_CAPTION: Record<WisprState, string> = {
   idle: 'Talk Mode. Orb owns the center.',
+  connecting: 'Connecting.',
   listening: 'Listening.',
   thinking: 'Thinking.',
   speaking: 'Speaking.',
   error: 'Error. Type the command, sir.',
+  disabled: 'Voice disabled. Type and GO.',
 };
 
 const TYPE1_INTENT =
@@ -48,6 +73,8 @@ const TYPE1_INTENT =
 
 export function reduceWispr(state: WisprState, event: WisprEvent): WisprState {
   switch (event.type) {
+    case 'connect':
+      return 'connecting';
     case 'listen':
     case 'barge':
       return 'listening';
@@ -59,6 +86,8 @@ export function reduceWispr(state: WisprState, event: WisprEvent): WisprState {
       return state === 'speaking' ? 'idle' : state;
     case 'fail':
       return 'error';
+    case 'disable':
+      return 'disabled';
     case 'end':
       return 'idle';
     default:
@@ -67,11 +96,13 @@ export function reduceWispr(state: WisprState, event: WisprEvent): WisprState {
 }
 
 export function motionForWispr(state: WisprState, alert = false): OrbMotion {
+  if (state === 'disabled') return 'disabled-still';
   if (state === 'error') return 'alert-flare';
   if (state === 'speaking') return 'speak-wave';
   if (alert && state === 'thinking') return 'alert-flare';
   if (state === 'thinking') return 'think-swirl';
   if (state === 'listening') return 'listen-ripple';
+  if (state === 'connecting') return 'connect-spin';
   return 'idle-pulse';
 }
 
@@ -146,6 +177,6 @@ export function flareTone(raised: RailId[]): 'amber' | 'red' | undefined {
 
 export function wisprFromSearch(search = typeof window === 'undefined' ? '' : window.location.search): WisprState | null {
   const v = new URLSearchParams(search).get('wispr');
-  if (v === 'idle' || v === 'listening' || v === 'thinking' || v === 'speaking' || v === 'error') return v;
+  if (v && (WISPR_STATES as string[]).includes(v)) return v as WisprState;
   return null;
 }

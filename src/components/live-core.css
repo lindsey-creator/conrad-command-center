@@ -165,6 +165,21 @@
   animation: core-breathe 0.7s ease-in-out infinite;
 }
 
+.live-core--connecting .live-core__ring--outer {
+  animation-duration: 2.4s;
+  border-style: dashed;
+}
+
+.live-core--error .live-core__core {
+  background: radial-gradient(circle at 40% 35%, #ffb0bd, #ff4d6d 55%, rgba(80, 10, 20, 0.55));
+  box-shadow: 0 0 24px rgba(255, 77, 109, 0.45);
+}
+
+.live-core--disabled {
+  opacity: 0.4;
+  filter: grayscale(0.6);
+}
+
 @keyframes core-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

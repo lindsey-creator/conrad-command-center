@@ -83,17 +83,21 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const autonomy = resolveAutonomy({ phase, type1Proven, goArmed });
   const leakHot = locks.some((l) => l.lane === 'LEAKING' && l.proven);
   const core: CoreTint =
-    wispr === 'error'
-      ? 'red'
-      : wispr === 'thinking'
-        ? 'amber'
-        : wispr === 'listening' || wispr === 'speaking'
-          ? 'blue'
-          : leakHot || autonomy === 'L2'
-            ? 'amber'
-            : autonomy === 'L3'
-              ? 'red'
-              : 'blue';
+    wispr === 'disabled'
+      ? 'slate'
+      : wispr === 'error'
+        ? 'red'
+        : wispr === 'thinking'
+          ? 'amber'
+          : wispr === 'speaking' || wispr === 'connecting'
+            ? 'ice'
+            : wispr === 'listening'
+              ? 'blue'
+              : leakHot || autonomy === 'L2'
+                ? 'amber'
+                : autonomy === 'L3'
+                  ? 'red'
+                  : 'ice';
 
   const apply = useCallback(
     (event: WisprEvent) => {
@@ -145,6 +149,11 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const onVoiceState = useCallback(
     (state: EchoVoiceState) => {
       if (locked) return;
+      if (state === 'connecting') {
+        setMode('talk');
+        apply({ type: 'connect' });
+        setCaption(WISPR_CAPTION.connecting);
+      }
       if (state === 'listening') {
         setMode('talk');
         apply({ type: 'listen' });
@@ -161,6 +170,10 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       if (state === 'error') {
         apply({ type: 'fail' });
         setCaption(WISPR_CAPTION.error);
+      }
+      if (state === 'disabled') {
+        apply({ type: 'disable' });
+        setCaption(WISPR_CAPTION.disabled);
       }
     },
     [apply, locked],
@@ -224,6 +237,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
             dim={mode === 'idle'}
             hero={mode === 'talk'}
             core={core}
+            state={wispr}
           />
         </div>
         {raise('leak') ? <LeakGrid brainOnline={brainOnline} onAsk={ask} /> : null}

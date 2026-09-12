@@ -24,7 +24,13 @@ export function LiveCore({
         ? ' live-core--speaking'
         : state === 'thinking'
           ? ' live-core--thinking'
-          : '';
+          : state === 'connecting'
+            ? ' live-core--connecting'
+            : state === 'error'
+              ? ' live-core--error'
+              : state === 'disabled'
+                ? ' live-core--disabled'
+                : '';
 
   const sizeClass =
     size === 'sm'

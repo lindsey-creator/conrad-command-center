@@ -43,7 +43,7 @@ export function LeakGrid({ brainOnline, onAsk }: LeakGridProps) {
   const verdict = hits[0] ?? HOLD.leak;
 
   return (
-    <section className="panel-glass leak-grid" aria-label="Leaking detection">
+    <section className="panel-glass leak-grid holo-summon" aria-label="Leaking detection">
       <header>
         <b>LEAKING</b>
         <i className={hits.length ? 'is-proven' : 'is-claimed'}>{hits.length ? 'PROVEN' : 'CLAIMED'}</i>

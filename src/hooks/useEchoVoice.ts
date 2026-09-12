@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WisprState } from '../cockpit/machine';
 import {
   cancelSpeech,
+  prefetchVoices,
   recognitionCtor,
   speakChunks,
   speechReady,
@@ -47,9 +48,13 @@ export function useEchoVoice({
   }, []);
 
   useEffect(() => {
-    setSpeechSupported(speechReady());
-    setMicSupported(!!recognitionCtor() || !!navigator.mediaDevices?.getUserMedia);
-  }, []);
+    const tts = speechReady();
+    const mic = !!recognitionCtor() || !!navigator.mediaDevices?.getUserMedia;
+    setSpeechSupported(tts);
+    setMicSupported(mic);
+    prefetchVoices();
+    if (!tts && !mic) setState('disabled');
+  }, [setState]);
 
   const stopSpeaking = useCallback(() => {
     cancelSpeech();
@@ -114,6 +119,7 @@ export function useEchoVoice({
     unlockSpeech();
     stopSpeaking();
     stopListening();
+    setState('connecting');
 
     const Ctor = recognitionCtor();
     if (!Ctor && !navigator.mediaDevices?.getUserMedia) {

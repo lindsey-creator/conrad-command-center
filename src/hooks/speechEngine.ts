@@ -1,9 +1,18 @@
-/** Browser speech helpers — unlock in the click, then TTS can survive await. */
+/** Browser speech helpers — Chrome 15s cutoff + voiceschanged race. */
 
 export type SpeakResult = 'spoke' | 'blocked' | 'empty' | 'missing';
 
 let unlocked = false;
 let resumeTimer = 0;
+let cachedVoice: SpeechSynthesisVoice | null = null;
+
+/** Chrome cuts a single utterance near 15s. Stay well under that. */
+const CHUNK_CHARS = 140;
+const VOICE_WAIT_MS = 1600;
+const CANCEL_GAP_MS = 60;
+const BLOCKED_MS = 2400;
+const SAFE_UTTER_MS = 12000;
+const CHARS_PER_SEC = 13;
 
 export function speechReady(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -20,12 +29,15 @@ export function unlockSpeech(): boolean {
   const synth = window.speechSynthesis;
   try {
     synth.resume();
-    const prime = new SpeechSynthesisUtterance('.');
-    prime.volume = 0;
-    prime.rate = 2;
-    prime.pitch = 1;
-    synth.speak(prime);
-    unlocked = true;
+    if (!unlocked) {
+      const prime = new SpeechSynthesisUtterance(' ');
+      prime.volume = 0;
+      prime.rate = 2;
+      prime.pitch = 1;
+      prime.lang = 'en-GB';
+      synth.speak(prime);
+      unlocked = true;
+    }
     return true;
   } catch {
     return false;
@@ -59,9 +71,58 @@ function armResume() {
   }, 220);
 }
 
-const CHUNK_CHARS = 180;
+export function waitForVoices(): Promise<SpeechSynthesisVoice[]> {
+  if (!speechReady()) return Promise.resolve([]);
+  const synth = window.speechSynthesis;
+  const have = synth.getVoices();
+  if (have.length) return Promise.resolve(have);
+  return new Promise((resolve) => {
+    const finish = () => {
+      synth.removeEventListener('voiceschanged', finish);
+      window.clearTimeout(tid);
+      resolve(synth.getVoices());
+    };
+    synth.addEventListener('voiceschanged', finish);
+    const tid = window.setTimeout(finish, VOICE_WAIT_MS);
+  });
+}
 
-/** Sentence first, then ~180 chars — Chrome cuts utterances near 15s. */
+export function pickVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined {
+  if (cachedVoice && voices.some((v) => v.voiceURI === cachedVoice?.voiceURI)) return cachedVoice;
+  const preferred =
+    voices.find((v) => v.lang.toLowerCase().startsWith('en-gb') && /daniel|male|google uk/i.test(v.name)) ??
+    voices.find((v) => v.lang.toLowerCase().startsWith('en-gb')) ??
+    voices.find((v) => /daniel|google uk english male|uk english/i.test(v.name)) ??
+    voices.find((v) => v.lang.toLowerCase().startsWith('en') && !v.localService) ??
+    voices.find((v) => v.lang.toLowerCase().startsWith('en'));
+  cachedVoice = preferred ?? null;
+  return preferred;
+}
+
+export function prefetchVoices() {
+  if (!speechReady()) return;
+  void waitForVoices().then(pickVoice);
+}
+
+function pushWords(out: string[], sentence: string, limit: number) {
+  if (sentence.length <= limit) {
+    out.push(sentence);
+    return;
+  }
+  let buf = '';
+  for (const word of sentence.split(/\s+/)) {
+    const next = buf ? `${buf} ${word}` : word;
+    if (next.length > limit && buf) {
+      out.push(buf);
+      buf = word;
+    } else {
+      buf = next;
+    }
+  }
+  if (buf) out.push(buf);
+}
+
+/** Sentence first, then ~140 chars — Chrome cuts utterances near 15s. */
 export function splitSpeechChunks(text: string): string[] {
   const sentences = text
     .split(/(?<=[.!?])\s+/)
@@ -73,19 +134,19 @@ export function splitSpeechChunks(text: string): string[] {
       out.push(sentence);
       continue;
     }
-    let buf = '';
-    for (const word of sentence.split(/\s+/)) {
-      const next = buf ? `${buf} ${word}` : word;
-      if (next.length > CHUNK_CHARS && buf) {
-        out.push(buf);
-        buf = word;
-      } else {
-        buf = next;
-      }
-    }
-    if (buf) out.push(buf);
+    const clauses = sentence
+      .split(/(?<=[,;:—–])\s+/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+    for (const clause of clauses) pushWords(out, clause, CHUNK_CHARS);
   }
-  return out;
+  const safe: string[] = [];
+  const maxChars = Math.max(48, Math.floor((SAFE_UTTER_MS / 1000) * CHARS_PER_SEC));
+  for (const chunk of out) {
+    if (chunk.length <= maxChars) safe.push(chunk);
+    else pushWords(safe, chunk, maxChars);
+  }
+  return safe;
 }
 
 export function speakLine(
@@ -103,78 +164,63 @@ export function speakLine(
     opts.onError?.('missing');
     return Promise.resolve('missing');
   }
-
   const synth = window.speechSynthesis;
   if (!unlocked) unlockSpeech();
 
-  const waitVoices = !synth.getVoices().length
-    ? new Promise<void>((resolve) => {
-        const done = () => resolve();
-        synth.addEventListener('voiceschanged', done, { once: true });
-        window.setTimeout(done, 400);
-      })
-    : Promise.resolve();
-
-  return waitVoices.then(async () => {
+  return waitForVoices().then(async (voices) => {
     if (opts.cancel !== false) {
       synth.cancel();
-      await new Promise((r) => window.setTimeout(r, 40));
+      await new Promise((r) => window.setTimeout(r, CANCEL_GAP_MS));
     }
     return new Promise<SpeakResult>((resolve) => {
-    const utterance = new SpeechSynthesisUtterance(line);
-    utterance.rate = 1.02;
-    utterance.pitch = 0.95;
-    utterance.volume = 1;
-    utterance.lang = 'en-GB';
+      const utterance = new SpeechSynthesisUtterance(line);
+      utterance.rate = 1.02;
+      utterance.pitch = 0.95;
+      utterance.volume = 1;
+      utterance.lang = 'en-GB';
+      const preferred = pickVoice(voices.length ? voices : synth.getVoices());
+      if (preferred) utterance.voice = preferred;
 
-    const voices = synth.getVoices();
-    const preferred =
-      voices.find((v) => v.lang.toLowerCase().startsWith('en-gb')) ??
-      voices.find((v) => /daniel|google uk english male|uk english/i.test(v.name)) ??
-      voices.find((v) => v.lang.startsWith('en') && !v.localService) ??
-      voices.find((v) => v.lang.startsWith('en'));
-    if (preferred) utterance.voice = preferred;
+      let settled = false;
+      const finish = (result: SpeakResult) => {
+        if (settled) return;
+        settled = true;
+        resolve(result);
+      };
 
-    let settled = false;
-    const finish = (result: SpeakResult) => {
-      if (settled) return;
-      settled = true;
-      resolve(result);
-    };
-
-    utterance.onstart = () => {
-      armResume();
-      opts.onStart?.();
-    };
-    utterance.onend = () => {
-      opts.onEnd?.();
-      finish('spoke');
-    };
-    utterance.onerror = (ev) => {
-      cueTone();
-      opts.onStart?.();
-      opts.onError?.(ev.error || 'blocked');
-      window.setTimeout(() => {
+      utterance.onstart = () => {
+        armResume();
+        opts.onStart?.();
+      };
+      utterance.onend = () => {
         opts.onEnd?.();
-        finish('blocked');
-      }, 900);
-    };
-
-    try {
-      synth.speak(utterance);
-      synth.resume();
-      armResume();
-      window.setTimeout(() => {
-        if (!settled && !synth.speaking) {
-          opts.onError?.('blocked');
+        finish('spoke');
+      };
+      utterance.onerror = (ev) => {
+        cueTone();
+        opts.onStart?.();
+        opts.onError?.(ev.error || 'blocked');
+        window.setTimeout(() => {
+          opts.onEnd?.();
           finish('blocked');
-        }
-      }, 2200);
-    } catch (e) {
-      opts.onError?.(e instanceof Error ? e.message : 'blocked');
-      finish('blocked');
-    }
-  });
+        }, 900);
+      };
+
+      try {
+        synth.speak(utterance);
+        synth.resume();
+        armResume();
+        window.setTimeout(() => {
+          if (!settled && !synth.speaking) {
+            opts.onError?.('blocked');
+            finish('blocked');
+          }
+        }, BLOCKED_MS);
+      } catch (e) {
+        opts.onError?.(e instanceof Error ? e.message : 'blocked');
+        finish('blocked');
+      }
+    });
   });
 }
 

@@ -19,7 +19,7 @@ export function MoneyRadar({ brainOnline, onAsk }: MoneyRadarProps) {
   const lock = moves[0];
 
   return (
-    <section className="panel-glass money-radar" aria-label="Money now radar">
+    <section className="panel-glass money-radar holo-summon" aria-label="Money now radar">
       <header>
         <b>MONEY NOW</b>
         <i className={lock ? 'is-proven' : 'is-claimed'}>{lock ? 'PROVEN' : 'CLAIMED'}</i>

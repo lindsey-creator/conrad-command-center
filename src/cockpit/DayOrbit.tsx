@@ -25,7 +25,7 @@ export function DayOrbit({ brainOnline, whoop, onAsk }: DayOrbitProps) {
   const nodes = (sched.length ? sched : weekItems).slice(0, 6);
 
   return (
-    <section className={`day-orbit-panel orbit-strip--${whoop.workGate}`} aria-label="Day orbit">
+    <section className={`day-orbit-panel orbit-strip--${whoop.workGate} holo-glass`} aria-label="Day orbit">
       <DayOrbitStrip day={whoop} onAsk={() => onAsk('Protect my calendar and WHOOP day.')} />
       <ol className="day-orbit-panel__nodes">
         {nodes.length ? (

@@ -25,6 +25,10 @@ export function useAudioPulse(motion: OrbMotion, liveMic: boolean) {
           next = 0.22 + Math.abs(Math.sin(t * 8)) * 0.22;
         } else if (motion === 'alert-flare') {
           next = 0.55 + Math.abs(Math.sin(t * 11)) * 0.4;
+        } else if (motion === 'connect-spin') {
+          next = 0.18 + Math.abs(Math.sin(t * 3.2)) * 0.16;
+        } else if (motion === 'disabled-still') {
+          next = 0.06;
         } else {
           next = 0.1 + Math.sin((t * Math.PI * 2) / 4) * 0.08 + 0.08;
         }
