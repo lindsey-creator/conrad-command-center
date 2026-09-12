@@ -20,7 +20,7 @@ Root attribute: `data-pack="cybertruck" | "phone"` on `.rhino`. Ultrawide (`min-
 - Wispr states: `/?talk=1&wispr=listening&cybertruck=1` · `connecting` · `thinking` · `speaking` · `error` · `disabled`
 - **Speak demo:** `/?speak=1`
 
-**Rhino lock:** Idle = landscape void + WHOOP Day Orbit + dim Arc. Talk = gigantic orb always central. Wispr = idle / connecting / listening / thinking / speaking / error / disabled. Intent panels max 4. Type-1 max 3. Holographic summon — no SaaS cards or tables.
+**Rhino lock:** Idle matches Higgsfield `public/hud-targets/idle-whoop.png` — landscape void, giant JARVIS, dim Arc reticle, bottom WHOOP REC/SLEEP/STRAIN (PROVEN/CLAIMED only). Talk = gigantic orb always central. Wispr = idle / connecting / listening / thinking / speaking / error / disabled. Intent panels max 4. Type-1 max 3. Holographic summon — no SaaS cards or tables.
 
 ## Talk Mode — Brain `/chat` (not ChatGPT on the glass)
 

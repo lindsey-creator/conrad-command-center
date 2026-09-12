@@ -124,6 +124,7 @@
 }
 
 .rhino.mode-talk .rhino__omega { bottom: 132px; }
+.rhino.mode-talk .rhino-top__truck { display: none; }
 
 .rhino__flare {
   position: absolute;
@@ -187,12 +188,28 @@
 }
 
 .rhino-top__brand b {
-  font-family: var(--font-mark, var(--font-display));
-  font-size: 18px;
-  letter-spacing: 0.32em;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.28em;
   color: #fff;
   text-shadow: none;
   font-weight: 500;
+}
+
+.rhino-top__brand small {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--mute);
+}
+
+.rhino-top__truck {
+  margin-left: auto;
+  margin-right: auto;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.42em;
+  color: #fff;
 }
 
 .rhino-top__brand i {
@@ -346,12 +363,12 @@
 }
 
 .rhino.mode-idle .board {
+  grid-template-columns: 1fr;
   grid-template-areas:
-    'orbit orbit orbit'
-    'core core core'
-    'type1 money leak'
-    'cap cap cap';
-  grid-template-rows: auto minmax(0, 1fr) 72px auto;
+    'void'
+    'orbit';
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: 12px 36px 8px;
 }
 
 .rhino.mode-talk .board {
@@ -775,7 +792,7 @@
 
 .orbit-strip__figs b {
   font-family: var(--font-display);
-  font-size: clamp(32px, 5.2vh, 68px);
+  font-size: clamp(28px, 4.4vh, 52px);
   letter-spacing: 0.04em;
   line-height: 1;
   color: #fff;
@@ -787,17 +804,40 @@
   display: block;
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--mute);
   margin-bottom: 4px;
 }
 
-.orbit-strip__verdict {
-  font-family: var(--font-display);
-  font-size: clamp(16px, 2.2vh, 26px);
-  letter-spacing: 0.12em;
-  max-width: 34ch;
+.orbit-strip__figs u {
+  display: block;
+  margin-top: 4px;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+}
+
+.orbit-strip.is-proven .orbit-strip__figs u { color: #3ef0c0; }
+.orbit-strip--down .orbit-strip__figs u { color: var(--amber); }
+
+.orbit-strip__sync {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: #fff;
+  text-align: right;
+}
+
+.orbit-strip__sync em {
+  display: block;
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+  margin-bottom: 4px;
 }
 
 .orbit-strip--down {
@@ -1470,51 +1510,195 @@
   height: min(72vmin, 72vh);
 }
 
-/* Idle: void + WHOOP strip + dim core + three ticks. No card soup. */
-.rhino.mode-idle .money-radar header,
-.rhino.mode-idle .leak-grid header,
-.rhino.mode-idle .money-radar .panel-glass__job,
-.rhino.mode-idle .leak-grid .panel-glass__job,
-.rhino.mode-idle .money-radar .panel-glass__verdict,
-.rhino.mode-idle .leak-grid .panel-glass__verdict,
-.rhino.mode-idle .money-radar__scope,
-.rhino.mode-idle .leak-grid__cells,
-.rhino.mode-idle .t1glass__locks,
-.rhino.mode-idle .t1glass__edge span,
-.rhino.mode-idle .panel-glass__job,
+/* Higgsfield Idle — landscape void, bottom WHOOP, dim Arc. No ticks. */
+.rhino.mode-idle .rhino__hash,
+.rhino.mode-idle .rhino__omega,
+.rhino.mode-idle .rhino__frame,
+.rhino.mode-idle .rhino-top__pack,
+.rhino.mode-idle .board__voice,
 .rhino.mode-idle .day-orbit-panel__nodes {
   display: none;
 }
 
-.rhino.mode-idle .money-radar,
-.rhino.mode-idle .leak-grid,
-.rhino.mode-idle .t1glass {
+.rhino.mode-idle .rhino-top {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.rhino.mode-idle .rhino-top__brand b { letter-spacing: 0.2em; }
+
+.rhino.mode-idle .day-orbit-panel {
+  grid-area: orbit;
+}
+
+.idle-deck {
+  grid-area: void;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.6fr) minmax(140px, 0.55fr);
+  align-items: center;
+  min-height: 0;
+  color: #fff;
+}
+
+.idle-deck__brand h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(42px, 7vh, 86px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 0.95;
+}
+
+.idle-deck__mode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  color: #fff;
+}
+
+.idle-deck__mode i,
+.idle-deck__status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ice);
+  box-shadow: 0 0 8px var(--ice);
+}
+
+.idle-deck__status i[data-on='false'] {
+  background: var(--crit);
+  box-shadow: 0 0 8px var(--crit);
+}
+
+.idle-deck__brand hr {
+  width: 28px;
+  margin: 16px 0;
+  border: 0;
+  border-top: 1px solid var(--ice);
+}
+
+.idle-deck__kicker,
+.idle-deck__sub,
+.idle-deck__scan p,
+.idle-deck__arc p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--mute);
+}
+
+.idle-deck__status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 6px;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.2vh, 34px);
+  letter-spacing: 0.18em;
+}
+
+.idle-deck__truck {
+  margin: 28px 0 0;
+  color: var(--ice);
+}
+
+.idle-deck__truck svg {
+  width: 88px;
+  height: 28px;
+  display: block;
+}
+
+.idle-deck__truck figcaption {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: #fff;
+}
+
+.idle-deck__truck span {
+  display: block;
+  color: var(--mute);
+}
+
+.idle-deck__scan {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  min-height: 0;
 }
 
-.rhino.mode-idle:not(.is-shot) .t1glass,
-.rhino.mode-idle:not(.is-shot) .money-radar,
-.rhino.mode-idle:not(.is-shot) .leak-grid {
-  animation: panel-rise 0.7s cubic-bezier(0.16, 0.84, 0.32, 1) both;
+.idle-deck__ridge {
+  width: min(72vw, 720px);
+  height: 80px;
+  color: #fff;
+  margin-bottom: 18px;
 }
 
-.rhino.mode-idle .money-radar { animation-delay: 0.1s; }
-.rhino.mode-idle .leak-grid { animation-delay: 0.2s; }
+.idle-deck__scan p { letter-spacing: 0.32em; }
+.idle-deck__scan .idle-deck__sub { margin-top: 8px; }
 
-.rhino.mode-idle .panel-glass__go,
-.rhino.mode-idle .t1glass__tick {
-  align-self: center;
-  font-size: clamp(20px, 3vh, 34px);
-  letter-spacing: 0.28em;
-  min-height: 48px;
-  min-width: 160px;
-}
-
-.rhino.mode-idle .t1glass__edge {
-  margin: 0;
+.idle-deck__arc {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   justify-content: center;
+  gap: 8px;
+}
+
+.idle-deck__reticle {
+  position: relative;
+  width: min(22vh, 160px);
+  height: min(22vh, 160px);
+}
+
+.idle-deck__reticle i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+}
+
+.idle-deck__reticle i:nth-child(2) { inset: 18%; opacity: 0.7; }
+.idle-deck__reticle i:nth-child(3) { inset: 36%; opacity: 0.45; }
+
+.idle-deck__reticle b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px;
+  border-radius: 50%;
+  background: var(--ice);
+  box-shadow: 0 0 10px var(--ice);
+}
+
+.idle-deck__arc strong {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vh, 32px);
+  letter-spacing: 0.18em;
+  font-weight: 500;
+}
+
+.rhino.mode-idle .orbit-strip {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  min-height: 84px;
+  padding: 12px 4px 4px;
+}
+
+.rhino.mode-idle .wispr {
+  border-top-color: rgba(255, 255, 255, 0.06);
+  padding-top: 4px;
 }
 
 /* Talk: orb dead-center. Intent panels max 4. Type-1 card max 3. */

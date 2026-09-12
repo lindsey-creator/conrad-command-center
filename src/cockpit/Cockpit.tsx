@@ -4,6 +4,7 @@ import { useAudioPulse } from '../hooks/useAudioPulse';
 import { BootIgnition } from './BootIgnition';
 import { CommandDock } from './CommandDock';
 import { DayOrbit } from './DayOrbit';
+import { IdleDeck } from './IdleDeck';
 import { LeakGrid } from './LeakGrid';
 import { MoneyRadar } from './MoneyRadar';
 import { TalkOrb, type CoreTint } from './TalkOrb';
@@ -180,7 +181,10 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     [apply, locked],
   );
 
-  const raise = (id: IntentId) => (mode === 'talk' ? intents.includes(id) : true);
+  const raise = (id: IntentId) => {
+    if (mode === 'idle') return id === 'orbit';
+    return intents.includes(id);
+  };
   const finishBoot = useCallback(() => {
     setBooted(true);
     setWake(true);
@@ -227,9 +231,11 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
           <b>JARVIS</b>
           <i data-on={brainOnline} />
           <em>{brainOnline ? 'LIVE' : 'STANDBY'}</em>
+          <small>OS v5.0.0</small>
         </div>
-        <span className="rhino-top__mode">{mode === 'idle' ? autonomy : 'TALK'}</span>
-        <span className={`rhino-top__wispr is-${wispr}`}>{mode === 'talk' ? WISPR_LABEL[wispr] : phase.toUpperCase()}</span>
+        <span className="rhino-top__truck">CYBERTRUCK</span>
+        <span className="rhino-top__mode">{mode === 'idle' ? 'IDLE MODE' : 'TALK'}</span>
+        <span className={`rhino-top__wispr is-${wispr}`}>{mode === 'talk' ? WISPR_LABEL[wispr] : 'DAY ORBIT'}</span>
         <span className="rhino-top__pack">{autonomy} CORE</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
@@ -238,17 +244,20 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       <JobRail level={autonomy} phase={phase} jobs={jobs} />
 
       <div className="board">
+        {mode === 'idle' ? <IdleDeck brainOnline={brainOnline} /> : null}
         {raise('money') ? <MoneyRadar brainOnline={brainOnline} onAsk={ask} /> : null}
-        <div className="arc-bay" aria-label="Arc core">
-          <TalkOrb
-            motion={motion}
-            level={level}
-            dim={mode === 'idle'}
-            hero={mode === 'talk'}
-            core={core}
-            state={wispr}
-          />
-        </div>
+        {mode === 'talk' ? (
+          <div className="arc-bay" aria-label="Arc core">
+            <TalkOrb
+              motion={motion}
+              level={level}
+              dim={false}
+              hero
+              core={core}
+              state={wispr}
+            />
+          </div>
+        ) : null}
         {raise('leak') ? <LeakGrid brainOnline={brainOnline} onAsk={ask} /> : null}
         {raise('type1') ? (
           <Type1Glass locks={locks} risen={mode === 'talk'} sinking={false} onLock={ask} />
@@ -257,7 +266,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <div className="board__voice">
           <p className="caption">{caption}</p>
         </div>
-        <TaskPill jobs={jobs} onAsk={ask} />
+        {mode === 'talk' ? <TaskPill jobs={jobs} onAsk={ask} /> : null}
       </div>
 
       <CommandDock
