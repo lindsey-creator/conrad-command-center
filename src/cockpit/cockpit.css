@@ -36,7 +36,28 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: radial-gradient(ellipse 70% 55% at 50% 42%, rgba(0, 229, 255, 0.07), transparent 62%);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 42%, rgba(0, 229, 255, 0.14), transparent 58%),
+    radial-gradient(ellipse 40% 30% at 78% 22%, rgba(0, 180, 255, 0.08), transparent 70%);
+}
+
+.rhino__holo {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 2px,
+      rgba(0, 229, 255, 0.035) 2px 3px
+    );
+  mix-blend-mode: screen;
+  animation: holo-drift 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes holo-drift {
+  0%, 100% { opacity: 0.45; transform: translateY(0); }
+  50% { opacity: 0.8; transform: translateY(6px); }
 }
 
 .rhino__scan {
@@ -134,7 +155,7 @@
 .rhino-top__motion {
   font-family: var(--font-mono);
   font-size: 13px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
   color: var(--mute);
   font-style: normal;
 }
@@ -142,6 +163,13 @@
 .rhino-top__mode {
   margin-left: auto;
   color: var(--ice);
+}
+
+.rhino-top__pack {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--ice-2);
 }
 
 .rhino-top__stack {
@@ -176,30 +204,112 @@
 }
 
 .rhino.mode-talk .talk-orb {
-  width: min(70vh, 90vw);
+  width: 70vh;
   height: 70vh;
+  max-width: 92vw;
   opacity: 1;
 }
 
-.day-orbit.faint {
+.rhino.mode-talk .rhino__stage::before {
+  content: '';
   position: absolute;
-  top: 18px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 28px;
-  opacity: 0.22;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  color: var(--ice);
-  z-index: 2;
+  left: 50%;
+  top: 48%;
+  width: 70vh;
+  height: 70vh;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.3) 0%, rgba(0, 229, 255, 0.08) 42%, transparent 70%);
+  box-shadow: 0 0 120px rgba(0, 229, 255, 0.22);
+  pointer-events: none;
+  z-index: 0;
 }
 
-.day-orbit.faint i {
-  font-style: normal;
+.orbit-strip {
+  position: absolute;
+  top: 10px;
+  left: 3vw;
+  right: 3vw;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 84px;
+  padding: 10px 22px;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  background: linear-gradient(180deg, rgba(0, 40, 52, 0.45), rgba(2, 8, 12, 0.35));
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  color: var(--ice);
+  text-align: left;
 }
+
+.orbit-strip.is-compact {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: var(--tap);
+}
+
+.orbit-strip__kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.orbit-strip__kicker i {
+  font-style: normal;
+  color: var(--amber);
+}
+
+.orbit-strip.is-proven .orbit-strip__kicker i { color: #3ef0c0; }
+.orbit-strip.is-claimed .orbit-strip__figs b { opacity: 0.4; }
+
+.orbit-strip__figs {
+  display: flex;
+  gap: 36px;
+  flex: 1;
+}
+
+.orbit-strip__figs b {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.4vh, 56px);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
+}
+
+.orbit-strip__figs em {
+  display: block;
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--mute);
+  margin-bottom: 4px;
+}
+
+.orbit-strip__verdict {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2.2vh, 26px);
+  letter-spacing: 0.12em;
+  max-width: 34ch;
+}
+
+.orbit-strip--down {
+  border-color: rgba(255, 200, 87, 0.55);
+  box-shadow: 0 0 28px rgba(255, 200, 87, 0.18);
+}
+
+.orbit-strip--down .orbit-strip__verdict { color: var(--amber); }
+.orbit-strip--open .orbit-strip__verdict { color: #3ef0c0; }
 
 .rails {
   position: absolute;
@@ -242,13 +352,13 @@
 
 .rise-deck {
   position: absolute;
-  right: 3vw;
+  right: 2.4vw;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: min(440px, 32vw);
+  width: min(380px, 26vw);
   z-index: 5;
   pointer-events: none;
 }
@@ -325,11 +435,12 @@
   grid-template-rows: auto auto;
   column-gap: 10px;
   text-align: left;
-  padding: 10px 12px;
-  border: 1px solid rgba(0, 229, 255, 0.2);
-  background: rgba(0, 229, 255, 0.03);
+  padding: 10px 4px 10px 0;
+  border: 0;
+  border-left: 2px solid rgba(0, 229, 255, 0.55);
+  background: transparent;
   color: inherit;
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  box-shadow: inset 18px 0 24px -18px rgba(0, 229, 255, 0.2);
 }
 
 .t1glass__lock i {
@@ -435,23 +546,40 @@
   align-items: stretch;
 }
 
-.wispr__orb-btn,
+.wispr__speak,
 .wispr__go,
-.wispr__end {
+.wispr__end,
+.wispr__hear {
   min-height: var(--tap);
   min-width: var(--tap);
   border: 1px solid rgba(0, 229, 255, 0.35);
   background: rgba(0, 229, 255, 0.07);
   color: var(--ice);
   font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 0.16em;
+  font-size: 14px;
+  letter-spacing: 0.12em;
 }
 
-.wispr__orb-btn.is-hot,
+.wispr__speak.is-hot,
+.wispr__speak.is-say,
 .wispr__go:hover {
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 28px rgba(0, 229, 255, 0.4);
 }
+
+.wispr__speak.is-say {
+  border-color: var(--ice);
+  color: var(--ice-2);
+}
+
+.wispr__banner {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--ice-2);
+}
+
+.wispr__banner.is-warn { color: var(--amber); }
 
 .wispr__go {
   background: rgba(0, 229, 255, 0.14);
@@ -588,12 +716,70 @@
   .say {
     right: 4vw;
   }
+  .orbit-strip {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+/* Cybertruck landscape pack — giant type, ultrawide glass */
+.rhino[data-pack='cybertruck'] {
+  --tap: 76px;
+}
+
+.rhino[data-pack='cybertruck'] .rhino-top__brand b {
+  font-size: 22px;
+}
+
+.rhino[data-pack='cybertruck'] .rail b {
+  font-size: clamp(22px, 3.1vh, 36px);
+}
+
+.rhino[data-pack='cybertruck'] .orbit-strip__figs b {
+  font-size: clamp(32px, 5vh, 64px);
+}
+
+.rhino[data-pack='cybertruck'] .say {
+  font-size: clamp(32px, 5vh, 56px);
+}
+
+.rhino[data-pack='cybertruck'].mode-talk .talk-orb,
+.rhino[data-pack='cybertruck'].mode-talk .rhino__stage::before {
+  width: 70vh;
+  height: 70vh;
+}
+
+.rhino[data-pack='phone'] .orbit-strip__figs b {
+  font-size: 28px;
+}
+
+@media (orientation: landscape) and (min-aspect-ratio: 16/9) {
+  .rhino[data-pack='cybertruck'] .rails {
+    gap: 28px;
+  }
+  .rhino[data-pack='cybertruck'] .rise-deck {
+    width: min(360px, 24vw);
+  }
+}
+
+@media (min-aspect-ratio: 2.2/1) {
+  .rhino[data-pack='cybertruck'] .orbit-strip {
+    left: 4vw;
+    right: 4vw;
+  }
+  .rhino[data-pack='cybertruck'] .orbit-strip__figs {
+    gap: 56px;
+  }
+  .rhino[data-pack='cybertruck'] .rails {
+    gap: 40px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rise-deck > *,
   .boot__ring,
-  .boot__core {
+  .boot__core,
+  .rhino__holo {
     animation: none !important;
   }
 }

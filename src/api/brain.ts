@@ -367,6 +367,16 @@ export interface HealthMetricsResponse {
   note?: string;
 }
 
+export interface WhoopDayResponse {
+  status: ConnectSourceStatus;
+  sources: string[];
+  recovery?: number | null;
+  sleep?: number | null;
+  strain?: number | null;
+  updatedAt?: string | null;
+  note?: string;
+}
+
 export interface MetaAdsResponse {
   status: ConnectSourceStatus;
   sources: string[];
@@ -513,6 +523,7 @@ export const brain = {
   audioRecent: (limit = 12) =>
     fetchJson<ConnectSourceResponse>(`/audio/recent?limit=${limit}`),
   healthMetrics: () => fetchJson<HealthMetricsResponse>('/health/metrics'),
+  whoopDay: () => fetchJsonOrConnect<WhoopDayResponse>('/whoop'),
   weekAhead: () => fetchJson<ConnectSourceResponse>('/calendar/week'),
   inboxRadar: () => fetchJsonOrConnect<InboxRadarResponse>('/inbox/radar'),
   metaAds: () => fetchJson<MetaAdsResponse>('/ads/meta'),

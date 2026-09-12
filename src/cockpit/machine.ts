@@ -17,7 +17,7 @@ const INTENT_MAP: { test: RegExp; rail: RailId }[] = [
   { test: /\b(money|dollar|deal|close|capital|ghl|non-?qm)\b/i, rail: 'money' },
   { test: /\b(leak|leaking|overdue|late|hole|slip)\b/i, rail: 'leaking' },
   { test: /\b(type-?1|decide|decision|call|judgment|target)\b/i, rail: 'type1' },
-  { test: /\b(calendar|orbit|schedule|today|day|protect)\b/i, rail: 'orbit' },
+  { test: /\b(calendar|orbit|schedule|today|day|protect|whoop|recovery|sleep|strain)\b/i, rail: 'orbit' },
 ];
 
 /** "Brief me" is orb-only — do not raise every panel. */

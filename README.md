@@ -6,10 +6,12 @@ operating system that runs Lindsey Conrad's lending + construction operation
 This UI sits on the **Brain** (deal-math engine + memory + training loop, in the
 separate `Goldfront-os` repo).
 
-Cinematic Iron Man JARVIS HUD — Type-1 only (MONEY NOW / LEAKING / EFFICIENCY)
-and feed slots (Town, GHL apply, calendar, WHOOP, Rise, Non-QM).
+Cinematic Iron Man JARVIS HUD — Idle rails + Talk Mode orb, Type-1 glass
+(MONEY NOW / LEAKING / EFFICIENCY), WHOOP Day Orbit strip.
 
 Live: **https://jarvis-brain-production-8def.up.railway.app** (Railway URL only — no custom-domain work).
+
+**Cybertruck pack + Speak:** [`docs/CYBERTRUCK-HUD.md`](docs/CYBERTRUCK-HUD.md) — `?cybertruck=1`, `?talk=1`, `?speak=1` (click SPEAK to hear JARVIS).
 
 See **`docs/JARVIS-LIVE.md`** for naming locks (JARVIS, Command Center, Brain, Manus builds).
 

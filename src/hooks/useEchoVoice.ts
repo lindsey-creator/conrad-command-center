@@ -1,102 +1,130 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  cancelSpeech,
+  recognitionCtor,
+  speakLine,
+  speechReady,
+  unlockSpeech,
+  type SpeakResult,
+} from './speechEngine';
 
 export type EchoVoiceState = 'idle' | 'listening' | 'speaking' | 'thinking';
+export type VoiceError = 'mic-denied' | 'mic-missing' | 'rec-failed' | 'tts-missing' | 'tts-blocked' | null;
 
 interface UseEchoVoiceOptions {
   speakEnabled: boolean;
   onTranscript?: (text: string) => void;
   onFinalTranscript?: (text: string) => void;
-}
-
-function getRecognitionCtor():
-  | (new () => SpeechRecognition)
-  | undefined {
-  if (typeof window === 'undefined') return undefined;
-  const w = window as Window & {
-    webkitSpeechRecognition?: new () => SpeechRecognition;
-    SpeechRecognition?: new () => SpeechRecognition;
-  };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition;
+  onState?: (state: EchoVoiceState) => void;
 }
 
 export function useEchoVoice({
   speakEnabled,
   onTranscript,
   onFinalTranscript,
+  onState,
 }: UseEchoVoiceOptions) {
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
   const [speechSupported, setSpeechSupported] = useState(false);
   const [micSupported, setMicSupported] = useState(false);
+  const [voiceError, setVoiceError] = useState<VoiceError>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const onTranscriptRef = useRef(onTranscript);
   const onFinalTranscriptRef = useRef(onFinalTranscript);
+  const onStateRef = useRef(onState);
 
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
     onFinalTranscriptRef.current = onFinalTranscript;
-  }, [onTranscript, onFinalTranscript]);
+    onStateRef.current = onState;
+  }, [onTranscript, onFinalTranscript, onState]);
+
+  const setState = useCallback((next: EchoVoiceState) => {
+    setVoiceState(next);
+    onStateRef.current?.(next);
+  }, []);
 
   useEffect(() => {
-    setSpeechSupported(typeof window !== 'undefined' && 'speechSynthesis' in window);
-    setMicSupported(!!getRecognitionCtor());
+    setSpeechSupported(speechReady());
+    setMicSupported(!!recognitionCtor() || !!navigator.mediaDevices?.getUserMedia);
   }, []);
 
   const stopSpeaking = useCallback(() => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    utteranceRef.current = null;
-    setVoiceState((s) => (s === 'speaking' ? 'idle' : s));
+    cancelSpeech();
+    setVoiceState((s) => {
+      const next = s === 'speaking' ? 'idle' : s;
+      if (next !== s) onStateRef.current?.(next);
+      return next;
+    });
   }, []);
 
   const speak = useCallback(
-    (text: string) => {
-      if (!speakEnabled || !text.trim() || typeof window === 'undefined') return;
-      const synth = window.speechSynthesis;
-      if (!synth) return;
-
-      synth.cancel();
-      const utterance = new SpeechSynthesisUtterance(text.trim());
-      utterance.rate = 1.02;
-      utterance.pitch = 0.95;
-      utterance.volume = 1;
-
-      const voices = synth.getVoices();
-      const preferred =
-        voices.find((v) => /samantha|daniel|alex|google uk english male/i.test(v.name)) ??
-        voices.find((v) => v.lang.startsWith('en') && !v.localService) ??
-        voices.find((v) => v.lang.startsWith('en'));
-      if (preferred) utterance.voice = preferred;
-
-      utterance.onstart = () => setVoiceState('speaking');
-      utterance.onend = () => {
-        utteranceRef.current = null;
-        setVoiceState('idle');
-      };
-      utterance.onerror = () => {
-        utteranceRef.current = null;
-        setVoiceState('idle');
-      };
-
-      utteranceRef.current = utterance;
-      synth.speak(utterance);
+    async (text: string): Promise<SpeakResult> => {
+      if (!speakEnabled) return 'empty';
+      if (!speechReady()) {
+        setVoiceError('tts-missing');
+        return 'missing';
+      }
+      const result = await speakLine(text, {
+        onStart: () => {
+          setVoiceError(null);
+          setState('speaking');
+        },
+        onEnd: () => {
+          setVoiceState((s) => {
+            const next = s === 'speaking' ? 'idle' : s;
+            if (next !== s) onStateRef.current?.(next);
+            return next;
+          });
+        },
+        onError: () => setVoiceError('tts-blocked'),
+      });
+      if (result === 'blocked') setVoiceError('tts-blocked');
+      if (result === 'missing') setVoiceError('tts-missing');
+      return result;
     },
-    [speakEnabled],
+    [setState, speakEnabled],
   );
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();
     recognitionRef.current = null;
-    setVoiceState((s) => (s === 'listening' ? 'idle' : s));
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setVoiceState((s) => {
+      const next = s === 'listening' ? 'idle' : s;
+      if (next !== s) onStateRef.current?.(next);
+      return next;
+    });
   }, []);
 
-  const startListening = useCallback(() => {
-    const Ctor = getRecognitionCtor();
-    if (!Ctor) return;
-
+  const startListening = useCallback(async (): Promise<'listening' | 'denied' | 'missing'> => {
+    unlockSpeech();
     stopSpeaking();
     stopListening();
+
+    const Ctor = recognitionCtor();
+    if (!Ctor && !navigator.mediaDevices?.getUserMedia) {
+      setVoiceError('mic-missing');
+      return 'missing';
+    }
+
+    if (navigator.mediaDevices?.getUserMedia) {
+      try {
+        streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch {
+        setVoiceError('mic-denied');
+        return 'denied';
+      }
+    }
+
+    if (!Ctor) {
+      setVoiceError('mic-missing');
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+      return 'missing';
+    }
 
     const recognition = new Ctor();
     recognition.continuous = false;
@@ -104,47 +132,62 @@ export function useEchoVoice({
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
-    recognition.onstart = () => setVoiceState('listening');
+    recognition.onstart = () => {
+      setVoiceError(null);
+      setState('listening');
+    };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const last = event.results[event.results.length - 1];
       const transcript = last[0]?.transcript?.trim() ?? '';
       if (!transcript) return;
       onTranscriptRef.current?.(transcript);
-      if (last.isFinal) {
-        onFinalTranscriptRef.current?.(transcript);
-      }
+      if (last.isFinal) onFinalTranscriptRef.current?.(transcript);
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (ev: Event) => {
+      const code = 'error' in ev ? String((ev as SpeechRecognitionErrorEvent).error) : '';
       recognitionRef.current = null;
-      setVoiceState('idle');
+      if (code === 'not-allowed' || code === 'service-not-allowed') setVoiceError('mic-denied');
+      else if (code !== 'aborted' && code !== 'no-speech') setVoiceError('rec-failed');
+      setState('idle');
     };
 
     recognition.onend = () => {
       recognitionRef.current = null;
-      setVoiceState((s) => (s === 'listening' ? 'idle' : s));
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+      setVoiceState((s) => {
+        const next = s === 'listening' ? 'idle' : s;
+        if (next !== s) onStateRef.current?.(next);
+        return next;
+      });
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
-  }, [stopListening, stopSpeaking]);
+    try {
+      recognition.start();
+      return 'listening';
+    } catch {
+      setVoiceError('rec-failed');
+      return 'missing';
+    }
+  }, [setState, stopListening, stopSpeaking]);
 
   const toggleListening = useCallback(() => {
     if (voiceState === 'listening') {
       stopListening();
-    } else {
-      startListening();
+      return Promise.resolve('idle' as const);
     }
+    return startListening();
   }, [voiceState, startListening, stopListening]);
 
-  const setThinking = useCallback((thinking: boolean) => {
-    setVoiceState((s) => {
-      if (thinking) return 'thinking';
-      if (s === 'thinking') return 'idle';
-      return s;
-    });
-  }, []);
+  const setThinking = useCallback(
+    (thinking: boolean) => {
+      setState(thinking ? 'thinking' : voiceState === 'thinking' ? 'idle' : voiceState);
+    },
+    [setState, voiceState],
+  );
 
   useEffect(() => {
     return () => {
@@ -154,21 +197,22 @@ export function useEchoVoice({
   }, [stopSpeaking, stopListening]);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    if (!speechReady()) return;
     const loadVoices = () => window.speechSynthesis.getVoices();
     loadVoices();
     window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
-    return () =>
-      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
   }, []);
 
   return {
     voiceState,
+    voiceError,
     speak,
     stopSpeaking,
     startListening,
     stopListening,
     toggleListening,
+    unlock: unlockSpeech,
     setThinking,
     speechSupported,
     micSupported,

@@ -1,17 +1,19 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import type { EchoVoiceState } from '../hooks/useEchoVoice';
 import { useAudioPulse } from '../hooks/useAudioPulse';
 import { BootIgnition } from './BootIgnition';
 import { CommandDock } from './CommandDock';
+import { DayOrbitStrip } from './DayOrbitStrip';
 import { TalkOrb } from './TalkOrb';
 import { Type1Glass } from './Type1Glass';
 import { RAILS, isAlertIntent, railsForIntent, type DeckMode, type OrbMotion, type RailId } from './machine';
+import { useHudPack } from './useHudPack';
 import { useType1Locks } from './useType1Locks';
+import { useWhoopDay } from './useWhoopDay';
 
-const ORBIT = ['TOWN', 'GHL APPLY', 'CALENDAR', 'WHOOP', 'RISE', 'NON-QM'] as const;
-
-function talkShot(): boolean {
+function queryFlag(name: string): boolean {
   if (typeof window === 'undefined') return false;
-  return new URLSearchParams(window.location.search).get('talk') === '1';
+  return new URLSearchParams(window.location.search).get(name) === '1';
 }
 
 function railLabel(id: RailId) {
@@ -27,14 +29,20 @@ interface CockpitProps {
 }
 
 export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
-  const shot = useMemo(() => talkShot(), []);
-  const [booted, setBooted] = useState(shot);
-  const [mode, setMode] = useState<DeckMode>(shot ? 'talk' : 'idle');
+  const shot = useMemo(() => queryFlag('talk'), []);
+  const idleShot = useMemo(() => queryFlag('idle'), []);
+  const speakDemo = useMemo(() => queryFlag('speak'), []);
+  const pack = useHudPack();
+  const whoop = useWhoopDay(brainOnline);
+  const [booted, setBooted] = useState(shot || idleShot || speakDemo);
+  const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
   const [motion, setMotion] = useState<OrbMotion>(shot ? 'speak-wave' : 'idle-pulse');
   const [risen, setRisen] = useState<RailId[]>(shot ? ['type1'] : []);
   const [sinking, setSinking] = useState(false);
   const [micLive, setMicLive] = useState(false);
-  const [caption, setCaption] = useState(shot ? 'Talk Mode. Orb owns the center.' : '');
+  const [caption, setCaption] = useState(
+    shot ? 'Talk Mode. Orb owns the center.' : speakDemo ? 'CLICK SPEAK — TTS demo.' : '',
+  );
   const [line, setLine] = useState(shot ? 'SHIP TYPE-1 NOW' : '');
   const [seed, setSeed] = useState<string | undefined>();
   const timers = useRef<number[]>([]);
@@ -51,7 +59,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   };
 
   const sinkThenIdle = useCallback(() => {
-    if (shot) return;
+    if (shot || speakDemo) return;
     clearTimers();
     setSinking(true);
     setMicLive(false);
@@ -63,7 +71,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       setCaption('');
       setLine('');
     });
-  }, [shot]);
+  }, [shot, speakDemo]);
 
   const enterListen = useCallback(() => {
     if (shot) return;
@@ -106,10 +114,26 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
             : 'Talk Mode. Panels rose from the rails.',
         );
       });
-      later(7800, sinkThenIdle);
+      later(12000, sinkThenIdle);
     },
     [shot, sinkThenIdle],
   );
+
+  const onVoiceState = useCallback((state: EchoVoiceState) => {
+    if (shot) return;
+    if (state === 'listening') {
+      setMode('talk');
+      setMotion('listen-ripple');
+      setMicLive(true);
+      setCaption('Listening.');
+    }
+    if (state === 'speaking') {
+      setMotion('speak-wave');
+      setMicLive(false);
+      setCaption('Speaking.');
+    }
+    if (state === 'thinking') setMotion('think-swirl');
+  }, [shot]);
 
   const extra = risen.filter((id) => id !== 'type1').slice(0, risen.includes('type1') ? 3 : 4);
   const type1Open = risen.includes('type1');
@@ -122,17 +146,20 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const bevelLine = (id: RailId) => {
     if (id === 'money') return locks[0]?.verdict ?? 'One-line bevel. No table.';
     if (id === 'leaking') return locks[1]?.verdict ?? 'One-line bevel. No table.';
-    return 'Day orbit stays faint until asked.';
+    return whoop.verdict;
   };
 
   return (
     <div
       className={`rhino mode-${mode} motion-${motion}${booted ? ' is-live' : ''}${sinking ? ' is-sinking' : ''}${shot ? ' is-shot' : ''}`}
+      data-pack={pack}
+      data-mode={mode}
     >
       {!booted ? <BootIgnition onDone={() => setBooted(true)} /> : null}
 
       <div className="rhino__void" aria-hidden="true">
         <div className="rhino__scan" />
+        <div className="rhino__holo" />
         <div className="rhino__vignette" />
       </div>
       <div className="rhino__frame" aria-hidden="true" />
@@ -145,6 +172,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         </div>
         <span className="rhino-top__mode">{mode === 'idle' ? 'IDLE' : 'TALK'}</span>
         <span className="rhino-top__motion">{motion.replace('-', ' ').toUpperCase()}</span>
+        <span className="rhino-top__pack">{pack === 'cybertruck' ? 'CYBERTRUCK' : 'PHONE'}</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
         </button>
@@ -155,11 +183,13 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
         {mode === 'idle' ? (
           <>
-            <div className="day-orbit faint" aria-hidden>
-              {ORBIT.map((n) => (
-                <i key={n}>{n}</i>
-              ))}
-            </div>
+            <DayOrbitStrip
+              day={whoop}
+              onAsk={() => {
+                setSeed('WHOOP recovery');
+                runTalk('WHOOP recovery');
+              }}
+            />
             <nav className="rails" aria-label="Idle rails">
               {RAILS.map((id) => (
                 <button
@@ -193,12 +223,16 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
                 }}
               />
             ) : null}
-            {extra.map((id) => (
-              <aside key={id} className={`bevel bevel-${id}`}>
-                <b>{railLabel(id)}</b>
-                <p>{bevelLine(id)}</p>
-              </aside>
-            ))}
+            {extra.map((id) =>
+              id === 'orbit' ? (
+                <DayOrbitStrip key={id} day={whoop} compact onAsk={() => runTalk('WHOOP recovery')} />
+              ) : (
+                <aside key={id} className={`bevel bevel-${id}`}>
+                  <b>{railLabel(id)}</b>
+                  <p>{bevelLine(id)}</p>
+                </aside>
+              ),
+            )}
           </div>
         ) : null}
 
@@ -211,8 +245,10 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         talking={mode === 'talk'}
         listening={motion === 'listen-ripple'}
         seed={seed}
+        demoSpeak={speakDemo}
         onWispr={enterListen}
         onSubmit={runTalk}
+        onVoiceState={onVoiceState}
         onAnswer={(spoken, claimed) => {
           setLine(spoken);
           if (spoken) {

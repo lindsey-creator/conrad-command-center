@@ -75,8 +75,8 @@ export function TalkOrb({ motion, level, dim = false, flare = 'red' }: TalkOrbPr
       const t = now / 1000;
       const idlePulse = 0.72 + Math.sin((t * Math.PI * 2) / 4) * 0.14;
       const pulse =
-        motion === 'idle-pulse' ? idlePulse : 0.88 + level * 0.18;
-      const scale = Math.min(w, h) * (dim ? 0.34 : 0.84) * pulse;
+        motion === 'idle-pulse' ? idlePulse : 0.9 + level * 0.12;
+      const scale = Math.min(w, h) * (dim ? 0.38 : 0.5) * pulse;
       if (!reduce) {
         rot +=
           motion === 'think-swirl'
@@ -88,12 +88,20 @@ export function TalkOrb({ motion, level, dim = false, flare = 'red' }: TalkOrbPr
                 : 0.004;
       }
 
-      const glow = ctx.createRadialGradient(cx, cy, scale * 0.06, cx, cy, scale * 1.4);
-      const g0 = motion === 'alert-flare' ? 0.4 : dim ? 0.1 : 0.2;
-      glow.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},${g0 + level * 0.22})`);
-      glow.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, w, h);
+      const body = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale * 1.05);
+      const core = motion === 'alert-flare' ? 0.62 : dim ? 0.16 : 0.5;
+      body.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},${core + level * 0.28})`);
+      body.addColorStop(0.35, `rgba(${color[0]},${color[1]},${color[2]},${dim ? 0.1 : 0.22})`);
+      body.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = body;
+      ctx.beginPath();
+      ctx.arc(cx, cy, scale * 1.05, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, scale * 0.22, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${dim ? 0.35 : 0.85})`;
+      ctx.fill();
 
       if (motion === 'listen-ripple') {
         for (let i = 0; i < 4; i++) {
@@ -117,21 +125,21 @@ export function TalkOrb({ motion, level, dim = false, flare = 'red' }: TalkOrbPr
           const persp = 2.15 / (2.15 + z1);
           const px = cx + x1 * scale * persp;
           const py = cy + p.y * scale * persp;
-          const a = (dim ? 0.12 : 0.2) + persp * 0.5 + level * 0.15;
+          const a = (dim ? 0.16 : 0.28) + persp * 0.55 + level * 0.18;
           ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${Math.min(1, a)})`;
           ctx.beginPath();
-          ctx.arc(px, py, (s === 2 ? 2.2 : 1.4) * persp, 0, Math.PI * 2);
+          ctx.arc(px, py, (s === 2 ? 3.2 : 2.1) * persp * (dim ? 0.7 : 1), 0, Math.PI * 2);
           ctx.fill();
         }
       }
 
       if (motion === 'speak-wave' || motion === 'alert-flare') {
-        const bars = 72;
-        const inner = scale * 0.9;
+        const bars = 84;
+        const inner = scale * 0.78;
         for (let i = 0; i < bars; i++) {
           const ang = (i / bars) * Math.PI * 2;
           const n = 0.25 + Math.abs(Math.sin(now / 90 + i * 0.35)) * (0.35 + level);
-          const len = (motion === 'alert-flare' ? 16 : 10) + n * 36;
+          const len = (motion === 'alert-flare' ? 28 : 18) + n * (dim ? 16 : 52);
           ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${0.3 + n * 0.5})`;
           ctx.lineWidth = 2;
           ctx.beginPath();
