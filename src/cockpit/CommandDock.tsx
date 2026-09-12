@@ -177,6 +177,10 @@ export function CommandDock({
 
   return (
     <footer className={`wispr${talking ? ' wispr--talk' : ''}`}>
+      <p className="wispr__lanes" aria-label="Auto versus GO">
+        <em>AUTO · drafts · research · assign · schedule · board</em>
+        <strong>GO · send · publish · spend · outreach · sign · $</strong>
+      </p>
       <nav className="wispr__chips" aria-label="Command bar">
         {COMMANDS.map((cmd) => (
           <button
@@ -186,17 +190,17 @@ export function CommandDock({
             onClick={() => {
               setText(cmd.text);
               ref.current?.focus();
+              if (cmd.text.includes('[X]')) {
+                setPending(null);
+                setBanner('AUTO lane — fill [X], then GO. Drafts/board only. No send.');
+                return;
+              }
               if (!cmd.mutate) {
                 void handleAsk(cmd.text, true);
                 return;
               }
-              if (cmd.text.includes('[X]')) {
-                setPending(null);
-                setBanner('Fill [X], then GO. Confirm required — nothing executes yet.');
-                return;
-              }
               setPending(cmd.text);
-              setBanner('CONFIRM on glass — nothing executes yet.');
+              setBanner('GO lane — confirm. Send / publish / spend / $ never auto.');
             }}
           >
             {cmd.label}
@@ -275,7 +279,7 @@ export function CommandDock({
           ref={ref}
           className="wispr__line"
           value={text}
-          placeholder="Direct the agent, sir — L0 silent, L1 report, L2 Type-1 only…"
+          placeholder="Direct the agent, sir — Auto vs GO…"
           onChange={(e) => setText(e.target.value)}
         />
         <button type="submit" className="wispr__go">

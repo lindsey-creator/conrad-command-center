@@ -17,7 +17,7 @@ export function Type1Glass({ locks, risen, sinking, onLock }: Type1GlassProps) {
     >
       <header className="t1glass__edge">
         <span>TYPE-1</span>
-        <span>L2 ONLY · MAX {TYPE1_QUEUE_CAP}</span>
+        <span>L3 GO · MAX {TYPE1_QUEUE_CAP}</span>
       </header>
       <p className="panel-glass__job">ESCALATE ONLY · RISE ≠ NON-QM · NO AUTO-SEND</p>
       <ol className="t1glass__locks">

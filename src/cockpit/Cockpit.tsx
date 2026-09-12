@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { EchoVoiceState } from '../hooks/useEchoVoice';
 import { useAudioPulse } from '../hooks/useAudioPulse';
 import { BootIgnition } from './BootIgnition';
@@ -12,7 +12,8 @@ import { isAlertIntent, railsForIntent, type DeckMode, type OrbMotion } from './
 import { useHudPack } from './useHudPack';
 import { useType1Locks } from './useType1Locks';
 import { JobRail } from './JobRail';
-import { resolveAutonomy } from './readyAgent';
+import { nextLoopPhase, resolveAutonomy } from './readyAgent';
+import { useAgentJobs } from './useAgentJobs';
 import { useWhoopDay } from './useWhoopDay';
 
 function queryFlag(name: string): boolean {
@@ -32,6 +33,8 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const pack = useHudPack();
   const whoop = useWhoopDay(brainOnline);
   const locks = useType1Locks(brainOnline);
+  const jobs = useAgentJobs(brainOnline, locks);
+  const [tick, setTick] = useState(0);
   const [booted, setBooted] = useState(shot || idleShot || speakDemo);
   const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
   const [motion, setMotion] = useState<OrbMotion>(shot ? 'speak-wave' : 'idle-pulse');
@@ -39,19 +42,36 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [micLive, setMicLive] = useState(false);
   const [caption, setCaption] = useState(
     shot
-      ? 'L1 report. Jobs holding. Type-1 max 3.'
+      ? 'Observe → reason → act → evidence → escalate.'
       : speakDemo
         ? 'CLICK SPEAK — TTS demo.'
-        : 'L1 report — apply radar, money, leak, orbit holding.',
+        : 'Observe → reason → act → evidence → escalate.',
   );
   const [seed, setSeed] = useState<string | undefined>();
   const timers = useRef<number[]>([]);
   const level = useAudioPulse(motion, micLive);
 
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const id = window.setInterval(() => setTick((n) => n + 1), reduce ? 8000 : 2400);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const phase = nextLoopPhase(tick);
+  const type1Proven = locks.some((l) => l.proven);
+  const goArmed = armed || motion === 'alert-flare';
+  const autonomy = resolveAutonomy({ phase, type1Proven, goArmed });
   const leakHot = locks.some((l) => l.lane === 'LEAKING' && l.proven);
-  const type1Hot = armed || motion === 'alert-flare' || locks.some((l) => l.proven);
-  const autonomy = resolveAutonomy(type1Hot);
-  const core: CoreTint = armed || motion === 'alert-flare' ? 'red' : leakHot ? 'amber' : 'blue';
+  const core: CoreTint = autonomy === 'L3' ? 'red' : autonomy === 'L2' || leakHot ? 'amber' : 'blue';
+  const loopMotion =
+    phase === 'reason'
+      ? 'think-swirl'
+      : phase === 'act'
+        ? 'listen-ripple'
+        : phase === 'escalate' && type1Proven
+          ? 'alert-flare'
+          : 'idle-pulse';
+  const orbMotion = mode === 'talk' ? motion : loopMotion;
 
   const clearTimers = () => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -121,11 +141,12 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
   return (
     <div
-      className={`rhino mode-${mode} motion-${motion} core-${core}${booted ? ' is-live' : ''}${shot ? ' is-shot' : ''}`}
+      className={`rhino mode-${mode} motion-${orbMotion} core-${core}${booted ? ' is-live' : ''}${shot ? ' is-shot' : ''}`}
       data-pack={pack}
       data-mode={mode}
       data-core={core}
       data-autonomy={autonomy}
+      data-phase={phase}
     >
       {!booted ? <BootIgnition onDone={() => setBooted(true)} /> : null}
 
@@ -143,19 +164,19 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
           <em>{brainOnline ? 'LIVE' : 'HOLDING'}</em>
         </div>
         <span className="rhino-top__mode">{mode === 'idle' ? autonomy : 'TALK'}</span>
-        <span className="rhino-top__motion">{motion.replace('-', ' ').toUpperCase()}</span>
-        <span className="rhino-top__pack">{autonomy === 'L2' ? 'L2 TYPE-1' : 'L1 AGENT'}</span>
+        <span className="rhino-top__motion">{phase.toUpperCase()}</span>
+        <span className="rhino-top__pack">{autonomy} CORE</span>
         <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
           STACK
         </button>
       </header>
-      <JobRail level={autonomy} />
+      <JobRail level={autonomy} phase={phase} jobs={jobs} />
 
       <div className="board">
         <MoneyRadar brainOnline={brainOnline} onAsk={ask} />
         <div className="arc-bay" aria-label="Arc core">
-          <span className="arc-bay__tag">ARC CORE · {autonomy}</span>
-          <TalkOrb motion={motion} level={level} dim={mode === 'idle'} core={core} />
+          <span className="arc-bay__tag">ARC CORE · {autonomy} · {phase.toUpperCase()}</span>
+          <TalkOrb motion={orbMotion} level={level} dim={mode === 'idle' && autonomy === 'L0'} core={core} />
         </div>
         <LeakGrid brainOnline={brainOnline} onAsk={ask} />
         <Type1Glass locks={locks} risen sinking={false} onLock={ask} />
@@ -168,7 +189,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       <CommandDock
         brainOnline={brainOnline}
         talking={mode === 'talk'}
-        listening={motion === 'listen-ripple'}
+        listening={motion === 'listen-ripple' && mode === 'talk'}
         seed={seed}
         demoSpeak={speakDemo}
         onWispr={enterListen}

@@ -50,11 +50,13 @@ States: IDLE PULSE → LISTEN RIPPLE → THINK SWIRL → SPEAK WAVE → ALERT FL
 
 ## READY AGENT (KB)
 
-Always-on jobs on the glass (labels / empty states — not extra widgets): Apply radar (GHL new/cold only, Brighton owns dials) · Type-1 max 3 · MONEY NOW (payouts/fund/SLA) · LEAKING (feed owners, Instant Forms, dead phone) · Rise ≠ Non-QM firewall · Non-QM LO drafts · Meeting→action · Day Orbit (cal+WHOOP, protect gym) · Mail drafts only · Leave-state kill-warmer.
+Loop on glass: **observe → reason → act → evidence → escalate**. Arc Core tint is **L0–L3**.
 
-Autonomy: **L0 silent** / **L1 report** / **L2 Type-1 only**. Never Team GHL. Never ChatGPT-as-him. Never auto-send.
+**AUTO** (no send): drafts · research · assign · schedule · board. **GO** (confirm): send · publish · spend · outreach · sign · $.
 
-Empty panels say the job is **holding**, not vacant.
+Top-7 live chips (PROVEN / CLAIMED, never invented): Morning brief · GHL apply watch · Leak sweeper · Meeting-prep · Plaud extractor · Type-1 queue · Rhino handoff.
+
+Autonomy: **L0 silent / L1 report / L2 auto / L3 GO**. Never Team GHL. Never ChatGPT-as-him. Never auto-send.
 
 ## Five-panel glass
 

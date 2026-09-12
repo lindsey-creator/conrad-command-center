@@ -5,9 +5,9 @@ interface BootIgnitionProps {
 }
 
 const STAGES = [
-  { at: 0, line: 'J.A.R.V.I.S.', sub: 'AGENT LINK' },
-  { at: 700, line: 'JOBS ARMED', sub: 'L0 SILENT · L1 REPORT · L2 TYPE-1' },
-  { at: 1500, line: 'ONLINE, SIR', sub: 'HOLDING — NEVER AUTO-SEND' },
+  { at: 0, line: 'J.A.R.V.I.S.', sub: 'OBSERVE → REASON → ACT' },
+  { at: 700, line: 'LOOP LOCK', sub: 'L0–L3 · EVIDENCE → ESCALATE' },
+  { at: 1500, line: 'ONLINE, SIR', sub: 'AUTO vs GO — NEVER AUTO-SEND' },
 ] as const;
 
 export function BootIgnition({ onDone }: BootIgnitionProps) {
