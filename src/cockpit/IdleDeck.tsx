@@ -67,13 +67,13 @@ export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
         </div>
         <p className="idle-deck__ready">TALK MODE READY</p>
         <figure className="idle-deck__beast">
-          <span className="idle-deck__truck">
-            <span className="idle-deck__cabin" />
-            <span className="idle-deck__visor" />
-            <span className="idle-deck__bar" />
-            <span className="idle-deck__wheel idle-deck__wheel--l" />
-            <span className="idle-deck__wheel idle-deck__wheel--r" />
-          </span>
+          <svg className="idle-deck__truck-svg" viewBox="0 0 280 120" aria-hidden="true">
+            <path d="M36 74 L80 30 H200 L244 74 L256 100 H24 Z" fill="#2a313a" />
+            <path d="M92 34 H188 L176 52 H104 Z" fill="#0b1014" />
+            <rect x="90" y="32" width="100" height="4" rx="2" fill="#f4ffff" />
+            <circle cx="78" cy="104" r="13" fill="#07090c" stroke="#1a222c" />
+            <circle cx="202" cy="104" r="13" fill="#07090c" stroke="#1a222c" />
+          </svg>
           <figcaption>CYBERTRUCK · MARK III</figcaption>
         </figure>
       </div>
