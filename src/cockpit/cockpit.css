@@ -334,6 +334,7 @@
   align-items: center;
   justify-content: center;
   min-height: 180px;
+  height: 100%;
   border: 0;
   background: transparent;
 }
@@ -416,7 +417,7 @@
 
 .rhino.mode-idle .arc-bay__tag,
 .rhino.mode-talk .arc-bay__tag {
-  opacity: 0.45;
+  display: none;
 }
 
 .talk-orb {
@@ -434,9 +435,10 @@
   opacity: 0.72;
 }
 
-.rhino.mode-talk .talk-orb {
-  width: min(70vmin, 72%);
-  height: min(70vmin, 86%);
+.rhino.mode-talk .talk-orb,
+.rhino.mode-talk .talk-orb.is-hero {
+  width: min(70vmin, 70vw);
+  height: min(70vmin, 70vh);
   opacity: 1;
 }
 
@@ -1144,14 +1146,16 @@
 .wispr__go,
 .wispr__end,
 .wispr__hear {
-  min-height: var(--tap);
-  min-width: var(--tap);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  min-height: 48px;
+  min-width: 88px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
   background: transparent;
   color: #fff;
   font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 0.12em;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  border-radius: 0;
 }
 
 .wispr__speak.is-hot,
@@ -1353,8 +1357,8 @@
 }
 
 .rhino[data-pack='cybertruck'].mode-talk .talk-orb {
-  width: min(72vmin, 78%);
-  height: min(72vmin, 88%);
+  width: min(72vmin, 72vw);
+  height: min(72vmin, 72vh);
 }
 
 /* Idle: void + WHOOP strip + dim core + three ticks. No card soup. */

@@ -39,10 +39,11 @@ interface TalkOrbProps {
   motion: OrbMotion;
   level: number;
   dim?: boolean;
+  hero?: boolean;
   core?: CoreTint;
 }
 
-export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbProps) {
+export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue' }: TalkOrbProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const levelRef = useRef(level);
   levelRef.current = level;
@@ -84,7 +85,7 @@ export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbPr
       const idlePulse = 0.72 + Math.sin((t * Math.PI * 2) / 4) * 0.14;
       const pulse =
         motion === 'idle-pulse' ? idlePulse : 0.9 + level * 0.12;
-      const scale = Math.min(w, h) * (dim ? 0.38 : 0.5) * pulse;
+      const scale = Math.min(w, h) * (dim ? 0.36 : hero ? 0.74 : 0.5) * pulse;
       if (!reduce) {
         rot +=
           motion === 'think-swirl'
@@ -165,7 +166,7 @@ export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbPr
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [motion, dim, core]);
+  }, [motion, dim, hero, core]);
 
-  return <canvas className="talk-orb" ref={canvasRef} aria-hidden="true" />;
+  return <canvas className={`talk-orb${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''}`} ref={canvasRef} aria-hidden="true" />;
 }

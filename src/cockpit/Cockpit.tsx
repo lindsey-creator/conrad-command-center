@@ -176,7 +176,13 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <MoneyRadar brainOnline={brainOnline} onAsk={ask} />
         <div className="arc-bay" aria-label="Arc core">
           <span className="arc-bay__tag">ARC CORE · {autonomy} · {phase.toUpperCase()}</span>
-          <TalkOrb motion={orbMotion} level={level} dim={mode === 'idle' && autonomy === 'L0'} core={core} />
+          <TalkOrb
+            motion={orbMotion}
+            level={level}
+            dim={mode === 'idle'}
+            hero={mode === 'talk'}
+            core={core}
+          />
         </div>
         <LeakGrid brainOnline={brainOnline} onAsk={ask} />
         <Type1Glass locks={locks} risen sinking={false} onLock={ask} />
