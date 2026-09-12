@@ -317,13 +317,12 @@
 }
 
 .rhino.mode-talk .board {
-  grid-template-columns: minmax(160px, 0.7fr) minmax(0, 1.6fr) minmax(220px, 0.78fr);
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1.7fr) minmax(220px, 0.72fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
   grid-template-areas:
-    'money core type1'
-    'leak  core type1'
-    'orbit orbit orbit'
-    'cap   cap   cap';
+    'core type1'
+    'orbit orbit'
+    'cap   cap';
   padding: 8px 28px 0;
 }
 
@@ -1632,17 +1631,9 @@
   position: relative;
 }
 
-.rhino.mode-talk .money-radar header,
-.rhino.mode-talk .leak-grid header,
-.rhino.mode-talk .money-radar__scope {
-  display: none;
-}
-
 .rhino.mode-talk .money-radar,
 .rhino.mode-talk .leak-grid {
-  justify-content: center;
-  padding: 10px 12px;
-  min-height: 0;
+  display: none;
 }
 
 .rhino.mode-talk .money-radar .panel-glass__verdict,
