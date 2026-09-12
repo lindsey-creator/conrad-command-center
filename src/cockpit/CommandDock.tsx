@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { brain } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState, type VoiceError } from '../hooks/useEchoVoice';
+import { warmSpeech } from '../hooks/speechEngine';
 import { ApprovalQueuePanel } from '../components/ApprovalQueuePanel';
 import { COMMANDS, needsConfirm } from './commands';
 import { BRAIN_SILENT, jarvisSpokenLine } from './talkReply';
@@ -75,7 +76,13 @@ export function CommandDock({
     if (voice.voiceError) setBanner(ERR_COPY[voice.voiceError]);
   }, [voice.voiceError]);
 
+  useEffect(() => {
+    if (!thinking) return;
+    return warmSpeech();
+  }, [thinking]);
+
   const hear = async (line: string, sink = false) => {
+    voice.unlock();
     const result = await voice.speak(line);
     if (result === 'blocked') setBanner(ERR_COPY['tts-blocked']);
     if (result === 'missing') setBanner(ERR_COPY['tts-missing']);
@@ -249,6 +256,11 @@ export function CommandDock({
           </button>
         </div>
       ) : null}
+      {voice.voiceError ? (
+        <p className="wispr__err" role="alert" data-testid="speak-error">
+          {ERR_COPY[voice.voiceError]}
+        </p>
+      ) : null}
       {banner ? (
         <p className={`wispr__banner${voice.voiceError || thinking ? ' is-warn' : ''}`} role="status">
           {banner}
@@ -287,7 +299,7 @@ export function CommandDock({
       >
         <button
           type="button"
-          className={`wispr__speak${listening || voice.voiceState === 'listening' ? ' is-hot' : ''}${voice.voiceState === 'speaking' ? ' is-say' : ''}`}
+          className={`wispr__speak${listening || voice.voiceState === 'listening' ? ' is-hot' : ''}${voice.voiceState === 'speaking' ? ' is-say' : ''}${voice.voiceState === 'thinking' ? ' is-think' : ''}${voice.voiceState === 'error' ? ' is-err' : ''}`}
           aria-pressed={voice.voiceState === 'listening'}
           onClick={() => void onSpeakClick()}
         >

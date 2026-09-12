@@ -68,8 +68,8 @@ export function reduceWispr(state: WisprState, event: WisprEvent): WisprState {
 
 export function motionForWispr(state: WisprState, alert = false): OrbMotion {
   if (state === 'error') return 'alert-flare';
-  if (alert && (state === 'speaking' || state === 'thinking')) return 'alert-flare';
   if (state === 'speaking') return 'speak-wave';
+  if (alert && state === 'thinking') return 'alert-flare';
   if (state === 'thinking') return 'think-swirl';
   if (state === 'listening') return 'listen-ripple';
   return 'idle-pulse';

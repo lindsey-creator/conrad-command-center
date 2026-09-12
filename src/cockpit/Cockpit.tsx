@@ -83,7 +83,17 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const autonomy = resolveAutonomy({ phase, type1Proven, goArmed });
   const leakHot = locks.some((l) => l.lane === 'LEAKING' && l.proven);
   const core: CoreTint =
-    wispr === 'error' || autonomy === 'L3' ? 'red' : autonomy === 'L2' || leakHot ? 'amber' : 'blue';
+    wispr === 'error'
+      ? 'red'
+      : wispr === 'thinking'
+        ? 'amber'
+        : wispr === 'listening' || wispr === 'speaking'
+          ? 'blue'
+          : leakHot || autonomy === 'L2'
+            ? 'amber'
+            : autonomy === 'L3'
+              ? 'red'
+              : 'blue';
 
   const apply = useCallback(
     (event: WisprEvent) => {

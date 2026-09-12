@@ -1210,6 +1210,19 @@
 
 .wispr__banner.is-warn { color: var(--amber); }
 
+.wispr__err {
+  margin: 0 0 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--crit);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--crit);
+}
+
+.wispr__speak.is-think { color: var(--amber); }
+.wispr__speak.is-err { color: var(--crit); border-bottom-color: var(--crit); }
+
 .wispr__reply {
   margin: 0 0 8px;
   font-family: var(--font-display);

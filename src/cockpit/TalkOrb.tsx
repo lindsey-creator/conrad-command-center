@@ -29,9 +29,9 @@ export type CoreTint = 'blue' | 'amber' | 'red';
 
 function tint(motion: OrbMotion, core: CoreTint): [number, number, number] {
   if (core === 'red' || motion === 'alert-flare') return [255, 77, 109];
-  if (core === 'amber') return [255, 200, 87];
-  if (motion === 'speak-wave' || motion === 'listen-ripple') return [0, 229, 255];
-  if (motion === 'think-swirl') return [122, 246, 255];
+  if (core === 'amber' || motion === 'think-swirl') return [255, 200, 87];
+  if (motion === 'speak-wave') return [200, 248, 255];
+  if (motion === 'listen-ripple') return [0, 229, 255];
   return [0, 180, 220];
 }
 

@@ -42,11 +42,11 @@ Speak was broken because TTS ran after `await` (Chrome drops `speechSynthesis` o
 **Now:**
 
 1. Open `/?speak=1` (or the live HUD).
-2. Click **SPEAK** — that click unlocks TTS.
-3. You should hear **“JARVIS online, sir.”** and the orb go SPEAK WAVE.
+2. Click **SPEAK** — that click unlocks TTS and keeps the synth warm.
+3. You should hear **“JARVIS online, sir.”** and the orb go ice SPEAK (Listen = cyan, Think = amber, Speak = ice, Error = red).
 4. Click **SPEAK** again, allow the microphone. Orb → LISTEN RIPPLE. Talk, or type and **GO**.
 5. JARVIS replies with TTS (SPEAKING). **HEAR** replays the last line.
-6. If the mic is blocked: amber banner, JARVIS says to type, **GO** still speaks.
+6. If mic/TTS is blocked, a red **error chip** stays on the dock. Type and GO still talks.
 
 Wispr: IDLE → LISTENING → THINKING → SPEAKING. ERROR on mic/TTS fault. SPEAK while speaking barges in. Orb motion follows the state.
 

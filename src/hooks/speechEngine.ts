@@ -32,6 +32,19 @@ export function unlockSpeech(): boolean {
   }
 }
 
+/** Keep synth awake across a long /chat await so the click unlock survives. */
+export function warmSpeech(): () => void {
+  if (!speechReady()) return () => {};
+  const id = window.setInterval(() => {
+    try {
+      window.speechSynthesis.resume();
+    } catch {
+      /* ignore */
+    }
+  }, 1800);
+  return () => window.clearInterval(id);
+}
+
 function armResume() {
   if (typeof window === 'undefined') return;
   window.clearInterval(resumeTimer);
@@ -46,11 +59,33 @@ function armResume() {
   }, 220);
 }
 
+const CHUNK_CHARS = 180;
+
+/** Sentence first, then ~180 chars — Chrome cuts utterances near 15s. */
 export function splitSpeechChunks(text: string): string[] {
-  return text
+  const sentences = text
     .split(/(?<=[.!?])\s+/)
     .map((part) => part.trim())
     .filter(Boolean);
+  const out: string[] = [];
+  for (const sentence of sentences) {
+    if (sentence.length <= CHUNK_CHARS) {
+      out.push(sentence);
+      continue;
+    }
+    let buf = '';
+    for (const word of sentence.split(/\s+/)) {
+      const next = buf ? `${buf} ${word}` : word;
+      if (next.length > CHUNK_CHARS && buf) {
+        out.push(buf);
+        buf = word;
+      } else {
+        buf = next;
+      }
+    }
+    if (buf) out.push(buf);
+  }
+  return out;
 }
 
 export function speakLine(
@@ -80,8 +115,12 @@ export function speakLine(
       })
     : Promise.resolve();
 
-  return waitVoices.then(() => new Promise((resolve) => {
-    if (opts.cancel !== false) synth.cancel();
+  return waitVoices.then(async () => {
+    if (opts.cancel !== false) {
+      synth.cancel();
+      await new Promise((r) => window.setTimeout(r, 40));
+    }
+    return new Promise<SpeakResult>((resolve) => {
     const utterance = new SpeechSynthesisUtterance(line);
     utterance.rate = 1.02;
     utterance.pitch = 0.95;
@@ -130,12 +169,13 @@ export function speakLine(
           opts.onError?.('blocked');
           finish('blocked');
         }
-      }, 800);
+      }, 2200);
     } catch (e) {
       opts.onError?.(e instanceof Error ? e.message : 'blocked');
       finish('blocked');
     }
-  }));
+  });
+  });
 }
 
 /** Speak a reply in sentence chunks so long Brain answers do not stall TTS. */
