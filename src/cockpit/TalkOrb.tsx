@@ -44,6 +44,8 @@ interface TalkOrbProps {
 
 export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const levelRef = useRef(level);
+  levelRef.current = level;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -60,8 +62,11 @@ export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbPr
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
+      const nextW = Math.floor(w * dpr);
+      const nextH = Math.floor(h * dpr);
+      if (canvas.width === nextW && canvas.height === nextH) return;
+      canvas.width = nextW;
+      canvas.height = nextH;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
@@ -69,6 +74,7 @@ export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbPr
     ro.observe(canvas);
 
     const draw = (now: number) => {
+      const level = levelRef.current;
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
       ctx.clearRect(0, 0, w, h);
@@ -159,7 +165,7 @@ export function TalkOrb({ motion, level, dim = false, core = 'blue' }: TalkOrbPr
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [motion, level, dim, core]);
+  }, [motion, dim, core]);
 
   return <canvas className="talk-orb" ref={canvasRef} aria-hidden="true" />;
 }

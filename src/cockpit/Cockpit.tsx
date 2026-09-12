@@ -168,8 +168,10 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         <LeakGrid brainOnline={brainOnline} onAsk={ask} />
         <Type1Glass locks={locks} risen sinking={false} onLock={ask} />
         <DayOrbit brainOnline={brainOnline} whoop={whoop} onAsk={ask} />
-        <p className="caption">{caption}</p>
-        <p className="say">{line}</p>
+        <div className="board__voice">
+          <p className="caption">{caption}</p>
+          <p className="say">{line}</p>
+        </div>
       </div>
 
       <CommandDock
