@@ -54,7 +54,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [wispr, setWispr] = useState<WisprState>(
     forcedWispr ?? (shot || speakDemo ? 'speaking' : 'idle'),
   );
-  const [armed, setArmed] = useState(shot);
+  const [armed, setArmed] = useState(shot && !forcedWispr);
   const [caption, setCaption] = useState(
     forcedWispr
       ? WISPR_CAPTION[forcedWispr]
