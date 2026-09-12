@@ -9,27 +9,21 @@ export type OrbMotion =
   | 'speak-wave'
   | 'alert-flare';
 
-export type RailId = 'type1' | 'money' | 'leaking' | 'orbit';
+export type RailId = 'type1' | 'orbit';
 
-export const RAILS: RailId[] = ['type1', 'money', 'leaking'];
+const TYPE1_INTENT =
+  /\b(type-?1|money|dollar|deal|close|capital|ghl|non-?qm|leak|leaking|overdue|late|hole|slip|decide|decision|call|judgment|target|efficiency|town|rise)\b/i;
 
-const INTENT_MAP: { test: RegExp; rail: RailId }[] = [
-  { test: /\b(money|dollar|deal|close|capital|ghl|non-?qm)\b/i, rail: 'money' },
-  { test: /\b(leak|leaking|overdue|late|hole|slip)\b/i, rail: 'leaking' },
-  { test: /\b(type-?1|decide|decision|call|judgment|target)\b/i, rail: 'type1' },
-  { test: /\b(calendar|orbit|schedule|today|day|protect|whoop|recovery|sleep|strain)\b/i, rail: 'orbit' },
-];
-
-/** "Brief me" is orb-only — do not raise every panel. */
+/** HUD raises Type-1 glass only (3 cards). Orbit is WHOOP, not a Type-1 card. */
 export function railsForIntent(text: string): RailId[] {
   const raw = text.trim();
   if (!raw) return [];
   if (/\b(brief me|catch me up|status|overview|what's up)\b/i.test(raw)) return [];
-  const hit: RailId[] = [];
-  for (const row of INTENT_MAP) {
-    if (row.test.test(raw) && !hit.includes(row.rail)) hit.push(row.rail);
+  if (/\b(whoop|recovery|sleep|strain|orbit|calendar|schedule|protect)\b/i.test(raw) && !TYPE1_INTENT.test(raw)) {
+    return ['orbit'];
   }
-  return hit.slice(0, 4);
+  if (TYPE1_INTENT.test(raw)) return ['type1'];
+  return [];
 }
 
 export function orbMotion(opts: {
@@ -48,11 +42,10 @@ export function orbMotion(opts: {
 }
 
 export function isAlertIntent(raised: RailId[]): boolean {
-  return raised.includes('type1') || raised.includes('money');
+  return raised.includes('type1');
 }
 
 export function flareTone(raised: RailId[]): 'amber' | 'red' | undefined {
   if (raised.includes('type1')) return 'red';
-  if (raised.includes('money')) return 'amber';
   return undefined;
 }

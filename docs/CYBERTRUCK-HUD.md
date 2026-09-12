@@ -35,6 +35,19 @@ Speak was broken because TTS ran after `await` (Chrome drops `speechSynthesis` o
 
 States: IDLE PULSE → LISTEN RIPPLE → THINK SWIRL → SPEAK WAVE → ALERT FLARE (Type-1 / money only).
 
+## Type-1 + feeds (Rhino lock)
+
+HUD decision glass is **only** Type-1 cards: MONEY NOW / LEAKING / EFFICIENCY. Queue cap **3**.
+
+Feeds (Idle glass strip, not SaaS cards):
+
+- Town — **pattern-match** only
+- GHL — **new/cold apply fills** only (personal location, 216-250-9078)
+- Rise — **QM weekly blockers** only (never a sleep score)
+- Non-QM — **milestones** only
+
+Operator: Lindsey — he/him. JARVIS says sir. Railway URL only.
+
 ## WHOOP Day Orbit
 
 Idle strip: recovery / sleep / strain from Brain `GET /health/metrics` (and `GET /whoop` if present). Missing data stays **CLAIMED** with `—`. Rule: low recovery (< 34) → **WORK LOAD DOWN · GYM STAYS**. Never medical advice.

@@ -15,9 +15,9 @@ const COMMAND_CHIPS = [
   'Money now — what dollar should I move?',
   'What is leaking today?',
   'Where is efficiency dying?',
-  'GHL apply — who needs a call?',
-  'Protect my calendar.',
-  'WHOOP recovery — hard or easy?',
+  'Town pattern-match only — what hit?',
+  'GHL apply — new or cold fills only.',
+  'Non-QM milestones only — which gate moved?',
 ];
 
 function voiceStatusLabel(state: EchoVoiceState): string | null {

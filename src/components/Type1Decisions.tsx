@@ -25,7 +25,7 @@ const CATEGORY_LABEL: Record<Type1Category, string> = {
   efficiency: 'EFFICIENCY',
 };
 
-const SLOTS: Type1Category[] = ['money_now', 'leaking', 'efficiency'];
+const SLOTS: Type1Category[] = ['money_now', 'leaking', 'efficiency']; // queue cap 3
 
 function firstMove(moves: MoneyMove[]): Type1Card | null {
   const move = moves[0];

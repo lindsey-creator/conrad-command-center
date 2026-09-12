@@ -3,6 +3,7 @@ import { brain, type WatchlistItem } from '../api/brain';
 import { POLL_FAST_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
+import { capType1 } from './rhinoLock';
 
 export interface Type1Lock {
   id: string;
@@ -105,6 +106,6 @@ export function useType1Locks(brainOnline: boolean): Type1Lock[] {
             proven: false,
           };
 
-    return [money, leaking, efficiency];
+    return capType1([money, leaking, efficiency]);
   }, [brainOnline, topMoves.data, watchlist.data, pulse.data, blinds.data]);
 }

@@ -1,3 +1,4 @@
+import { TYPE1_QUEUE_CAP, capType1 } from './rhinoLock';
 import type { Type1Lock } from './useType1Locks';
 
 interface Type1GlassProps {
@@ -16,10 +17,10 @@ export function Type1Glass({ locks, risen, sinking, onLock }: Type1GlassProps) {
     >
       <header className="t1glass__edge">
         <span>TYPE-1</span>
-        <span>MAX 3</span>
+        <span>QUEUE {TYPE1_QUEUE_CAP}</span>
       </header>
       <ol className="t1glass__locks">
-        {locks.map((row) => (
+        {capType1(locks).map((row) => (
           <li key={row.id}>
             <button type="button" className="t1glass__lock" onClick={() => onLock(row.command)}>
               <i>{row.id}</i>

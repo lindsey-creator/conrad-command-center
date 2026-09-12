@@ -6,21 +6,16 @@ import { CommandDock } from './CommandDock';
 import { DayOrbitStrip } from './DayOrbitStrip';
 import { TalkOrb } from './TalkOrb';
 import { Type1Glass } from './Type1Glass';
-import { RAILS, isAlertIntent, railsForIntent, type DeckMode, type OrbMotion, type RailId } from './machine';
+import { FeedGlass } from './FeedGlass';
+import { isAlertIntent, railsForIntent, type DeckMode, type OrbMotion, type RailId } from './machine';
 import { useHudPack } from './useHudPack';
+import { useRhinoFeeds } from './useRhinoFeeds';
 import { useType1Locks } from './useType1Locks';
 import { useWhoopDay } from './useWhoopDay';
 
 function queryFlag(name: string): boolean {
   if (typeof window === 'undefined') return false;
   return new URLSearchParams(window.location.search).get(name) === '1';
-}
-
-function railLabel(id: RailId) {
-  if (id === 'type1') return 'TYPE-1';
-  if (id === 'money') return 'MONEY NOW';
-  if (id === 'leaking') return 'LEAKING';
-  return 'DAY ORBIT';
 }
 
 interface CockpitProps {
@@ -47,6 +42,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [seed, setSeed] = useState<string | undefined>();
   const timers = useRef<number[]>([]);
   const locks = useType1Locks(brainOnline);
+  const feeds = useRhinoFeeds(brainOnline);
   const level = useAudioPulse(motion, micLive);
 
   const clearTimers = () => {
@@ -89,7 +85,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     (q: string) => {
       if (shot) return;
       clearTimers();
-      const rails = railsForIntent(q).slice(0, 4);
+      const rails = railsForIntent(q);
       const flare = isAlertIntent(rails);
       setMode('talk');
       setSinking(false);
@@ -102,7 +98,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       later(900, () => {
         if (flare) {
           setMotion('alert-flare');
-          setCaption(rails.includes('type1') ? 'Type-1 lock.' : 'Money lock.');
+          setCaption('Type-1 lock.');
         }
         setRisen(rails);
       });
@@ -111,7 +107,9 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         setCaption(
           rails.length === 0
             ? 'Talk Mode. Brief me does not raise a wall.'
-            : 'Talk Mode. Panels rose from the rails.',
+            : rails.includes('type1')
+              ? 'Talk Mode. Type-1 queue — three cards.'
+              : 'Talk Mode. Day Orbit only.',
         );
       });
       later(12000, sinkThenIdle);
@@ -135,19 +133,9 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     if (state === 'thinking') setMotion('think-swirl');
   }, [shot]);
 
-  const extra = risen.filter((id) => id !== 'type1').slice(0, risen.includes('type1') ? 3 : 4);
   const type1Open = risen.includes('type1');
-  const flare: 'amber' | 'red' | undefined = risen.includes('type1')
-    ? 'red'
-    : risen.includes('money')
-      ? 'amber'
-      : undefined;
-
-  const bevelLine = (id: RailId) => {
-    if (id === 'money') return locks[0]?.verdict ?? 'One-line bevel. No table.';
-    if (id === 'leaking') return locks[1]?.verdict ?? 'One-line bevel. No table.';
-    return whoop.verdict;
-  };
+  const orbitOpen = risen.includes('orbit');
+  const flare: 'amber' | 'red' | undefined = type1Open ? 'red' : undefined;
 
   return (
     <div
@@ -190,23 +178,30 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
                 runTalk('WHOOP recovery');
               }}
             />
-            <nav className="rails" aria-label="Idle rails">
-              {RAILS.map((id) => (
+            <nav className="t1-rails" aria-label="Type-1 queue">
+              {locks.map((lock) => (
                 <button
-                  key={id}
+                  key={lock.id}
                   type="button"
-                  className={`rail rail-${id}`}
+                  className={`t1-card t1-card--${lock.lane === 'MONEY NOW' ? 'money' : lock.lane === 'LEAKING' ? 'leak' : 'eff'}`}
                   onClick={() => {
-                    const label = railLabel(id);
-                    setSeed(label);
-                    runTalk(label);
+                    setSeed(lock.command);
+                    runTalk(lock.command);
                   }}
                 >
-                  <em />
-                  <b>{railLabel(id)}</b>
+                  <b>{lock.lane}</b>
+                  <em>{lock.verdict}</em>
+                  <i className={lock.proven ? 'is-proven' : 'is-claimed'}>{lock.proven ? 'PROVEN' : 'CLAIMED'}</i>
                 </button>
               ))}
             </nav>
+            <FeedGlass
+              feeds={feeds}
+              onAsk={(command) => {
+                setSeed(command);
+                runTalk(command);
+              }}
+            />
           </>
         ) : null}
 
@@ -223,16 +218,9 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
                 }}
               />
             ) : null}
-            {extra.map((id) =>
-              id === 'orbit' ? (
-                <DayOrbitStrip key={id} day={whoop} compact onAsk={() => runTalk('WHOOP recovery')} />
-              ) : (
-                <aside key={id} className={`bevel bevel-${id}`}>
-                  <b>{railLabel(id)}</b>
-                  <p>{bevelLine(id)}</p>
-                </aside>
-              ),
-            )}
+            {orbitOpen ? (
+              <DayOrbitStrip day={whoop} compact onAsk={() => runTalk('WHOOP recovery')} />
+            ) : null}
           </div>
         ) : null}
 
