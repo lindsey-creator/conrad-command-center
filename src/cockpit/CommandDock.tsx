@@ -1,170 +1,148 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { brain, type ChatResponse } from '../api/brain';
-import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
+import { brain } from '../api/brain';
+import { useEchoVoice } from '../hooks/useEchoVoice';
 import { ApprovalQueuePanel } from '../components/ApprovalQueuePanel';
-import { PendingApprovals } from '../components/PendingApprovals';
 
 interface CommandDockProps {
   brainOnline: boolean;
-  commandSeed?: string;
-  onVoiceStateChange?: (state: EchoVoiceState) => void;
-  onLoadingChange?: (loading: boolean) => void;
+  talking: boolean;
+  listening: boolean;
+  seed?: string;
+  onWispr: () => void;
+  onSubmit: (text: string) => void;
+  onAnswer: (line: string, claimed: boolean) => void;
+  onSpeakEnd: () => void;
+  onEnd: () => void;
 }
 
 export function CommandDock({
   brainOnline,
-  commandSeed,
-  onVoiceStateChange,
-  onLoadingChange,
+  talking,
+  listening,
+  seed,
+  onWispr,
+  onSubmit,
+  onAnswer,
+  onSpeakEnd,
+  onEnd,
 }: CommandDockProps) {
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState<ChatResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [text, setText] = useState('');
   const [approvalId, setApprovalId] = useState<string | null>(null);
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
-  const [speakEnabled, setSpeakEnabled] = useState(true);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const askRef = useRef<(text?: string) => Promise<void>>(async () => {});
+  const [originalDraft, setOriginalDraft] = useState('');
+  const ref = useRef<HTMLInputElement>(null);
+  const askRef = useRef<(q?: string) => Promise<void>>(async () => {});
 
-  const handleTranscript = useCallback((text: string) => setMessage(text), []);
-  const handleFinal = useCallback((text: string) => {
-    setMessage(text);
-    void askRef.current(text);
+  const handleTranscript = useCallback((line: string) => setText(line), []);
+  const handleFinal = useCallback((line: string) => {
+    setText(line);
+    void askRef.current(line);
   }, []);
 
-  const { voiceState, speak, stopSpeaking, startListening, stopListening, speechSupported, micSupported } =
-    useEchoVoice({
-      speakEnabled,
-      onTranscript: handleTranscript,
-      onFinalTranscript: handleFinal,
-    });
-
-  const displayState: EchoVoiceState = loading ? 'thinking' : voiceState;
+  const { speak, stopSpeaking, startListening, stopListening, micSupported } = useEchoVoice({
+    speakEnabled: true,
+    onTranscript: handleTranscript,
+    onFinalTranscript: handleFinal,
+  });
 
   useEffect(() => {
-    onVoiceStateChange?.(displayState);
-  }, [displayState, onVoiceStateChange]);
+    if (!seed) return;
+    setText(seed);
+    ref.current?.focus();
+  }, [seed]);
 
-  useEffect(() => {
-    onLoadingChange?.(loading);
-  }, [loading, onLoadingChange]);
-
-  useEffect(() => {
-    if (!commandSeed) return;
-    setMessage(commandSeed);
-    inputRef.current?.focus();
-  }, [commandSeed]);
-
-  const handleAsk = async (text?: string) => {
-    const query = (text ?? message).trim();
-    if (!query || !brainOnline) return;
-    setLoading(true);
-    setError(null);
-    setResponse(null);
+  const handleAsk = async (raw?: string) => {
+    const query = (raw ?? text).trim();
+    if (!query) return;
+    stopSpeaking();
+    onSubmit(query);
     setApprovalId(null);
     setDraftEdit(null);
-    stopSpeaking();
+    setOriginalDraft('');
+
+    if (!brainOnline) {
+      onAnswer('Brain silent. No invented numbers, sir.', true);
+      return;
+    }
+
     try {
       const res = await brain.chat({ message: query });
-      setResponse(res);
-      if (res.draft) setDraftEdit(res.draft);
+      if (res.draft) {
+        setDraftEdit(res.draft);
+        setOriginalDraft(res.draft);
+      }
       if (res.approval_id) setApprovalId(res.approval_id);
-      const spoken = res.answer ?? res.note ?? res.error ?? (res.draft ? 'Draft ready in the queue.' : null);
-      if (spoken) speak(spoken);
+      const spoken = res.answer ?? res.note ?? res.error ?? (res.draft ? 'Draft ready in the queue.' : '');
+      const claimed = !res.answer;
+      onAnswer(spoken || 'Acknowledged, sir.', claimed);
+      if (spoken) {
+        speak(spoken);
+        window.setTimeout(onSpeakEnd, Math.min(9000, 1800 + spoken.length * 40));
+      } else {
+        onSpeakEnd();
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Request failed';
-      setError(msg);
+      onAnswer(msg, true);
       speak(msg);
-    } finally {
-      setLoading(false);
+      window.setTimeout(onSpeakEnd, 2400);
     }
   };
   askRef.current = handleAsk;
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      void handleAsk();
-    }
-  };
-
   return (
-    <footer className="command-dock">
-      {(error || response) && (
-        <div className="command-dock__reply" role="status">
-          {error && <p className="command-dock__err">{error}</p>}
-          {response?.answer && <p className="command-dock__answer">{response.answer}</p>}
-          {response?.note && !response.answer && <p className="command-dock__answer">{response.note}</p>}
-          {(response?.draft || draftEdit) && (
-            <ApprovalQueuePanel
-              approvalId={approvalId}
-              draft={draftEdit ?? response?.draft ?? ''}
-              originalDraft={response?.draft ?? ''}
-              onDraftChange={setDraftEdit}
-              onResolved={() => {
-                setApprovalId(null);
-                setDraftEdit(null);
-              }}
-            />
-          )}
-        </div>
-      )}
-      <PendingApprovals />
-      <div className="command-dock__bar">
-        <button
-          type="button"
-          className={`command-dock__speak${voiceState === 'listening' ? ' is-hot' : ''}`}
-          onClick={() => inputRef.current?.focus()}
-          onPointerDown={(e) => {
-            if (!micSupported) return;
-            e.preventDefault();
-            if (voiceState !== 'listening') startListening();
-          }}
-          onPointerUp={() => {
-            if (voiceState === 'listening') stopListening();
-          }}
-          onPointerLeave={() => {
-            if (voiceState === 'listening') stopListening();
-          }}
-        >
-          SPEAK
-        </button>
-        <label className="command-dock__sr" htmlFor="jarvis-command-input">
-          Command
-        </label>
-        <textarea
-          id="jarvis-command-input"
-          ref={inputRef}
-          className="command-dock__input"
-          rows={1}
-          placeholder="Speak when ready, sir…"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={onKeyDown}
-        />
-        {speechSupported && (
-          <button
-            type="button"
-            className={`command-dock__mute${speakEnabled ? ' is-on' : ''}`}
-            onClick={() => {
-              if (speakEnabled) stopSpeaking();
-              setSpeakEnabled((s) => !s);
+    <footer className={`wispr${talking ? ' wispr--talk' : ''}`}>
+      {draftEdit ? (
+        <div className="gate">
+          <ApprovalQueuePanel
+            approvalId={approvalId}
+            draft={draftEdit}
+            originalDraft={originalDraft}
+            onDraftChange={setDraftEdit}
+            onResolved={() => {
+              setApprovalId(null);
+              setDraftEdit(null);
             }}
-            aria-pressed={speakEnabled}
-          >
-            {speakEnabled ? 'VOICE' : 'MUTE'}
-          </button>
-        )}
+          />
+        </div>
+      ) : null}
+      <form
+        className="wispr__bar"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleAsk();
+        }}
+      >
         <button
           type="button"
-          className="command-dock__exec"
-          disabled={loading || !message.trim() || !brainOnline}
-          onClick={() => void handleAsk()}
+          className={`wispr__orb-btn${listening ? ' is-hot' : ''}`}
+          aria-pressed={listening}
+          onClick={() => {
+            onWispr();
+            if (!micSupported) return;
+            if (listening) stopListening();
+            else startListening();
+          }}
         >
-          {loading ? 'THINKING' : 'EXECUTE'}
+          WISPR FLOW
         </button>
-      </div>
+        <input
+          id="jarvis-command-input"
+          ref={ref}
+          className="wispr__line"
+          value={text}
+          placeholder="Speak when ready, sir…"
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button type="submit" className="wispr__go">
+          GO
+        </button>
+        {talking ? (
+          <button type="button" className="wispr__end" onClick={onEnd}>
+            END
+          </button>
+        ) : null}
+      </form>
     </footer>
   );
 }
