@@ -35,7 +35,8 @@ function tint(state: WisprState, motion: OrbMotion, core: CoreTint): Rgb {
   if (state === 'error' || core === 'red' || motion === 'alert-flare') return [255, 77, 109];
   if (state === 'thinking' || core === 'amber' || motion === 'think-swirl') return [255, 200, 87];
   if (state === 'listening' || motion === 'listen-ripple') return [0, 229, 255];
-  if (state === 'speaking' || motion === 'speak-wave' || core === 'ice') return [232, 246, 255];
+  if (state === 'speaking' || motion === 'speak-wave') return [120, 230, 255];
+  if (core === 'ice') return [232, 246, 255];
   if (state === 'connecting' || motion === 'connect-spin') return [220, 232, 240];
   return [236, 244, 248];
 }
@@ -109,12 +110,16 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
 
       drawBloom(ctx, cx, cy, scale, rms, color, dim, wispr);
       drawHalo(ctx, cx, cy, scale, rms, color, dim, wispr);
+      drawGlassBubble(ctx, cx, cy, scale, rms, color, dim, wispr);
       drawGlass(ctx, cx, cy, scale, rms, color, dim, wispr);
       if (wispr === 'connecting' || motion === 'connect-spin') drawConnectRing(ctx, cx, cy, scale, t, color);
       if (wispr === 'listening' || motion === 'listen-ripple') drawRipples(ctx, cx, cy, scale, t, rms, accent);
       drawShells(ctx, cx, cy, scale, rot, t, rms, color, dim, wispr);
-      if (wispr === 'speaking' || motion === 'speak-wave' || wispr === 'error' || (hero && rms > 0.35 && !dead)) {
+      if (wispr === 'speaking' || motion === 'speak-wave' || wispr === 'error') {
+        drawEquatorWave(ctx, cx, cy, scale, now, rms, color);
         drawWaveformRing(ctx, cx, cy, scale, now, rms, color, wispr === 'error');
+      } else if (hero && rms > 0.35 && !dead) {
+        drawWaveformRing(ctx, cx, cy, scale, now, rms, color, false);
       }
 
       raf = requestAnimationFrame(draw);
@@ -128,12 +133,20 @@ export function TalkOrb({ motion, level, dim = false, hero = false, core = 'blue
   }, [motion, dim, hero, core, wispr]);
 
   return (
-    <canvas
-      className={`talk-orb${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''} is-${wispr}`}
-      ref={canvasRef}
-      data-orb={wispr}
-      aria-hidden="true"
-    />
+    <div className={`talk-orb-wrap${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''} is-${wispr}`}>
+      <canvas
+        className={`talk-orb${hero ? ' is-hero' : ''}${dim ? ' is-dim' : ''} is-${wispr}`}
+        ref={canvasRef}
+        data-orb={wispr}
+        aria-hidden="true"
+      />
+      {hero ? (
+        <p className="talk-orb__mark" aria-hidden="true">
+          J.A.R.V.I.S.
+          <span>{wispr === 'speaking' ? 'TALK MODE' : wispr.toUpperCase()}</span>
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -226,6 +239,60 @@ function drawGlass(
     ctx.lineWidth = r === 0 ? 2.2 : 1.2;
     ctx.stroke();
   }
+}
+
+/** Higgsfield speak-orb — outer glass sphere + specular. */
+function drawGlassBubble(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rms: number,
+  color: Rgb,
+  dim: boolean,
+  state: WisprState,
+) {
+  if (dim || state === 'disabled') return;
+  const r = scale * (0.98 + rms * 0.04);
+  const rim = ctx.createRadialGradient(cx - r * 0.28, cy - r * 0.34, r * 0.05, cx, cy, r);
+  rim.addColorStop(0, 'rgba(255,255,255,0.28)');
+  rim.addColorStop(0.22, `rgba(${color[0]},${color[1]},${color[2]},0.08)`);
+  rim.addColorStop(0.82, 'rgba(0,0,0,0)');
+  rim.addColorStop(1, `rgba(${color[0]},${color[1]},${color[2]},0.35)`);
+  ctx.fillStyle = rim;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.4)`;
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+}
+
+function drawEquatorWave(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  now: number,
+  rms: number,
+  color: Rgb,
+) {
+  const n = 120;
+  ctx.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const x = i / n * 2 - 1;
+    const env = 1 - x * x;
+    const amp = (0.05 + rms * 0.16) * env * (0.45 + Math.abs(Math.sin(now / 70 + i * 0.35)));
+    const px = cx + x * scale * 1.08;
+    const py = cy + Math.sin(x * Math.PI * 10 + now / 180) * scale * amp;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.85)`;
+  ctx.lineWidth = 2.2;
+  ctx.stroke();
 }
 
 function drawConnectRing(

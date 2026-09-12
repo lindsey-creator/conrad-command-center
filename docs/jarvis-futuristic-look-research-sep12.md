@@ -24,7 +24,7 @@ Flat SaaS cards. Weak glow. Tiny type. Widget soup. Orbitron-everywhere cosplay.
 1. **Speak end-to-end** — Chrome `speechSynthesis` ~15s cutoff + voice-load race. Chunk utterances (sentence / clause / ~140 chars). Wait for `voiceschanged`. Prefer en-GB. Unlock in the click; keep synth warm across `/chat`. Visible error chip if mic/TTS blocked.
 2. **Orb / Talk Mode** — VoiceOrbs-class 7 states: idle / connecting / listening / thinking / speaking / error / disabled. `levelRef` drives scale / spin / glow. Halo + glass core + pulse + 72-bar waveform ring. Color: idle white · connect ice · listen cyan accent · think amber · speak ice · error red · disabled slate.
 3. **Mark III look** — White primary, cyan only as accent. Kill card soup. Z-depth holographic summon. Scanline / vignette sparingly.
-4. **Cybertruck + WHOOP Day Orbit** — Higgsfield Idle still (`public/hud-targets/idle-whoop.png`): landscape ridge, dim Arc reticle, bottom Recovery / Sleep / Strain strip. Giant type. Never invent WHOOP figures.
+4. **Cybertruck + WHOOP Day Orbit** — Higgsfield stills in `public/hud-targets/`: Talk = giant glass orb + intent chips + Type-1 decisions. Idle = center Arc + WHOOP rings (no invented miles). Speak = multi-shell glass + equatorial waveform. Never invent WHOOP / range figures.
 
 ## Optional deltas (do not block Speak / orb)
 

@@ -17,9 +17,9 @@ export function Type1Glass({ locks, risen, sinking, onLock }: Type1GlassProps) {
     >
       <header className="t1glass__edge">
         <button type="button" className="t1glass__tick" onClick={() => onLock('Go/approve Type-1')}>
-          TYPE-1
+          DECISION
         </button>
-        <span>MAX {TYPE1_QUEUE_CAP}</span>
+        <span>TYPE-1 · MAX {TYPE1_QUEUE_CAP}</span>
       </header>
       <p className="panel-glass__job">ESCALATE ONLY · RISE ≠ NON-QM · NO AUTO-SEND</p>
       <ol className="t1glass__locks">

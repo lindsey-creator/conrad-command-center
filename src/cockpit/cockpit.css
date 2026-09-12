@@ -372,12 +372,11 @@
 }
 
 .rhino.mode-talk .board {
-  grid-template-columns: minmax(0, 1.7fr) minmax(220px, 0.72fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(168px, 0.52fr) minmax(0, 1.8fr) minmax(220px, 0.68fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
-    'orbit orbit'
-    'core  type1'
-    'cap   cap';
+    'intents core type1'
+    'cap cap cap';
   padding: 8px 28px 0;
 }
 
@@ -491,6 +490,7 @@
   display: none;
 }
 
+.talk-orb-wrap,
 .talk-orb {
   position: relative;
   z-index: 1;
@@ -498,6 +498,35 @@
   width: min(34vh, 280px);
   height: min(34vh, 280px);
   pointer-events: none;
+}
+
+.talk-orb-wrap .talk-orb {
+  width: 100%;
+  height: 100%;
+}
+
+.talk-orb__mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 2vh, 22px);
+  letter-spacing: 0.28em;
+  color: #fff;
+  text-shadow: 0 0 18px rgba(0, 229, 255, 0.45);
+}
+
+.talk-orb__mark span {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--ice-2);
 }
 
 .rhino.mode-idle .talk-orb {
@@ -512,6 +541,7 @@
   50% { opacity: 0.9; transform: scale(1.045); }
 }
 
+.rhino.mode-talk .talk-orb-wrap,
 .rhino.mode-talk .talk-orb,
 .rhino.mode-talk .talk-orb.is-hero {
   width: min(70vmin, 70vw);
@@ -1505,6 +1535,7 @@
   font-size: clamp(16px, 2.2vh, 24px);
 }
 
+.rhino[data-pack='cybertruck'].mode-talk .talk-orb-wrap,
 .rhino[data-pack='cybertruck'].mode-talk .talk-orb {
   width: min(72vmin, 72vw);
   height: min(72vmin, 72vh);
@@ -1533,7 +1564,7 @@
 .idle-deck {
   grid-area: void;
   display: grid;
-  grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.6fr) minmax(140px, 0.55fr);
+  grid-template-columns: minmax(200px, 0.7fr) minmax(0, 1.2fr) minmax(240px, 0.8fr);
   align-items: center;
   min-height: 0;
   color: #fff;
@@ -1679,12 +1710,116 @@
   box-shadow: 0 0 10px var(--ice);
 }
 
-.idle-deck__arc strong {
+.idle-deck__hero {
+  margin: 8px 0 10px;
   font-family: var(--font-display);
-  font-size: clamp(22px, 3vh, 32px);
-  letter-spacing: 0.18em;
+  font-size: clamp(48px, 8vh, 96px);
+  letter-spacing: 0.04em;
+  line-height: 0.9;
   font-weight: 500;
 }
+
+.idle-deck__core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.idle-deck__reactor {
+  position: relative;
+  width: min(28vh, 220px);
+  height: min(28vh, 220px);
+}
+
+.idle-deck__reactor i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  border-radius: 50%;
+}
+
+.idle-deck__reactor i:nth-child(2) { inset: 14%; }
+.idle-deck__reactor i:nth-child(3) { inset: 28%; border-style: dashed; opacity: 0.7; }
+.idle-deck__reactor i:nth-child(4) { inset: 42%; }
+
+.idle-deck__reactor b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  margin: -14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #00e5ff 55%, transparent 72%);
+  box-shadow: 0 0 28px #00e5ff;
+}
+
+.idle-deck__ridge {
+  width: min(36vw, 360px);
+  height: 36px;
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.idle-deck__whoop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.idle-deck__rings {
+  display: flex;
+  gap: 18px;
+}
+
+.idle-deck__rings b {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.idle-deck__rings i {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: conic-gradient(var(--ice) calc(var(--p, 0) * 1%), rgba(255, 255, 255, 0.12) 0);
+  mask: radial-gradient(farthest-side, transparent 62%, #000 64%);
+}
+
+.idle-deck__rings.is-claimed i,
+.idle-deck__rings b.is-claimed i {
+  background: conic-gradient(rgba(255, 255, 255, 0.18) 12%, rgba(255, 255, 255, 0.08) 0);
+}
+
+.idle-deck__rings strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+}
+
+.idle-deck__rings em,
+.idle-deck__rings u {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  font-style: normal;
+  text-decoration: none;
+  color: var(--mute);
+}
+
+.idle-deck__rings b.is-proven u { color: #3ef0c0; }
+.idle-deck__rings b.is-claimed strong { opacity: 0.4; }
 
 .rhino.mode-idle .orbit-strip {
   border: 0;
@@ -1730,16 +1865,68 @@
   gap: 6px;
 }
 
+.intent-rail {
+  grid-area: intents;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  z-index: 2;
+}
+
+.intent-rail__chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 56px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  text-align: left;
+}
+
+.intent-rail__chip b {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+}
+
+.intent-rail__chip span {
+  font-size: 12px;
+  color: var(--mute);
+}
+
+.intent-rail__chip.is-on {
+  border-color: rgba(0, 229, 255, 0.45);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.16);
+}
+
+.rhino.mode-talk .rhino__hash,
+.rhino.mode-talk .rhino__omega {
+  display: none;
+}
+
 .rhino.mode-talk .t1glass {
   justify-content: center;
-  padding: 8px 4px 8px 12px;
-  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: none;
 }
 
 .rhino.mode-talk .t1glass__lock {
-  min-height: 52px;
-  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  min-height: 56px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 8px 16px;
   box-shadow: none;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .rhino.mode-talk .t1glass__lock em {
