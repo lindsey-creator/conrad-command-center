@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { OrbMotion } from '../cockpit/machine';
 
-/** VAD-ish RMS 0–1. Live mic on listen-ripple; loopback stub otherwise. */
+/** Wispr volume + TTS-like RMS 0–1. Live mic on listen; syllable envelope on speak. */
 export function useAudioPulse(motion: OrbMotion, liveMic: boolean) {
-  const [level, setLevel] = useState(0.1);
+  const [level, setLevel] = useState(0.12);
   const raf = useRef(0);
 
   useEffect(() => {
@@ -15,18 +15,20 @@ export function useAudioPulse(motion: OrbMotion, liveMic: boolean) {
       const loop = (now: number) => {
         if (cancelled) return;
         const t = (now - t0) / 1000;
-        const base =
-          motion === 'listen-ripple'
-            ? 0.4
-            : motion === 'speak-wave'
-              ? 0.52
-              : motion === 'think-swirl'
-                ? 0.26
-                : motion === 'alert-flare'
-                  ? 0.62
-                  : 0.12 + Math.sin((t * Math.PI * 2) / 4) * 0.06;
-        const wobble = Math.abs(Math.sin(t * (motion === 'think-swirl' ? 8 : 3))) * 0.28;
-        setLevel(Math.min(1, base + wobble));
+        let next = 0.12;
+        if (motion === 'listen-ripple') {
+          next = 0.38 + Math.abs(Math.sin(t * 5.4)) * 0.42;
+        } else if (motion === 'speak-wave') {
+          const syl = Math.abs(Math.sin(t * 9.4)) * Math.abs(Math.sin(t * 3.05 + 0.4));
+          next = 0.28 + syl * 0.72;
+        } else if (motion === 'think-swirl') {
+          next = 0.22 + Math.abs(Math.sin(t * 8)) * 0.22;
+        } else if (motion === 'alert-flare') {
+          next = 0.55 + Math.abs(Math.sin(t * 11)) * 0.4;
+        } else {
+          next = 0.1 + Math.sin((t * Math.PI * 2) / 4) * 0.08 + 0.08;
+        }
+        setLevel(Math.min(1, Math.max(0, next)));
         raf.current = requestAnimationFrame(loop);
       };
       raf.current = requestAnimationFrame(loop);
@@ -53,7 +55,7 @@ export function useAudioPulse(motion: OrbMotion, liveMic: boolean) {
               const v = (data[i] - 128) / 128;
               sum += v * v;
             }
-            setLevel(Math.min(1, 0.14 + Math.sqrt(sum / data.length) * 2.6));
+            setLevel(Math.min(1, 0.16 + Math.sqrt(sum / data.length) * 2.8));
             raf.current = requestAnimationFrame(loop);
           };
           raf.current = requestAnimationFrame(loop);

@@ -49,6 +49,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const locks = useType1Locks(brainOnline);
   const jobs = useAgentJobs(brainOnline, locks);
   const [tick, setTick] = useState(0);
+  const [wake, setWake] = useState(false);
   const [booted, setBooted] = useState(shot || idleShot || speakDemo);
   const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
   const [wispr, setWispr] = useState<WisprState>(
@@ -156,10 +157,16 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   );
 
   const raise = (id: IntentId) => (mode === 'talk' ? intents.includes(id) : true);
+  const finishBoot = useCallback(() => {
+    setBooted(true);
+    setWake(true);
+    window.setTimeout(() => setWake(false), 720);
+  }, []);
 
   return (
     <div
-      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${shot ? ' is-shot' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
+      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot ? ' is-shot' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
+      style={{ ['--rms' as string]: String(level) }}
       data-pack={pack}
       data-mode={mode}
       data-core={core}
@@ -168,7 +175,8 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       data-wispr={wispr}
       data-intents={intents.join(',')}
     >
-      {!booted ? <BootIgnition onDone={() => setBooted(true)} /> : null}
+      {!booted ? <BootIgnition onDone={finishBoot} /> : null}
+      {wake ? <div className="rhino__flare" aria-hidden="true" /> : null}
 
       <div className="rhino__void" aria-hidden="true">
         <div className="rhino__scan" />

@@ -5,9 +5,10 @@ interface BootIgnitionProps {
 }
 
 const STAGES = [
-  { at: 0, line: 'J.A.R.V.I.S.', sub: 'OBSERVE → REASON → ACT' },
-  { at: 700, line: 'LOOP LOCK', sub: 'L0–L3 · EVIDENCE → ESCALATE' },
-  { at: 1500, line: 'ONLINE, SIR', sub: 'AUTO vs GO — NEVER AUTO-SEND' },
+  { at: 0, line: 'J.A.R.V.I.S.', sub: 'ARC IGNITION' },
+  { at: 600, line: 'LOOP LOCK', sub: 'OBSERVE → REASON → ACT' },
+  { at: 1300, line: 'WISPR READY', sub: 'LISTEN · THINK · SPEAK' },
+  { at: 1900, line: 'ONLINE, SIR', sub: 'AUTO vs GO — NEVER AUTO-SEND' },
 ] as const;
 
 export function BootIgnition({ onDone }: BootIgnitionProps) {
@@ -23,8 +24,9 @@ export function BootIgnition({ onDone }: BootIgnitionProps) {
     const timers = [
       window.setTimeout(() => setStage(1), STAGES[1].at),
       window.setTimeout(() => setStage(2), STAGES[2].at),
-      window.setTimeout(() => setOut(true), 2000),
-      window.setTimeout(onDone, 2200),
+      window.setTimeout(() => setStage(3), STAGES[3].at),
+      window.setTimeout(() => setOut(true), 2400),
+      window.setTimeout(onDone, 2680),
     ];
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [onDone]);
