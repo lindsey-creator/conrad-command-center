@@ -72,12 +72,9 @@ type Rgb = [number, number, number];
 function tint(state: WisprState, motion: OrbMotion, core: CoreTint): Rgb {
   if (state === 'disabled' || core === 'slate') return [118, 128, 136];
   if (state === 'error' || core === 'red' || motion === 'alert-flare') return [255, 77, 109];
-  if (state === 'thinking' || core === 'amber' || motion === 'think-swirl') return [255, 200, 87];
   if (state === 'listening' || motion === 'listen-ripple') return [0, 229, 255];
-  if (state === 'speaking' || motion === 'speak-wave') return [120, 230, 255];
-  if (core === 'ice') return [200, 236, 255];
-  if (state === 'connecting' || motion === 'connect-spin') return [220, 232, 240];
-  return [210, 230, 245];
+  if (state === 'speaking' || motion === 'speak-wave') return [220, 240, 255];
+  return [236, 244, 248];
 }
 
 interface TalkOrbProps {

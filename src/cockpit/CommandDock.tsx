@@ -205,7 +205,7 @@ export function CommandDock({
   return (
     <footer className={`wispr${talking ? ' wispr--talk' : ''} wispr--${voice.voiceState}`} data-wispr={voice.voiceState}>
       <p className={`wispr__state is-${voice.voiceState}`} aria-live="polite">
-        {speakLabel === 'SPEAK' ? 'IDLE' : speakLabel}
+        {speakLabel === 'SPEAK' ? '' : speakLabel}
       </p>
       <p className="wispr__lanes" aria-label="Auto versus GO">
         <em>AUTO · drafts · research · assign · schedule · board</em>
