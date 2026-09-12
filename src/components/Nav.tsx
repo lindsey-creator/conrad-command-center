@@ -9,10 +9,10 @@ export function Nav({ page, onChange }: NavProps) {
   return (
     <nav className="nav" aria-label="Main">
       <button type="button" className={`nav-btn${page === 'dashboard' ? ' active' : ''}`} onClick={() => onChange('dashboard')}>
-        Dashboard
+        HUD
       </button>
       <button type="button" className={`nav-btn${page === 'echo' ? ' active' : ''}`} onClick={() => onChange('echo')}>
-        JARVIS
+        Train
       </button>
       <button type="button" className={`nav-btn${page === 'connections' ? ' active' : ''}`} onClick={() => onChange('connections')}>
         Stack

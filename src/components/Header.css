@@ -15,7 +15,7 @@
   left: 0;
   width: 120px;
   height: 1px;
-  background: linear-gradient(90deg, var(--gold), transparent);
+  background: linear-gradient(90deg, var(--cyan), transparent);
 }
 
 .brand { display: flex; align-items: center; gap: 16px; }
@@ -41,7 +41,8 @@
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 600;
-  color: var(--gold-3);
+  color: var(--cyan-2);
+  text-shadow: 0 0 12px var(--cyan-glow);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-bottom: 2px;

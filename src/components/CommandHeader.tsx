@@ -90,7 +90,7 @@ export function CommandHeader({
             <span className="command-header__label">{statusLabel}</span>
             <h2 className="command-header__name font-serif-name">Lindsey</h2>
             <p className="command-header__greeting">
-              {greeting}. Readiness · <strong>{readiness}</strong>
+              {greeting}, sir. Readiness · <strong>{readiness}</strong>
             </p>
             <p className="command-header__cadence">
               {isSunday

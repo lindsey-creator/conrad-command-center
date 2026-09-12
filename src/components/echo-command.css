@@ -192,11 +192,60 @@
   background: var(--cyan-dim);
 }
 
+.echo-command__offline {
+  margin: 0 24px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--warn);
+}
+
+.echo-command__speak-target {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 72px;
+  min-height: 72px;
+  border: 1px solid var(--line);
+  background: radial-gradient(circle at 50% 40%, rgba(0, 229, 255, 0.16), rgba(0, 10, 18, 0.4));
+  color: var(--cyan);
+  box-shadow: 0 0 18px var(--cyan-dim);
+}
+
+.echo-command__speak-target--armed {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 28px var(--cyan-glow);
+}
+
+.echo-command__speak-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.echo-command__speak-sub {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.echo-command__input-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
 .echo-command__bar {
   display: flex;
   align-items: stretch;
   gap: 10px;
-  padding: 18px 24px;
+  padding: 18px 24px 8px;
 }
 
 .echo-command__input-wrap {
@@ -371,7 +420,14 @@
 
   .echo-command__bar {
     flex-direction: column;
-    padding: 12px 16px;
+    padding: 12px 16px 4px;
+  }
+
+  .echo-command__speak-target {
+    width: 100%;
+    min-height: 64px;
+    flex-direction: row;
+    gap: 10px;
   }
 
   .echo-command__actions {

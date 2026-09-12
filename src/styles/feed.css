@@ -31,9 +31,10 @@
 }
 
 .nav-btn.active {
-  color: var(--ink);
-  background: rgba(184, 150, 62, 0.08);
-  border-color: rgba(184, 150, 62, 0.2);
+  color: var(--cyan-2);
+  background: var(--cyan-dim);
+  border-color: var(--line-strong);
+  box-shadow: 0 0 16px var(--cyan-dim);
 }
 
 .nav-btn.active::after {

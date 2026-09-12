@@ -3,9 +3,10 @@ import { brain, type MoneyMove, type TeamPulseGap, type WatchlistItem } from '..
 import { POLL_FAST_MS, POLL_STAGGER_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import { hasLiveData, itemLabel } from '../utils/renderItems';
+import { ConnectSource } from './ConnectSource';
 import './type1-decisions.css';
 
-export type Type1Category = 'capital' | 'judgment' | 'relationships' | 'authority';
+export type Type1Category = 'money_now' | 'leaking' | 'efficiency';
 
 export interface Type1Card {
   id: string;
@@ -13,94 +14,138 @@ export interface Type1Card {
   title: string;
   detail: string;
   action?: string;
+  command?: string;
+  live: boolean;
+  sources: string[];
 }
 
 const CATEGORY_LABEL: Record<Type1Category, string> = {
-  capital: 'Capital',
-  judgment: 'Judgment',
-  relationships: 'Relationships',
-  authority: 'Authority',
+  money_now: 'MONEY NOW',
+  leaking: 'LEAKING',
+  efficiency: 'EFFICIENCY',
 };
 
-function watchToCard(item: WatchlistItem, index: number): Type1Card {
-  return {
-    id: `watch-${index}`,
-    category: 'judgment',
-    title: item.title ?? itemLabel(item),
-    detail: item.detail ?? 'On today’s watch list — act before it compounds.',
-    action: 'Review in Watch List',
-  };
-}
+const SLOTS: Type1Category[] = ['money_now', 'leaking', 'efficiency'];
 
-function moveToCard(move: MoneyMove, index: number): Type1Card {
+function firstMove(moves: MoneyMove[]): Type1Card | null {
+  const move = moves[0];
+  if (!move) return null;
+  const dollars = move.dollars != null && move.dollars !== '' ? ` · ${move.dollars}` : '';
   return {
-    id: `move-${index}`,
-    category: 'capital',
+    id: 'money_now',
+    category: 'money_now',
     title: move.title,
-    detail: move.why,
+    detail: `${move.why}${dollars}`,
     action: move.recommended_action,
+    command: `Money now: ${move.title}. ${move.recommended_action ?? move.why}`,
+    live: true,
+    sources: [],
   };
 }
 
-function gapToCard(gap: TeamPulseGap, index: number): Type1Card {
+function firstLeak(watchItems: WatchlistItem[], overdue: { person: string; task: string; days_late: number }[]): Type1Card | null {
+  if (watchItems[0]) {
+    const item = watchItems[0];
+    const title = item.title ?? itemLabel(item);
+    return {
+      id: 'leaking',
+      category: 'leaking',
+      title,
+      detail: item.detail ?? 'On the watch list — plug this before it compounds.',
+      action: 'Close the leak',
+      command: `Leaking: ${title}. Close this leak.`,
+      live: true,
+      sources: [],
+    };
+  }
+  if (overdue[0]) {
+    const row = overdue[0];
+    return {
+      id: 'leaking',
+      category: 'leaking',
+      title: `${row.person} · ${row.days_late}d late`,
+      detail: row.task,
+      action: 'Recover the slip',
+      command: `Leaking: ${row.person} is ${row.days_late}d late on ${row.task}. Recover it.`,
+      live: true,
+      sources: [],
+    };
+  }
+  return null;
+}
+
+function firstEfficiency(gaps: TeamPulseGap[], blindItems: unknown[]): Type1Card | null {
+  if (gaps[0]) {
+    const gap = gaps[0];
+    return {
+      id: 'efficiency',
+      category: 'efficiency',
+      title: gap.person,
+      detail: `${gap.committed} → ${gap.actual}`,
+      action: gap.suggested_move,
+      command: `Efficiency: ${gap.person}. ${gap.suggested_move}`,
+      live: true,
+      sources: [],
+    };
+  }
+  if (blindItems[0]) {
+    const title = itemLabel(blindItems[0]);
+    return {
+      id: 'efficiency',
+      category: 'efficiency',
+      title,
+      detail: 'Empire blind spot — visibility gap across units.',
+      action: 'Illuminate the gap',
+      command: `Efficiency blind spot: ${title}. Illuminate it.`,
+      live: true,
+      sources: [],
+    };
+  }
+  return null;
+}
+
+function standbyCard(category: Type1Category, sources: string[], brainOnline: boolean): Type1Card {
+  const copy: Record<Type1Category, { title: string; detail: string }> = {
+    money_now: {
+      title: brainOnline ? 'No capital move locked' : 'Brain offline',
+      detail: brainOnline
+        ? 'Connect deals, GHL apply, or ClickUp — JARVIS will narrate the next dollar, never invent it.'
+        : 'Link the Brain before MONEY NOW can fire.',
+    },
+    leaking: {
+      title: brainOnline ? 'No leak flagged' : 'Brain offline',
+      detail: brainOnline
+        ? 'Watch list and team pulse are quiet or unconnected.'
+        : 'Link the Brain before LEAKING can fire.',
+    },
+    efficiency: {
+      title: brainOnline ? 'No efficiency call' : 'Brain offline',
+      detail: brainOnline
+        ? 'Gaps and blind spots stay dark until Fieldy, ClickUp, or calendar are live.'
+        : 'Link the Brain before EFFICIENCY can fire.',
+    },
+  };
   return {
-    id: `gap-${index}`,
-    category: 'relationships',
-    title: gap.person,
-    detail: `${gap.committed} → ${gap.actual}`,
-    action: gap.suggested_move,
+    id: category,
+    category,
+    title: copy[category].title,
+    detail: copy[category].detail,
+    live: false,
+    sources,
   };
-}
-
-function blindspotToCard(item: unknown, index: number): Type1Card {
-  return {
-    id: `blind-${index}`,
-    category: 'authority',
-    title: itemLabel(item),
-    detail: 'Empire blind spot — visibility gap across units.',
-    action: 'See Blind Spots module',
-  };
-}
-
-function buildType1Cards(
-  watchItems: WatchlistItem[],
-  moves: MoneyMove[],
-  gaps: TeamPulseGap[],
-  blindItems: unknown[],
-): Type1Card[] {
-  const out: Type1Card[] = [];
-  for (let i = 0; i < Math.min(1, watchItems.length); i++) {
-    out.push(watchToCard(watchItems[i], i));
-  }
-  for (let i = 0; i < Math.min(1, moves.length); i++) {
-    out.push(moveToCard(moves[i], i));
-  }
-  for (let i = 0; i < Math.min(1, gaps.length); i++) {
-    out.push(gapToCard(gaps[i], i));
-  }
-  if (out.length < 3) {
-    for (let i = 0; i < blindItems.length && out.length < 3; i++) {
-      out.push(blindspotToCard(blindItems[i], i));
-    }
-  }
-  if (out.length < 3) {
-    for (let i = out.filter((c) => c.category === 'judgment').length; i < watchItems.length && out.length < 3; i++) {
-      out.push(watchToCard(watchItems[i], i));
-    }
-  }
-  if (out.length < 3) {
-    for (let i = 1; i < moves.length && out.length < 3; i++) {
-      out.push(moveToCard(moves[i], i));
-    }
-  }
-  return out.slice(0, 3);
 }
 
 interface Type1DecisionsProps {
   brainOnline?: boolean;
+  onConnect?: (source: string) => void;
+  onCommand?: (text: string) => void;
 }
 
-export function Type1Decisions({ brainOnline = false }: Type1DecisionsProps) {
+export function Type1Decisions({
+  brainOnline = false,
+  onConnect,
+  onCommand,
+}: Type1DecisionsProps) {
   const fetchWatch = useCallback(() => brain.watchlist(), []);
   const fetchMoves = useCallback(() => brain.topMoves(3), []);
   const fetchPulse = useCallback(() => brain.teamPulse(), []);
@@ -123,38 +168,42 @@ export function Type1Decisions({ brainOnline = false }: Type1DecisionsProps) {
     staggerMs: POLL_STAGGER_MS * 3,
   });
 
-  const loading =
-    !watchlist.data && !topMoves.data && !teamPulse.data && !blindspots.data &&
-    (watchlist.loading || topMoves.loading);
-
   const cards = useMemo(() => {
-    const watchLive = watchlist.data && hasLiveData(watchlist.data);
-    const movesLive = topMoves.data && hasLiveData(topMoves.data);
-    const pulseLive = teamPulse.data && hasLiveData(teamPulse.data);
-    const blindLive = blindspots.data && hasLiveData(blindspots.data);
+    const watchLive = brainOnline && watchlist.data && hasLiveData(watchlist.data);
+    const movesLive = brainOnline && topMoves.data && hasLiveData(topMoves.data);
+    const pulseLive = brainOnline && teamPulse.data && hasLiveData(teamPulse.data);
+    const blindLive = brainOnline && blindspots.data && hasLiveData(blindspots.data);
 
-    const watchItems = watchLive
-      ? (watchlist.data?.items ?? []) as WatchlistItem[]
-      : [];
+    const watchItems = watchLive ? ((watchlist.data?.items ?? []) as WatchlistItem[]) : [];
     const moves = movesLive ? topMoves.data?.moves ?? [] : [];
     const gaps = pulseLive ? teamPulse.data?.gaps ?? [] : [];
+    const overdue = pulseLive ? teamPulse.data?.overdue ?? [] : [];
     const blindItems = blindLive ? blindspots.data?.items ?? [] : [];
 
-    return buildType1Cards(watchItems, moves, gaps, blindItems);
-  }, [watchlist.data, topMoves.data, teamPulse.data, blindspots.data]);
+    const live: Record<Type1Category, Type1Card | null> = {
+      money_now: firstMove(moves),
+      leaking: firstLeak(watchItems, overdue),
+      efficiency: firstEfficiency(gaps, blindItems),
+    };
 
-  const hasAnySource =
-    (watchlist.data && hasLiveData(watchlist.data)) ||
-    (topMoves.data && hasLiveData(topMoves.data)) ||
-    (teamPulse.data && hasLiveData(teamPulse.data)) ||
-    (blindspots.data && hasLiveData(blindspots.data));
+    return SLOTS.map((slot) => {
+      if (live[slot]) return live[slot] as Type1Card;
+      const sources =
+        slot === 'money_now'
+          ? ['ghl', 'clickup']
+          : slot === 'leaking'
+            ? ['clickup', 'fieldy']
+            : ['clickup', 'fieldy', 'google_calendar'];
+      return standbyCard(slot, sources, brainOnline);
+    });
+  }, [brainOnline, watchlist.data, topMoves.data, teamPulse.data, blindspots.data]);
 
   return (
     <section className="type1 hud-corners jarvis-glass" aria-label="Type-1 decisions">
       <div className="type1__head">
         <div>
-          <span className="type1__kicker">Type-1 surface</span>
-          <h2 className="type1__title">Decisions today</h2>
+          <span className="type1__kicker">Type-1 only</span>
+          <h2 className="type1__title">MONEY NOW · LEAKING · EFFICIENCY</h2>
         </div>
         <span
           className={`type1__brain-pill${brainOnline ? ' type1__brain-pill--live' : ''}`}
@@ -164,30 +213,29 @@ export function Type1Decisions({ brainOnline = false }: Type1DecisionsProps) {
         </span>
       </div>
 
-      {loading && (
-        <p className="type1__empty">Scanning Brain for today’s Type-1 calls…</p>
-      )}
-
-      {!loading && cards.length === 0 && (
-        <p className="type1__empty">
-          {hasAnySource
-            ? 'No Type-1 cards right now — stack is clear or awaiting connector data.'
-            : 'Connect ClickUp, deals, or Fieldy via Stack — JARVIS surfaces up to three Type-1 cards here.'}
-        </p>
-      )}
-
-      {cards.length > 0 && (
-        <ul className="type1__grid">
-          {cards.map((card) => (
-            <li key={card.id} className={`type1__card type1__card--${card.category}`}>
-              <span className="type1__cat">{CATEGORY_LABEL[card.category]}</span>
-              <h3 className="type1__card-title">{card.title}</h3>
-              <p className="type1__detail">{card.detail}</p>
-              {card.action && <p className="type1__action">{card.action}</p>}
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="type1__grid">
+        {cards.map((card) => (
+          <li key={card.id} className={`type1__card type1__card--${card.category}`}>
+            <span className="type1__cat">{CATEGORY_LABEL[card.category]}</span>
+            <h3 className="type1__card-title">{card.title}</h3>
+            <p className="type1__detail">{card.detail}</p>
+            {card.action && <p className="type1__action">{card.action}</p>}
+            {!card.live && <span className="type1__standby">Standby · no invented numbers</span>}
+            {card.live && onCommand && card.command && (
+              <button
+                type="button"
+                className="type1__run"
+                onClick={() => onCommand(card.command ?? card.title)}
+              >
+                Run through glass
+              </button>
+            )}
+            {!card.live && card.sources.length > 0 && (
+              <ConnectSource sources={card.sources} onConnect={onConnect} />
+            )}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

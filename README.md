@@ -6,7 +6,10 @@ operating system that runs Lindsey Conrad's lending + construction operation
 This UI sits on the **Brain** (deal-math engine + memory + training loop, in the
 separate `Goldfront-os` repo).
 
-Elite evolution of the live dashboard at **command.theconradteam.com**.
+Cinematic Iron Man JARVIS HUD — Type-1 only (MONEY NOW / LEAKING / EFFICIENCY)
+and feed slots (Town, GHL apply, calendar, WHOOP, Rise, Non-QM).
+
+Live: **https://jarvis-brain-production-8def.up.railway.app** (Railway URL only — no custom-domain work).
 
 See **`docs/JARVIS-LIVE.md`** for naming locks (JARVIS, Command Center, Brain, Manus builds).
 

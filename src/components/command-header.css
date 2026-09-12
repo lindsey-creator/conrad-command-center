@@ -10,7 +10,7 @@
   pointer-events: none;
   z-index: 0;
   background:
-    linear-gradient(125deg, rgba(200, 162, 74, 0.06) 0%, transparent 45%),
+    linear-gradient(125deg, rgba(0, 229, 255, 0.08) 0%, transparent 45%),
     radial-gradient(ellipse 55% 75% at 0% 45%, rgba(18, 22, 29, 0.5) 0%, transparent 60%);
 }
 
@@ -34,7 +34,7 @@
   padding: 0 14px;
 }
 
-.command-strip__item--brand { color: var(--gold); }
+.command-strip__item--brand { color: var(--cyan); text-shadow: 0 0 10px var(--cyan-glow); }
 .command-strip__item--jarvis { color: var(--faint); margin-left: auto; }
 .command-strip__item--jarvis.command-strip__item--active {
   color: var(--gold-3);
@@ -70,7 +70,7 @@
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: var(--gold);
+  color: var(--cyan);
 }
 .command-header__name {
   margin: 0;

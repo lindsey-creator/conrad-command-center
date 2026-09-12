@@ -4,8 +4,8 @@ import { touchBrainLive } from './hooks/brainLive';
 import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
 import { CommandHeader } from './components/CommandHeader';
 import { Type1Decisions } from './components/Type1Decisions';
+import { FeedSlots } from './components/FeedSlots';
 import { Connections, resolveConnectorKey } from './components/Connections';
-import { ConnectorsBar } from './components/ConnectorsBar';
 import { EchoCommand } from './components/EchoCommand';
 import { FeedTheBrain } from './components/FeedTheBrain';
 import { Footer } from './components/Footer';
@@ -13,16 +13,16 @@ import { Header } from './components/Header';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
 import { PendingApprovals } from './components/PendingApprovals';
-import { QuickRunStrip } from './components/QuickRunStrip';
 import type { EchoVoiceState } from './hooks/useEchoVoice';
 import './styles/tokens.css';
 import './styles/layout.css';
 import './styles/feed.css';
+import './styles/hud.css';
 
 function pageFromHash(): Page {
   const id = window.location.hash.replace(/^#/, '').split('/')[0].toLowerCase();
-  if (id === 'echo' || id === 'feed') return 'echo';
-  if (id === 'connections') return 'connections';
+  if (id === 'echo' || id === 'feed' || id === 'train') return 'echo';
+  if (id === 'connections' || id === 'stack') return 'connections';
   return 'dashboard';
 }
 
@@ -31,16 +31,13 @@ export default function App() {
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
-  const [clickupConnected, setClickupConnected] = useState(false);
+  const [pendingCommand, setPendingCommand] = useState<string | undefined>();
+  const [seedNonce, setSeedNonce] = useState(0);
 
   const checkHealth = useCallback(async () => {
     try {
-      const [healthRes, connectorsRes] = await Promise.all([
-        brain.health(),
-        brain.connectorsStatus().catch(() => null),
-      ]);
+      const healthRes = await brain.health();
       setBrainOnline(healthRes.status === 'ok');
-      setClickupConnected(connectorsRes?.connectors?.clickup?.connected ?? false);
       touchBrainLive();
     } catch {
       setBrainOnline(false);
@@ -84,21 +81,51 @@ export default function App() {
     setPage('connections');
   }, [setPage]);
 
+  const runThroughGlass = useCallback((text: string) => {
+    setPage('dashboard');
+    setPendingCommand(text);
+    setSeedNonce((n) => n + 1);
+    window.requestAnimationFrame(() => {
+      document.getElementById('jarvis-command-input')?.focus();
+      document.querySelector('.echo-command')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }, [setPage]);
+
   return (
-    <div className="wrap command-deck">
+    <div className="wrap command-deck hud-root">
+      <div className="hud-atmosphere" aria-hidden="true">
+        <div className="hud-atmosphere__ring" />
+        <div className="hud-atmosphere__sweep" />
+        <div className="hud-atmosphere__vignette" />
+      </div>
       <Header brainOnline={brainOnline} />
       <Nav page={page} onChange={setPage} />
-      {page === 'dashboard' && (
-        <ConnectorsBar onOpenConnections={() => openConnections()} />
-      )}
       {page === 'dashboard' ? (
         <div className="command-deck__main">
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
-          <Type1Decisions brainOnline={brainOnline} />
-          <EchoCommand brainOnline={brainOnline} onVoiceStateChange={setVoiceState} />
-          <QuickRunStrip clickupConnected={clickupConnected} />
+          <EchoCommand
+            key={seedNonce}
+            brainOnline={brainOnline}
+            onVoiceStateChange={setVoiceState}
+            commandSeed={pendingCommand}
+          />
+          <Type1Decisions
+            brainOnline={brainOnline}
+            onConnect={openConnections}
+            onCommand={runThroughGlass}
+          />
+          <FeedSlots
+            brainOnline={brainOnline}
+            onConnect={openConnections}
+            onCommand={runThroughGlass}
+          />
           <PendingApprovals />
-          <ModuleGrid onConnect={openConnections} />
+          <details className="intel-fold hud-corners">
+            <summary>Expand full intel deck</summary>
+            <div className="intel-fold__body">
+              <ModuleGrid onConnect={openConnections} />
+            </div>
+          </details>
         </div>
       ) : page === 'echo' ? (
         <FeedTheBrain />

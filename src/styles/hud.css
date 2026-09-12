@@ -1,0 +1,104 @@
+.hud-root {
+  position: relative;
+}
+
+.hud-atmosphere {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hud-atmosphere__sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(0, 229, 255, 0.07),
+    transparent
+  );
+  animation: hud-sweep 9s linear infinite;
+}
+
+.hud-atmosphere__vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px 24px rgba(0, 8, 16, 0.72);
+}
+
+.hud-atmosphere__ring {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: min(72vw, 640px);
+  height: min(72vw, 640px);
+  transform: translate(-50%, -40%);
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.08);
+  box-shadow:
+    0 0 80px rgba(0, 229, 255, 0.05),
+    inset 0 0 80px rgba(0, 229, 255, 0.03);
+}
+
+.intel-fold {
+  margin: 16px 0 8px;
+  border: 1px solid var(--line);
+  background: rgba(0, 20, 32, 0.35);
+  padding: 0;
+}
+
+.intel-fold > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.intel-fold > summary::-webkit-details-marker { display: none; }
+
+.intel-fold > summary::before {
+  content: '▸';
+  color: var(--cyan-2);
+}
+
+.intel-fold[open] > summary::before { content: '▾'; }
+
+.intel-fold__body {
+  padding: 0 12px 14px;
+}
+
+.hud-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 24px 14px;
+}
+
+.hud-chip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: rgba(0, 229, 255, 0.06);
+  border: 1px solid var(--line);
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.hud-chip:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 16px var(--cyan-dim);
+}

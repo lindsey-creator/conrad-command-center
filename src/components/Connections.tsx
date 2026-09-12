@@ -72,7 +72,24 @@ const CONNECTOR_HELP: Record<
     where: 'OpenWeather or similar API key in Brain .env',
     envVars: ['WEATHER_API_KEY'],
   },
+  town: {
+    label: 'Town',
+    where: 'Town.com radar — TOWN_API_TOKEN on the Brain when the endpoint ships',
+    envVars: ['TOWN_API_TOKEN'],
+  },
+  rise: {
+    label: 'Rise',
+    where: 'Rise sleep — RISE_API_TOKEN on the Brain when the connector ships',
+    envVars: ['RISE_API_TOKEN'],
+  },
+  nonqm: {
+    label: 'Non-QM',
+    where: 'Non-QM desk — Brain deal engine only; no invented files',
+    envVars: [],
+  },
 };
+
+const FEED_SLOT_KEYS = ['town', 'rise', 'nonqm'] as const;
 
 interface ConnectionsProps {
   focusSource?: string | null;
@@ -332,10 +349,11 @@ export function Connections({ focusSource }: ConnectionsProps) {
   return (
     <div className="connections-page">
       <section className="feed-section hud-corners">
-        <h3>Connections</h3>
+        <h3>Stack</h3>
         <p className="feed-hint">
-          Optional — the app works with zero connectors. Google and Whoop can be
-          connected below without editing <code>.env</code> by hand.
+          Optional — the HUD works with zero connectors. Google and WHOOP can be
+          connected below without editing <code>.env</code> by hand. Feed slots
+          Town / Rise / Non-QM stay honest until those Brain sources exist.
         </p>
         {error && <p className="feed-error">{error}</p>}
         {loading && !data && <p className="feed-hint">Loading…</p>}
@@ -418,6 +436,37 @@ export function Connections({ focusSource }: ConnectionsProps) {
             </section>
           );
         })}
+
+      {FEED_SLOT_KEYS.filter((key) => !data?.connectors?.[key]).map((key) => {
+        const help = CONNECTOR_HELP[key];
+        const focused = focusSource === key;
+        return (
+          <section
+            className={`feed-section hud-corners connection-card${focused ? ' connection-focused' : ''}`}
+            id={`connector-${key}`}
+            key={key}
+          >
+            <div className="connection-head">
+              <h3>{help.label}</h3>
+              <span className="status-ring status-ring--off">
+                <span className="pill" aria-label="Not connected">
+                  Not connected
+                </span>
+              </span>
+            </div>
+            <p className="feed-hint">{help.where}</p>
+            {help.envVars.length > 0 && (
+              <div className="env-vars">
+                {help.envVars.map((v) => (
+                  <code key={v} className="env-chip">
+                    {v}
+                  </code>
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })}
 
       <section className="feed-section">
         <h3>Ask the Room (full voice)</h3>
