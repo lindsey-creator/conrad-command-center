@@ -8,5 +8,3 @@
 | `cybertruck-ultrawide.png` | Ultrawide cabin ticks (real commands only) |
 
 Match these stills. Never invent WHOOP scores or truck miles. Speak keeps STT → Brain `/chat` → TTS.
-
-If `talk-mode.png`, `speak-orb.png`, or `cybertruck-ultrawide.png` are missing here, the attached V2 frames were not on disk at copy time — CSS/canvas still follow those stills.
