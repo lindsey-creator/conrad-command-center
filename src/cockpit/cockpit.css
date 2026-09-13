@@ -65,7 +65,7 @@
   background-image: var(--scene);
   background-size: cover;
   background-position: center;
-  filter: saturate(0.9) brightness(0.52);
+  filter: saturate(0.75) brightness(0.28);
 }
 
 .rhino__scene-shade {
@@ -73,7 +73,8 @@
   inset: 0;
   z-index: 0;
   background:
-    linear-gradient(180deg, rgba(6, 12, 24, 0.78) 0%, rgba(6, 12, 24, 0.38) 42%, rgba(6, 12, 24, 0.86) 100%);
+    linear-gradient(180deg, rgba(6, 12, 24, 0.88) 0%, rgba(6, 12, 24, 0.52) 40%, rgba(6, 12, 24, 0.92) 100%),
+    linear-gradient(90deg, rgba(6, 12, 24, 0.82) 0%, transparent 30%, transparent 70%, rgba(6, 12, 24, 0.86) 100%);
 }
 
 .hud-layer {
@@ -3450,7 +3451,15 @@
   50% { transform: translateY(-5px); opacity: 1; }
 }
 
-.rhino.is-scene .idle-deck__beast { display: none; }
+.rhino.is-scene .idle-deck__beast,
+.rhino.is-scene .idle-deck__whoop--gauges,
+.rhino.is-scene .idle-deck__range { display: none; }
+.agent-panel,
+.system-panel,
+.j-top,
+.wispr,
+.arc-bay,
+.idle-cal { position: relative; z-index: 5; }
 .rhino.is-alert .arc-bay__type,
 .rhino.is-alert .j-top__mark strong { color: var(--j-red); text-shadow: 0 0 18px rgba(255, 60, 60, 0.5); }
 
