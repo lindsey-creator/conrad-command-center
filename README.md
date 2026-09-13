@@ -38,6 +38,13 @@ See **`docs/JARVIS-LIVE.md`** for naming locks (JARVIS, Command Center, Brain, M
 | **Local dev** | `./scripts/setup-dev.sh` then `./scripts/run-stack.sh` |
 | **Smoke test** | `./scripts/smoke-test.sh http://127.0.0.1:8000` |
 
+## Site-watch fix pack (live hosts, not this UI)
+
+Two public-site FAILs from 2026-08-20 are tracked in
+[`reports/site-watch/FIXES.md`](reports/site-watch/FIXES.md). This repo does
+not contain those sites’ HTML or redirects. Manus/ops ships on the live
+hosts. Do not publish `216-513-5139`. Do not invent an NMLS.
+
 ## Run locally (finished stack)
 
 Prerequisites: Node 18+, Python 3.11+, sibling [`Goldfront-os`](https://github.com/lindsey-creator/Goldfront-os) clone.
