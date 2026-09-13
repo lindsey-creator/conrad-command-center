@@ -41,6 +41,24 @@ WEATHER_API_KEY=          # OpenWeather
 CLICKUP_DEFAULT_LIST_ID=  # optional; auto-discovers first list
 ```
 
+## Required for this HUD branch to appear on Railway
+
+`cursor[bot]` cannot push `lindsey-creator/Goldfront-os`. Apply this one-line cache bust on `master` (or merge a Brain PR) or Railway will keep serving the old EchoCommand UI:
+
+```bash
+cd Goldfront-os
+git apply ../conrad-command-center/goldfront-os-additions/Dockerfile.hud-cache-bust.patch
+```
+
+Then on Railway service `jarvis-brain`:
+
+```
+CONRAD_COMMAND_CENTER_REF=cursor/jarvis-iron-man-hud-2fef
+HUD_BUILD=2026-09-13-phase1-jenman
+```
+
+`HUD_BUILD` must be a Dockerfile `ARG` used in the clone `RUN`. Bumping the env var alone does not rebuild the HUD.
+
 ## Deploy
 
 After merging, rebuild the Command Center and restart the Brain:
