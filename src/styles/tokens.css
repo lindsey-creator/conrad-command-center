@@ -1,36 +1,41 @@
 :root {
-  /* Iron Man JARVIS — cinematic blue/cyan holographic HUD */
-  --bg: #020508;
-  --bg-elevated: #061018;
-  --panel: rgba(4, 22, 36, 0.55);
-  --panel-solid: #071520;
-  --panel-2: #041018;
-  --line: rgba(0, 212, 255, 0.22);
-  --line-strong: rgba(0, 229, 255, 0.55);
+  /* Jenman JARVIS tokens — only these hues. */
+  --j-cyan: #00CFFF;
+  --j-teal: #00FFF7;
+  --j-red: #FF3C3C;
+  --j-bg: #060C18;
 
-  --ink: #f4f7fa;
-  --muted: #8a9aa3;
-  --faint: #5a6a72;
+  --bg: #060C18;
+  --bg-elevated: #060C18;
+  --panel: rgba(4, 16, 36, 0.72);
+  --panel-solid: #060C18;
+  --panel-2: #060C18;
+  --line: rgba(0, 207, 255, 0.22);
+  --line-strong: rgba(0, 207, 255, 0.55);
 
-  --cyan: #00e5ff;
-  --cyan-2: #7af6ff;
-  --cyan-glow: rgba(0, 229, 255, 0.45);
-  --cyan-dim: rgba(0, 229, 255, 0.08);
+  --ink: #c8e8f0;
+  --muted: #6a8a96;
+  --faint: #4a6670;
 
-  --gold: #00e5ff;
-  --gold-2: #7af6ff;
-  --gold-3: #b8fbff;
-  --gold-glow: rgba(0, 229, 255, 0.35);
-  --gold-dim: rgba(0, 229, 255, 0.06);
-  --ivory: #e8fdff;
-  --ember: #ff4d6d;
-  --ember-glow: rgba(255, 77, 109, 0.35);
+  --cyan: #00CFFF;
+  --cyan-2: #00FFF7;
+  --cyan-glow: rgba(0, 207, 255, 0.5);
+  --cyan-dim: rgba(0, 207, 255, 0.15);
 
-  --go: #3ef0c0;
-  --go-glow: rgba(62, 240, 192, 0.35);
-  --warn: #ffc857;
-  --crit: #ff4d6d;
-  --info: #00e5ff;
+  --gold: #00CFFF;
+  --gold-2: #00FFF7;
+  --gold-3: #00FFF7;
+  --gold-glow: rgba(0, 255, 247, 0.35);
+  --gold-dim: rgba(0, 207, 255, 0.06);
+  --ivory: #c8e8f0;
+  --ember: #FF3C3C;
+  --ember-glow: rgba(255, 60, 60, 0.35);
+
+  --go: #00FFF7;
+  --go-glow: rgba(0, 255, 247, 0.35);
+  --warn: #FF3C3C;
+  --crit: #FF3C3C;
+  --info: #00CFFF;
 
   --radius: 2px;
   --radius-sm: 1px;
@@ -40,12 +45,12 @@
   --shadow-hover: 0 0 36px rgba(0, 229, 255, 0.18);
   --glass-blur: blur(14px);
 
-  --font-sans: 'IBM Plex Sans', 'Share Tech', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'IBM Plex Sans', 'Share Tech', sans-serif;
-  --font-mark: 'Orbitron', 'IBM Plex Sans', sans-serif;
-  --font-serif: 'IBM Plex Sans', sans-serif;
-  --font-kicker: 'Share Tech Mono', 'IBM Plex Mono', ui-monospace, monospace;
-  --font-mono: 'Share Tech Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'Rajdhani', sans-serif;
+  --font-display: 'Rajdhani', sans-serif;
+  --font-mark: 'Rajdhani', sans-serif;
+  --font-serif: 'Rajdhani', sans-serif;
+  --font-kicker: 'Share Tech Mono', monospace;
+  --font-mono: 'Share Tech Mono', monospace;
 
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --transition: 180ms var(--ease);
@@ -62,11 +67,12 @@ html, body, #root {
   margin: 0;
   height: 100%;
   min-height: 100%;
-  background-color: var(--bg);
+  background-color: #060C18;
   overflow: hidden;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 15px;
+  color-scheme: dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

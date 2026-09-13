@@ -1,18 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { EchoVoiceState } from '../hooks/useEchoVoice';
 import { useAudioPulse } from '../hooks/useAudioPulse';
+import { AgentPanel } from './AgentPanel';
+import { AiCore } from './AiCore';
 import { BootIgnition } from './BootIgnition';
 import { CommandDock } from './CommandDock';
+import { HudLayers } from './HudLayers';
 import { IdleDeck } from './IdleDeck';
 import { IntentRail } from './IntentRail';
-import { TalkOrb, type CoreTint } from './TalkOrb';
+import { SystemPanel } from './SystemPanel';
+import { TopBar } from './TopBar';
 import { Type1Glass } from './Type1Glass';
+import { Waveform } from './Waveform';
 import {
   ALL_INTENTS,
   WISPR_CAPTION,
-  WISPR_LABEL,
   intentsForQuery,
   isAlertIntent,
+  isDefenseCommand,
   motionForWispr,
   reduceWispr,
   wisprFromSearch,
@@ -27,6 +32,7 @@ import { JobRail } from './JobRail';
 import { nextLoopPhase, resolveAutonomy } from './readyAgent';
 import { useAgentJobs } from './useAgentJobs';
 import { useWhoopDay } from './useWhoopDay';
+import { useCalendarWeek } from './useCalendarWeek';
 
 function queryFlag(name: string): boolean {
   if (typeof window === 'undefined') return false;
@@ -45,16 +51,18 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const forcedWispr = useMemo(() => wisprFromSearch(), []);
   const pack = useHudPack();
   const whoop = useWhoopDay(brainOnline);
+  const calendar = useCalendarWeek(brainOnline);
   const locks = useType1Locks(brainOnline);
   const jobs = useAgentJobs(brainOnline, locks);
   const [tick, setTick] = useState(0);
   const [wake, setWake] = useState(false);
-  const [booted, setBooted] = useState(shot || idleShot || speakDemo);
+  const [booted, setBooted] = useState(true);
   const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
   const [wispr, setWispr] = useState<WisprState>(
     forcedWispr ?? (speakDemo ? 'speaking' : shot ? 'listening' : 'idle'),
   );
   const [armed, setArmed] = useState(shot && !forcedWispr);
+  const [defense, setDefense] = useState(queryFlag('alert'));
   const [caption, setCaption] = useState(
     forcedWispr
       ? WISPR_CAPTION[forcedWispr]
@@ -65,7 +73,14 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [seed, setSeed] = useState<string | undefined>();
   const [intents, setIntents] = useState<IntentId[]>(shot || speakDemo ? ALL_INTENTS : []);
   const locked = shot || Boolean(forcedWispr);
-  const motion = motionForWispr(wispr, armed);
+  const scene = speakDemo
+    ? 'speak-orb'
+    : mode === 'talk' || shot
+      ? 'talk-mode'
+      : pack === 'cybertruck'
+        ? 'cybertruck-ultrawide'
+        : 'idle-whoop';
+  const motion = motionForWispr(wispr, armed || defense);
   const level = useAudioPulse(motion, wispr === 'listening');
 
   useEffect(() => {
@@ -78,23 +93,11 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const type1Proven = locks.some((l) => l.proven);
   const goArmed = armed || wispr === 'error';
   const autonomy = resolveAutonomy({ phase, type1Proven, goArmed });
-  const leakHot = locks.some((l) => l.lane === 'LEAKING' && l.proven);
-  const core: CoreTint =
-    wispr === 'disabled'
-      ? 'slate'
-      : wispr === 'error'
-        ? 'red'
-        : wispr === 'thinking'
-          ? 'ice'
-          : wispr === 'speaking' || wispr === 'connecting'
-            ? 'ice'
-            : wispr === 'listening'
-              ? 'blue'
-              : leakHot || autonomy === 'L2'
-                ? 'amber'
-                : autonomy === 'L3'
-                  ? 'red'
-                  : 'ice';
+  const coreStatus = defense
+    ? 'DEFENSE'
+    : brainOnline
+      ? 'OPERATIONAL'
+      : 'STANDBY';
 
   const apply = useCallback(
     (event: WisprEvent) => {
@@ -124,9 +127,10 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const runTalk = useCallback(
     (q: string) => {
       if (locked) return;
+      if (isDefenseCommand(q)) setDefense(true);
       const raised = intentsForQuery(q);
       setMode('talk');
-      setArmed(isAlertIntent(raised));
+      setArmed(isAlertIntent(raised) || isDefenseCommand(q));
       apply({ type: 'ask' });
       setCaption(WISPR_CAPTION.thinking);
       setIntents(raised);
@@ -182,13 +186,70 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     window.setTimeout(() => setWake(false), 720);
   }, []);
 
+  const agents = useMemo(
+    () => [
+      {
+        id: 'brain',
+        label: 'BRAIN',
+        status: brainOnline ? ('LIVE' as const) : ('STANDBY' as const),
+        detail: brainOnline ? 'CLAUDE · /chat' : 'NO KEY — SETTINGS LATER',
+      },
+      {
+        id: 'whoop',
+        label: 'WHOOP',
+        status: whoop.proven ? ('PROVEN' as const) : ('CONNECT' as const),
+        detail: whoop.proven && whoop.recovery != null ? `RECOVERY ${Math.round(whoop.recovery)}` : 'NO INVENTED SCORE',
+      },
+      {
+        id: 'cal',
+        label: 'CALENDAR',
+        status: calendar.proven ? ('PROVEN' as const) : ('CONNECT' as const),
+        detail: calendar.proven ? `${calendar.events.length} EVENTS` : 'CONNECT GOOGLE',
+      },
+      {
+        id: 'voice',
+        label: 'VOICE',
+        status: wispr === 'listening' || wispr === 'speaking' ? ('LIVE' as const) : ('STANDBY' as const),
+        detail: wispr.toUpperCase(),
+      },
+      {
+        id: 'type1',
+        label: 'TYPE-1',
+        status: type1Proven ? ('PROVEN' as const) : ('STANDBY' as const),
+        detail: type1Proven ? `${locks.filter((l) => l.proven).length} LOCKS` : 'NO INVENTED DEALS',
+      },
+      {
+        id: 'mem',
+        label: 'MEMORY',
+        status: 'STANDBY' as const,
+        detail: 'PHASE 3 — NOT CONNECTED',
+      },
+    ],
+    [brainOnline, calendar.events.length, calendar.proven, locks, type1Proven, whoop.proven, whoop.recovery, wispr],
+  );
+
+  const diags = useMemo(
+    () => [
+      { label: 'BRAIN', value: brainOnline ? 'CLAUDE' : 'STANDBY', tone: brainOnline ? ('ok' as const) : ('hold' as const) },
+      { label: 'WHOOP', value: whoop.proven ? 'PROVEN' : 'CONNECT', tone: whoop.proven ? ('ok' as const) : ('hold' as const) },
+      { label: 'CALENDAR', value: calendar.proven ? 'PROVEN' : 'CONNECT', tone: calendar.proven ? ('ok' as const) : ('hold' as const) },
+      { label: 'PROTOCOL', value: defense ? 'CRIMSON' : 'NOMINAL', tone: defense ? ('alert' as const) : ('ok' as const) },
+      { label: 'AUTONOMY', value: autonomy, tone: autonomy === 'L3' ? ('alert' as const) : ('hold' as const) },
+      { label: 'PHASE', value: String(phase), tone: 'hold' as const },
+    ],
+    [autonomy, brainOnline, calendar.proven, defense, phase, whoop.proven],
+  );
+
   return (
     <div
-      className={`rhino mode-${mode} motion-${motion} core-${core} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot || speakDemo ? ' is-shot' : ''}${speakDemo ? ' is-speak-demo' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
-      style={{ ['--rms' as string]: String(level) }}
+      className={`rhino is-scene scene-${scene} mode-${mode} motion-${motion} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot || speakDemo ? ' is-shot' : ''}${speakDemo ? ' is-speak-demo' : ''}${defense ? ' is-alert' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
+      style={{
+        ['--rms' as string]: String(level),
+        ['--scene' as string]: `url(/hud-targets/v2/${scene}.png)`,
+      }}
       data-pack={pack}
+      data-scene={scene}
       data-mode={mode}
-      data-core={core}
       data-autonomy={autonomy}
       data-phase={phase}
       data-wispr={wispr}
@@ -197,69 +258,50 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
       {!booted ? <BootIgnition onDone={finishBoot} /> : null}
       {wake ? <div className="rhino__flare" aria-hidden="true" /> : null}
 
-      <div className="rhino__void" aria-hidden="true">
-        <div className="rhino__scan" />
-        <div className="rhino__holo" />
-        <div className="rhino__vignette" />
-        <div className="rhino__hash rhino__hash--l" />
-        <div className="rhino__hash rhino__hash--r" />
-      </div>
-      <div className="rhino__frame" aria-hidden="true">
-        <i className="rhino__cut rhino__cut--tl" />
-        <i className="rhino__cut rhino__cut--tr" />
-        <i className="rhino__cut rhino__cut--bl" />
-        <i className="rhino__cut rhino__cut--br" />
-      </div>
-      <div className="rhino__omega" aria-hidden="true">
-        <span>PWR</span>
-        <span>TGT</span>
-        <span>NAV</span>
-        <span>I/O</span>
-      </div>
+      <div className="rhino__scene" aria-hidden="true" />
+      <div className="rhino__scene-shade" aria-hidden="true" />
+      <HudLayers />
 
-      <header className="rhino-top">
-        <div className="rhino-top__brand">
-          <b>{mode === 'talk' ? 'J.A.R.V.I.S.' : 'JARVIS'}</b>
-          <i data-on={brainOnline} />
-          <em>{mode === 'idle' ? 'IDLE MODE' : 'VOICE INTERFACE ACTIVE'}</em>
-          <small>{mode === 'talk' ? 'TONY STARK' : 'MARK III'}</small>
-        </div>
-        {mode === 'idle' ? <span className="rhino-top__truck">MARK III</span> : null}
-        {mode === 'idle' ? (
-          <span className="rhino-top__mark">STARK INDUSTRIES</span>
-        ) : (
-          <span className={`rhino-top__sys${brainOnline ? ' is-on' : ''}`}>
-            {brainOnline ? 'SYSTEMS ONLINE' : 'STANDBY'}
-          </span>
-        )}
-        <span className={`rhino-top__wispr is-${wispr}`}>{mode === 'talk' ? WISPR_LABEL[wispr] : 'DAY ORBIT'}</span>
-        <button type="button" className="rhino-top__stack" onClick={() => onConnect()}>
-          STACK
-        </button>
-      </header>
+      <TopBar brainOnline={brainOnline} mode={mode} alert={defense} onStack={() => onConnect()} />
       <JobRail level={autonomy} phase={phase} jobs={jobs} />
 
       <div className="board">
-        {mode === 'idle' ? <IdleDeck brainOnline={brainOnline} whoop={whoop} onAsk={ask} /> : null}
+        <AgentPanel rows={agents} />
+        {mode === 'idle' ? (
+          <IdleDeck brainOnline={brainOnline} whoop={whoop} calendar={calendar} onAsk={ask}>
+            <AiCore
+              compact
+              listening={false}
+              thinking={false}
+              speaking={false}
+              alert={defense}
+              level={level}
+              status={coreStatus}
+            />
+          </IdleDeck>
+        ) : null}
         {mode === 'talk' ? <IntentRail raised={intents} onAsk={ask} /> : null}
         {mode === 'talk' ? (
           <div className="arc-bay" aria-label="Arc core">
-            <TalkOrb
-              motion={motion}
+            <AiCore
+              listening={wispr === 'listening'}
+              thinking={wispr === 'thinking'}
+              speaking={wispr === 'speaking'}
+              alert={defense}
               level={level}
-              dim={false}
-              hero
-              core={core}
-              state={wispr}
+              status={coreStatus}
             />
+            <Waveform level={level} live={wispr === 'listening' || wispr === 'speaking'} />
+            <p className="arc-bay__type">{caption || 'J.A.R.V.I.S.'}</p>
             <p className="arc-bay__floor" aria-hidden="true">
-              J.A.R.V.I.S. · I'M ON IT, TONY · AUDIO REACTIVE
+              {defense ? 'DEFENSE PROTOCOL' : 'I AM ON IT, SIR · AUDIO REACTIVE'}
             </p>
           </div>
         ) : null}
         {mode === 'talk' ? (
           <Type1Glass locks={locks} risen sinking={false} onLock={ask} />
         ) : null}
+        <SystemPanel rows={diags} />
         <div className="board__voice">
           <p className="caption">{caption}</p>
         </div>

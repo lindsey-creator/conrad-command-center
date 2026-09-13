@@ -1,9 +1,14 @@
+import type { ReactNode } from 'react';
+import { googleConnectUrl, whoopConnectUrl } from '../api/brain';
 import { WHOOP_LOW_RECOVERY, type WhoopDay } from './whoop';
+import type { CalendarWeek } from './useCalendarWeek';
 
 interface IdleDeckProps {
   brainOnline: boolean;
   whoop: WhoopDay;
+  calendar: CalendarWeek;
   onAsk: (command: string) => void;
+  children?: ReactNode;
 }
 
 function recWord(day: WhoopDay) {
@@ -30,9 +35,33 @@ const DASH: { label: string; text: string }[] = [
 ];
 
 /** V2 Idle — WHOOP gauges, Arc, filled Cybertruck, claimed distance. */
-export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
+export function IdleDeck({ brainOnline, whoop, calendar, onAsk, children }: IdleDeckProps) {
   return (
     <section className="idle-deck idle-deck--v2" aria-label="Idle Cybertruck HUD">
+      <aside className="idle-cal" aria-label="Google Calendar">
+        <p className="idle-deck__kicker">CALENDAR</p>
+        <p className="idle-deck__sub">GOOGLE · WEEK</p>
+        {calendar.proven ? (
+          <ol className="idle-cal__list">
+            {calendar.events.map((ev) => (
+              <li key={`${ev.title}-${ev.when}`}>
+                <b>{ev.title}</b>
+                {ev.when ? <em>{ev.when}</em> : null}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="idle-cal__empty">
+            {brainOnline ? 'CONNECT · no invented events' : 'BRAIN STANDBY'}
+          </p>
+        )}
+        {!calendar.proven ? (
+          <a className="idle-cal__connect" href={googleConnectUrl()}>
+            CONNECT GOOGLE
+          </a>
+        ) : null}
+      </aside>
+
       <button type="button" className="idle-deck__whoop idle-deck__whoop--gauges" onClick={() => onAsk('Protect my calendar and WHOOP day.')}>
         <p className="idle-deck__kicker">WHOOP</p>
         <p className="idle-deck__sub">DAY ORBIT</p>
@@ -56,14 +85,18 @@ export function IdleDeck({ brainOnline, whoop, onAsk }: IdleDeckProps) {
             <u>{whoop.proven && whoop.strain != null ? 'PROVEN' : 'CLAIMED'}</u>
           </b>
         </span>
+        {!whoop.proven ? (
+          <a className="idle-cal__connect" href={whoopConnectUrl()} onClick={(e) => e.stopPropagation()}>
+            CONNECT WHOOP
+          </a>
+        ) : (
+          <p className="idle-deck__sub">{whoop.verdict}</p>
+        )}
       </button>
 
       <div className="idle-deck__stage">
         <div className="idle-deck__reactor" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-          <b />
+          {children}
         </div>
         <p className="idle-deck__ready">TALK MODE READY</p>
         <figure className="idle-deck__beast">

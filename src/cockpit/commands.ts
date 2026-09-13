@@ -3,6 +3,7 @@ export const COMMANDS = [
   { id: 'leak', label: "What's leaking?", text: "What's leaking?", mutate: false },
   { id: 'put', label: 'Put [X] on [board]', text: 'Put [X] on [board/meeting]', mutate: false },
   { id: 'sharpen', label: 'Sharpen [X]', text: 'Have Rhino sharpen [X]', mutate: false },
+  { id: 'defense', label: 'Defense protocol', text: 'Defense protocol', mutate: false },
   { id: 'go', label: 'Go/approve Type-1', text: 'Go/approve Type-1', mutate: true },
 ] as const;
 

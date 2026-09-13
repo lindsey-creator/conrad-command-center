@@ -113,7 +113,7 @@ export function CommandDock({
     setText(query);
     setReply('');
     setThinking(true);
-    setBanner(brainOnline ? 'THINKING — Brain /chat' : 'THINKING — Brain /chat (health standby)');
+    setBanner(brainOnline ? 'THINKING — CLAUDE' : 'THINKING — CLAUDE (health standby)');
     voice.setThinking(true);
     onSubmit(query);
     setApprovalId(null);
@@ -128,12 +128,15 @@ export function CommandDock({
       }
       if (res.approval_id) setApprovalId(res.approval_id);
       const { line, fallback } = jarvisSpokenLine(res);
+      const connected = res.mode !== 'connect_source';
       await deliver(
         line,
-        fallback,
-        fallback
-          ? 'CLAIMED — Brain /chat fallback.'
-          : 'PROVEN — Brain /chat',
+        fallback || !connected,
+        !connected
+          ? 'CONNECT — no API key. Add it in Settings (Phase 2).'
+          : fallback
+            ? 'CLAIMED — Claude fallback.'
+            : 'PROVEN — CLAUDE',
       );
     } catch {
       await deliver(BRAIN_SILENT, true, 'CLAIMED — Brain /chat did not respond.');
@@ -270,13 +273,21 @@ export function CommandDock({
           {banner}
         </p>
       ) : null}
+      <p className="wispr__brain" aria-label="Live brain">
+        CLAUDE
+      </p>
       {reply ? (
         <p className="wispr__reply" data-testid="jarvis-reply" aria-live="polite">
           {reply}
         </p>
       ) : thinking ? (
         <p className="wispr__reply wispr__reply--think" data-testid="jarvis-thinking">
-          Thinking.
+          <span className="wispr__orbit" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          THINKING
         </p>
       ) : null}
       {draftEdit ? (
@@ -314,11 +325,18 @@ export function CommandDock({
           ref={ref}
           className="wispr__line"
           value={text}
-          placeholder="Direct the agent, sir — Auto vs GO…"
+          placeholder="Ask JARVIS — Enter executes on Claude"
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              voice.unlock();
+              void handleAsk();
+            }
+          }}
         />
         <button type="submit" className="wispr__go">
-          GO
+          EXECUTE
         </button>
         {lastSaid ? (
           <button

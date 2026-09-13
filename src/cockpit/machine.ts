@@ -166,6 +166,10 @@ export function railsForIntent(text: string): RailId[] {
   return rails;
 }
 
+export function isDefenseCommand(text: string): boolean {
+  return /\b(defense protocol|alert mode|crimson protocol|battle mode)\b/i.test(text);
+}
+
 export function isAlertIntent(raised: readonly string[]): boolean {
   return raised.includes('type1') || raised.includes('money') || raised.includes('leak');
 }

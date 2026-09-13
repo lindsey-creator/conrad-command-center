@@ -521,8 +521,17 @@ export const brain = {
   validationShadow: () => fetchJson<ShadowValidationResult>('/validation/shadow'),
   validationShadowBatch: (deals: Record<string, unknown>[]) =>
     postJson<ShadowValidationResult>('/validation/shadow', { deals }),
-  /** Goldfront-os POST /chat — Claude when ANTHROPIC_API_KEY is set. Never call a vendor from the glass. */
-  chat: (req: ChatRequest) => postJson<ChatResponse>('/chat', { message: req.message, ...(req.wants_draft ? { wants_draft: true } : {}), ...(req.deal ? { deal: req.deal } : {}) }, 40000),
+  /** Human-seat chat. POST /chat { message }. Never auto-sends. Never fakes a reply. */
+  chat: (req: ChatRequest) =>
+    postJson<ChatResponse>(
+      '/chat',
+      {
+        message: req.message,
+        ...(req.wants_draft ? { wants_draft: true } : {}),
+        ...(req.deal ? { deal: req.deal } : {}),
+      },
+      40000,
+    ),
   connectorsStatus: () => fetchJson<ConnectorsStatusResponse>('/connectors/status'),
   googleOAuthStatus: () => fetchJson<GoogleOAuthStatusResponse>('/connect/google/status'),
   googleOAuthConfig: (clientId: string, clientSecret: string) =>
