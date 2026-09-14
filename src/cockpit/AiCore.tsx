@@ -9,6 +9,7 @@ interface AiCoreProps {
   level?: number;
   compact?: boolean;
   status?: string;
+  onActivate?: () => void;
 }
 
 /**
@@ -24,6 +25,7 @@ export function AiCore({
   level = 0,
   compact = false,
   status = 'STANDBY',
+  onActivate,
 }: AiCoreProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef(0);
@@ -348,9 +350,23 @@ export function AiCore({
     };
   }, [listening, thinking, speaking, alert, compact, status]);
 
+  const body = <canvas ref={canvasRef} />;
+  if (onActivate) {
+    return (
+      <button
+        type="button"
+        className={`ai-core ai-core--hit${compact ? ' ai-core--compact' : ''}`}
+        onClick={onActivate}
+        aria-label="Talk to JARVIS"
+        data-testid="talk-core"
+      >
+        {body}
+      </button>
+    );
+  }
   return (
     <div className={`ai-core${compact ? ' ai-core--compact' : ''}`} aria-hidden="true">
-      <canvas ref={canvasRef} />
+      {body}
     </div>
   );
 }

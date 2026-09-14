@@ -23,6 +23,32 @@ export function recognitionCtor(): (new () => SpeechRecognition) | undefined {
   return window.SpeechRecognition ?? window.webkitSpeechRecognition;
 }
 
+export type SpeechDiagnosis =
+  | { ok: true }
+  | { ok: false; code: 'insecure' | 'mic-missing'; message: string };
+
+/** Honest preflight — never silent. Chrome STT needs HTTPS + webkitSpeechRecognition. */
+export function diagnoseSpeech(): SpeechDiagnosis {
+  if (typeof window === 'undefined') {
+    return { ok: false, code: 'mic-missing', message: 'NO WINDOW — speech cannot start.' };
+  }
+  if (!window.isSecureContext) {
+    return {
+      ok: false,
+      code: 'insecure',
+      message: 'INSECURE CONTEXT — open the HTTPS Railway URL. Chrome blocks the mic on HTTP.',
+    };
+  }
+  if (!recognitionCtor()) {
+    return {
+      ok: false,
+      code: 'mic-missing',
+      message: 'NO SPEECH ENGINE — use Chrome. Type and EXECUTE still reach Claude.',
+    };
+  }
+  return { ok: true };
+}
+
 /** Call synchronously inside a click/pointer handler. */
 export function unlockSpeech(): boolean {
   if (!speechReady()) return false;

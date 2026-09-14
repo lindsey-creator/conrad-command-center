@@ -2679,6 +2679,11 @@
   z-index: 1;
   pointer-events: none;
 }
+.rhino.mode-talk .arc-bay .ai-core--hit,
+.rhino.mode-talk .arc-bay .hud-wave,
+.rhino.mode-talk .arc-bay .arc-bay__type {
+  pointer-events: auto;
+}
 
 .rhino.mode-talk .talk-orb-wrap,
 .rhino.mode-talk .talk-orb,
@@ -2995,7 +3000,7 @@
 .rhino.is-speak-demo .wispr__chips,
 .rhino.is-speak-demo .wispr__lanes,
 .rhino.is-speak-demo .wispr__banner {
-  display: none;
+  display: block;
 }
 
 .rhino.is-shot .wispr__chips,
@@ -3462,6 +3467,62 @@
 .idle-cal { position: relative; z-index: 5; }
 .rhino.is-alert .arc-bay__type,
 .rhino.is-alert .j-top__mark strong { color: var(--j-red); text-shadow: 0 0 18px rgba(255, 60, 60, 0.5); }
+
+.j-comm__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--j-cyan);
+}
+.j-comm__head i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--j-cyan);
+  box-shadow: 0 0 8px var(--j-cyan);
+}
+.j-comm__head i.is-live {
+  background: var(--j-teal);
+  box-shadow: 0 0 10px var(--j-teal);
+  animation: status-pulse 1s ease-in-out infinite;
+}
+.j-comm__head em {
+  margin-left: auto;
+  font-style: normal;
+  opacity: 0.55;
+}
+
+.ai-core--hit {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  min-height: 0;
+  min-width: 0;
+}
+.ai-core--hit:focus-visible {
+  outline: 1px solid var(--j-teal);
+}
+
+.rhino.mode-talk .arc-bay {
+  pointer-events: none;
+}
+.rhino.mode-talk .arc-bay .ai-core--hit {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.wispr__speak,
+.wispr__go {
+  min-height: 48px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
 
 .board__voice { grid-area: cap; }
 

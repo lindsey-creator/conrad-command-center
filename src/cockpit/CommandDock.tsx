@@ -7,11 +7,13 @@ import { COMMANDS, needsConfirm } from './commands';
 import { BRAIN_SILENT, jarvisSpokenLine } from './talkReply';
 
 const ERR_COPY: Record<Exclude<VoiceError, null>, string> = {
-  'mic-denied': 'MIC BLOCKED — allow the microphone, or type and GO. JARVIS still speaks.',
-  'mic-missing': 'NO MIC ENGINE — type and GO. TTS still works in this browser.',
-  'rec-failed': 'LISTEN FAILED — type the command. SPEAK still talks back.',
+  'mic-denied': 'MIC BLOCKED — allow the microphone in Chrome, then click TALK again.',
+  'mic-missing': 'NO SPEECH ENGINE — use Chrome on this HTTPS URL. Type and EXECUTE still work.',
+  insecure: 'INSECURE CONTEXT — open https://jarvis-brain-production-8def.up.railway.app/ Chrome blocks the mic here.',
+  network: 'SPEECH NETWORK FAILED — Chrome dictation needs the network. Type the command.',
+  'rec-failed': 'LISTEN FAILED — click TALK again, or type and EXECUTE.',
   'tts-missing': 'NO TTS in this browser — captions still run.',
-  'tts-blocked': 'TTS BLOCKED — click SPEAK once to unlock voice, then GO again.',
+  'tts-blocked': 'TTS BLOCKED — click TALK once to unlock voice, then EXECUTE again.',
 };
 
 interface CommandDockProps {
@@ -20,6 +22,7 @@ interface CommandDockProps {
   listening: boolean;
   seed?: string;
   demoSpeak?: boolean;
+  armMic?: number;
   onWispr: () => void;
   onSubmit: (text: string) => void;
   onAnswer: (line: string, claimed: boolean) => void;
@@ -34,6 +37,7 @@ export function CommandDock({
   listening,
   seed,
   demoSpeak = false,
+  armMic = 0,
   onWispr,
   onSubmit,
   onAnswer,
@@ -46,7 +50,9 @@ export function CommandDock({
   const [approvalId, setApprovalId] = useState<string | null>(null);
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
   const [originalDraft, setOriginalDraft] = useState('');
-  const [banner, setBanner] = useState(demoSpeak ? 'CLICK SPEAK — hear JARVIS, then talk or type.' : '');
+  const [banner, setBanner] = useState(
+    demoSpeak ? 'CLICK TALK — microphone opens in this click. Speak, then I send it to Claude.' : '',
+  );
   const [pending, setPending] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [thinking, setThinking] = useState(false);
@@ -144,31 +150,12 @@ export function CommandDock({
   };
   askRef.current = handleAsk;
 
-  const onSpeakClick = async () => {
+  const beginListen = async () => {
     voice.unlock();
-    if (voice.voiceState === 'speaking') {
-      voice.stopSpeaking();
-      onWispr();
-      const barged = await voice.startListening();
-      if (barged === 'denied' || barged === 'missing') {
-        setBanner(ERR_COPY[barged === 'denied' ? 'mic-denied' : 'mic-missing']);
-        onVoiceState?.('error');
-      }
-      return;
-    }
-    if (demoSpeak && !text.trim() && !listening) {
-      const line = 'JARVIS online, sir.';
-      setLastSaid(line);
-      onAnswer(line, true);
-      onWispr();
-      await hear(line, false);
-      return;
-    }
-    if (voice.voiceState === 'listening') {
-      voice.stopListening();
-      return;
-    }
+    if (voice.voiceState === 'listening' || voice.voiceState === 'connecting') return;
+    if (voice.voiceState === 'speaking') voice.stopSpeaking();
     onWispr();
+    setBanner('LISTENING — speak now. End of phrase sends to Claude.');
     const result = await voice.startListening();
     if (result === 'denied') {
       setBanner(ERR_COPY['mic-denied']);
@@ -180,7 +167,8 @@ export function CommandDock({
       return;
     }
     if (result === 'missing') {
-      setBanner(ERR_COPY['mic-missing']);
+      const code = voice.voiceError && voice.voiceError !== 'rec-failed' ? voice.voiceError : 'mic-missing';
+      setBanner(ERR_COPY[code]);
       ref.current?.focus();
       const line = 'I cannot hear you. Type the command, sir.';
       setLastSaid(line);
@@ -189,6 +177,23 @@ export function CommandDock({
       await hear(line, false);
     }
   };
+
+  const onSpeakClick = async () => {
+    voice.unlock();
+    if (voice.voiceState === 'listening' || voice.voiceState === 'connecting') {
+      voice.stopListening();
+      setBanner('MIC CLOSED — click TALK to listen again.');
+      return;
+    }
+    await beginListen();
+  };
+
+  useEffect(() => {
+    if (!armMic) return;
+    void beginListen();
+    // beginListen is click-path; armMic is the reactor tap.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [armMic]);
 
   const speakLabel =
     voice.voiceState === 'listening'
@@ -203,12 +208,17 @@ export function CommandDock({
               ? 'ERROR'
               : voice.voiceState === 'disabled'
                 ? 'DISABLED'
-                : 'SPEAK';
+                : 'TALK';
 
   return (
-    <footer className={`wispr${talking ? ' wispr--talk' : ''} wispr--${voice.voiceState}`} data-wispr={voice.voiceState}>
+    <footer className={`wispr j-comm${talking ? ' wispr--talk' : ''} wispr--${voice.voiceState}`} data-wispr={voice.voiceState}>
+      <div className="j-comm__head">
+        <i className={voice.voiceState === 'listening' ? 'is-live' : ''} />
+        <span>COMM LINK — JARVIS v3.0</span>
+        <em>{voice.micSupported ? 'STT READY' : 'STT STANDBY'}</em>
+      </div>
       <p className={`wispr__state is-${voice.voiceState}`} aria-live="polite">
-        {speakLabel === 'SPEAK' ? '' : speakLabel}
+        {speakLabel === 'TALK' ? '' : speakLabel}
       </p>
       <p className="wispr__lanes" aria-label="Auto versus GO">
         <em>AUTO · drafts · research · assign · schedule · board</em>
@@ -314,6 +324,7 @@ export function CommandDock({
       >
         <button
           type="button"
+          data-testid="speak-button"
           className={`wispr__speak${listening || voice.voiceState === 'listening' ? ' is-hot' : ''}${voice.voiceState === 'speaking' ? ' is-say' : ''}${voice.voiceState === 'thinking' ? ' is-think' : ''}${voice.voiceState === 'connecting' ? ' is-link' : ''}${voice.voiceState === 'error' ? ' is-err' : ''}${voice.voiceState === 'disabled' ? ' is-off' : ''}`}
           aria-pressed={voice.voiceState === 'listening'}
           onClick={() => void onSpeakClick()}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WisprState } from '../cockpit/machine';
 import {
   cancelSpeech,
+  diagnoseSpeech,
   prefetchVoices,
   recognitionCtor,
   speakChunks,
@@ -11,7 +12,15 @@ import {
 } from './speechEngine';
 
 export type EchoVoiceState = WisprState;
-export type VoiceError = 'mic-denied' | 'mic-missing' | 'rec-failed' | 'tts-missing' | 'tts-blocked' | null;
+export type VoiceError =
+  | 'mic-denied'
+  | 'mic-missing'
+  | 'rec-failed'
+  | 'tts-missing'
+  | 'tts-blocked'
+  | 'insecure'
+  | 'network'
+  | null;
 
 interface UseEchoVoiceOptions {
   speakEnabled: boolean;
@@ -20,6 +29,10 @@ interface UseEchoVoiceOptions {
   onState?: (state: EchoVoiceState) => void;
 }
 
+/**
+ * Chrome STT: start() must run on the Speak click, and nothing else may
+ * hold getUserMedia at the same time. Navaneeth1324/jarvis-ai-assistant pattern.
+ */
 export function useEchoVoice({
   speakEnabled,
   onTranscript,
@@ -31,7 +44,7 @@ export function useEchoVoice({
   const [micSupported, setMicSupported] = useState(false);
   const [voiceError, setVoiceError] = useState<VoiceError>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const wantListenRef = useRef(false);
   const onTranscriptRef = useRef(onTranscript);
   const onFinalTranscriptRef = useRef(onFinalTranscript);
   const onStateRef = useRef(onState);
@@ -48,12 +61,15 @@ export function useEchoVoice({
   }, []);
 
   useEffect(() => {
+    const diag = diagnoseSpeech();
     const tts = speechReady();
-    const mic = !!recognitionCtor() || !!navigator.mediaDevices?.getUserMedia;
     setSpeechSupported(tts);
-    setMicSupported(mic);
+    setMicSupported(diag.ok);
     prefetchVoices();
-    if (!tts && !mic) setState('disabled');
+    if (diag.ok === false) {
+      setVoiceError(diag.code);
+      if (!tts) setState('disabled');
+    }
   }, [setState]);
 
   const stopSpeaking = useCallback(() => {
@@ -104,53 +120,52 @@ export function useEchoVoice({
   );
 
   const stopListening = useCallback(() => {
-    recognitionRef.current?.stop();
+    wantListenRef.current = false;
+    const rec = recognitionRef.current;
     recognitionRef.current = null;
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
+    try {
+      rec?.stop();
+    } catch {
+      /* already stopped */
+    }
     setVoiceState((s) => {
-      const next = s === 'listening' ? 'idle' : s;
+      const next = s === 'listening' || s === 'connecting' ? 'idle' : s;
       if (next !== s) onStateRef.current?.(next);
       return next;
     });
   }, []);
 
-  const startListening = useCallback(async (): Promise<'listening' | 'denied' | 'missing'> => {
+  const startListening = useCallback((): Promise<'listening' | 'denied' | 'missing'> => {
     unlockSpeech();
     stopSpeaking();
-    stopListening();
-    setState('connecting');
+
+    const diag = diagnoseSpeech();
+    if (diag.ok === false) {
+      setVoiceError(diag.code);
+      setState(diag.code === 'insecure' ? 'error' : 'error');
+      return Promise.resolve('missing');
+    }
 
     const Ctor = recognitionCtor();
-    if (!Ctor && !navigator.mediaDevices?.getUserMedia) {
-      setVoiceError('mic-missing');
-      setState('error');
-      return 'missing';
-    }
-
-    if (navigator.mediaDevices?.getUserMedia) {
-      try {
-        streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch {
-        setVoiceError('mic-denied');
-        setState('error');
-        return 'denied';
-      }
-    }
-
     if (!Ctor) {
       setVoiceError('mic-missing');
       setState('error');
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-      return 'missing';
+      return Promise.resolve('missing');
     }
 
+    try {
+      recognitionRef.current?.abort();
+    } catch {
+      /* ignore */
+    }
+    recognitionRef.current = null;
+
     const recognition = new Ctor();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
+    wantListenRef.current = true;
 
     recognition.onstart = () => {
       setVoiceError(null);
@@ -158,45 +173,81 @@ export function useEchoVoice({
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const last = event.results[event.results.length - 1];
-      const transcript = last[0]?.transcript?.trim() ?? '';
-      if (!transcript) return;
-      onTranscriptRef.current?.(transcript);
-      if (last.isFinal) onFinalTranscriptRef.current?.(transcript);
+      let interim = '';
+      let finalText = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const piece = event.results[i][0]?.transcript?.trim() ?? '';
+        if (!piece) continue;
+        if (event.results[i].isFinal) finalText = `${finalText} ${piece}`.trim();
+        else interim = `${interim} ${piece}`.trim();
+      }
+      const shown = finalText || interim;
+      if (shown) onTranscriptRef.current?.(shown);
+      if (finalText) {
+        wantListenRef.current = false;
+        try {
+          recognition.stop();
+        } catch {
+          /* ignore */
+        }
+        onFinalTranscriptRef.current?.(finalText);
+      }
     };
 
     recognition.onerror = (ev: Event) => {
       const code = 'error' in ev ? String((ev as SpeechRecognitionErrorEvent).error) : '';
+      if (code === 'aborted') return;
+      if (code === 'no-speech') {
+        if (wantListenRef.current) {
+          try {
+            recognition.start();
+          } catch {
+            /* already started */
+          }
+        }
+        return;
+      }
       recognitionRef.current = null;
+      wantListenRef.current = false;
       if (code === 'not-allowed' || code === 'service-not-allowed') setVoiceError('mic-denied');
-      else if (code !== 'aborted' && code !== 'no-speech') setVoiceError('rec-failed');
-      setState(code === 'aborted' || code === 'no-speech' ? 'idle' : 'error');
+      else if (code === 'network') setVoiceError('network');
+      else setVoiceError('rec-failed');
+      setState('error');
     };
 
     recognition.onend = () => {
-      recognitionRef.current = null;
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
+      if (wantListenRef.current && recognitionRef.current === recognition) {
+        try {
+          recognition.start();
+          return;
+        } catch {
+          /* fall through */
+        }
+      }
+      if (recognitionRef.current === recognition) recognitionRef.current = null;
       setVoiceState((s) => {
-        const next = s === 'listening' ? 'idle' : s;
+        const next = s === 'listening' || s === 'connecting' ? 'idle' : s;
         if (next !== s) onStateRef.current?.(next);
         return next;
       });
     };
 
     recognitionRef.current = recognition;
+    setState('connecting');
     try {
       recognition.start();
-      return 'listening';
+      return Promise.resolve('listening');
     } catch {
       setVoiceError('rec-failed');
       setState('error');
-      return 'missing';
+      wantListenRef.current = false;
+      recognitionRef.current = null;
+      return Promise.resolve('missing');
     }
-  }, [setState, stopListening, stopSpeaking]);
+  }, [setState, stopSpeaking]);
 
   const toggleListening = useCallback(() => {
-    if (voiceState === 'listening') {
+    if (voiceState === 'listening' || voiceState === 'connecting') {
       stopListening();
       return Promise.resolve('idle' as const);
     }
@@ -212,10 +263,15 @@ export function useEchoVoice({
 
   useEffect(() => {
     return () => {
+      wantListenRef.current = false;
       stopSpeaking();
-      stopListening();
+      try {
+        recognitionRef.current?.abort();
+      } catch {
+        /* ignore */
+      }
     };
-  }, [stopSpeaking, stopListening]);
+  }, [stopSpeaking]);
 
   useEffect(() => {
     if (!speechReady()) return;

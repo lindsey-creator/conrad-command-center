@@ -13,7 +13,6 @@ import { TopBar } from './TopBar';
 import { Type1Glass } from './Type1Glass';
 import { Waveform } from './Waveform';
 import {
-  ALL_INTENTS,
   WISPR_CAPTION,
   intentsForQuery,
   isAlertIntent,
@@ -45,9 +44,10 @@ interface CockpitProps {
 }
 
 export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
-  const shot = useMemo(() => queryFlag('talk'), []);
+  const talkOpen = useMemo(() => queryFlag('talk'), []);
   const idleShot = useMemo(() => queryFlag('idle'), []);
   const speakDemo = useMemo(() => queryFlag('speak'), []);
+  const shotLock = useMemo(() => queryFlag('shot'), []);
   const forcedWispr = useMemo(() => wisprFromSearch(), []);
   const pack = useHudPack();
   const whoop = useWhoopDay(brainOnline);
@@ -57,25 +57,24 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [tick, setTick] = useState(0);
   const [wake, setWake] = useState(false);
   const [booted, setBooted] = useState(true);
-  const [mode, setMode] = useState<DeckMode>(shot || speakDemo ? 'talk' : 'idle');
-  const [wispr, setWispr] = useState<WisprState>(
-    forcedWispr ?? (speakDemo ? 'speaking' : shot ? 'listening' : 'idle'),
-  );
-  const [armed, setArmed] = useState(shot && !forcedWispr);
+  const [mode, setMode] = useState<DeckMode>(talkOpen || speakDemo ? 'talk' : 'idle');
+  const [wispr, setWispr] = useState<WisprState>(forcedWispr ?? (speakDemo ? 'idle' : 'idle'));
+  const [armed, setArmed] = useState(false);
   const [defense, setDefense] = useState(queryFlag('alert'));
   const [caption, setCaption] = useState(
     forcedWispr
       ? WISPR_CAPTION[forcedWispr]
       : speakDemo
-        ? 'CLICK SPEAK — TTS demo.'
+        ? 'CLICK TALK — microphone opens on this click.'
         : '',
   );
   const [seed, setSeed] = useState<string | undefined>();
-  const [intents, setIntents] = useState<IntentId[]>(shot || speakDemo ? ALL_INTENTS : []);
-  const locked = shot || Boolean(forcedWispr);
+  const [armMic, setArmMic] = useState(0);
+  const [intents, setIntents] = useState<IntentId[]>([]);
+  const locked = shotLock;
   const scene = speakDemo
     ? 'speak-orb'
-    : mode === 'talk' || shot
+    : mode === 'talk' || talkOpen
       ? 'talk-mode'
       : pack === 'cybertruck'
         ? 'cybertruck-ultrawide'
@@ -123,6 +122,11 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
     setCaption(WISPR_CAPTION.listening);
     setIntents((cur) => (cur.length ? cur : ['type1']));
   }, [apply, locked]);
+
+  const requestListen = useCallback(() => {
+    enterListen();
+    setArmMic((n) => n + 1);
+  }, [enterListen]);
 
   const runTalk = useCallback(
     (q: string) => {
@@ -242,7 +246,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
   return (
     <div
-      className={`rhino is-scene scene-${scene} mode-${mode} motion-${motion} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shot || idleShot || speakDemo ? ' is-shot' : ''}${speakDemo ? ' is-speak-demo' : ''}${defense ? ' is-alert' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
+      className={`rhino is-scene scene-${scene} mode-${mode} motion-${motion} wispr-${wispr}${booted ? ' is-live' : ''}${wake ? ' is-wake' : ''}${shotLock || idleShot ? ' is-shot' : ''}${defense ? ' is-alert' : ''}${intents.map((id) => ` raise-${id}`).join('')}`}
       style={{
         ['--rms' as string]: String(level),
         ['--scene' as string]: `url(/hud-targets/v2/${scene}.png)`,
@@ -277,6 +281,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
               alert={defense}
               level={level}
               status={coreStatus}
+              onActivate={requestListen}
             />
           </IdleDeck>
         ) : null}
@@ -290,6 +295,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
               alert={defense}
               level={level}
               status={coreStatus}
+              onActivate={requestListen}
             />
             <Waveform level={level} live={wispr === 'listening' || wispr === 'speaking'} />
             <p className="arc-bay__type">{caption || 'J.A.R.V.I.S.'}</p>
@@ -313,6 +319,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         listening={wispr === 'listening'}
         seed={seed}
         demoSpeak={speakDemo}
+        armMic={armMic}
         onWispr={enterListen}
         onSubmit={runTalk}
         onVoiceState={onVoiceState}
