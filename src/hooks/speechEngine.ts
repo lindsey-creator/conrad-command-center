@@ -133,16 +133,33 @@ export function waitForVoices(): Promise<SpeechSynthesisVoice[]> {
   });
 }
 
+const ROBOT_VOICE =
+  /microsoft david|microsoft zira|alex\b|bad news|good news|bells|boing|bubbles|cellos|junior|kathy|organ|princess|ralph|trinoids|whisper|zarvox|dummy|reed|pipe/i;
+const NATURAL_VOICE =
+  /samantha|google us english|google english|enhanced|premium|neural|siri|nicky|allison|ava|zoe|susan|karen|moira|tessa|fiona|victoria|samantha/i;
+
+function voiceScore(v: SpeechSynthesisVoice): number {
+  const n = v.name.toLowerCase();
+  const lang = v.lang.toLowerCase();
+  if (ROBOT_VOICE.test(n)) return -50;
+  let s = 0;
+  if (/samantha/.test(n)) s += 100;
+  if (/google us english/.test(n)) s += 95;
+  if (/google/.test(n) && lang.startsWith('en-us')) s += 88;
+  if (NATURAL_VOICE.test(n)) s += 70;
+  if (lang.startsWith('en-us')) s += 22;
+  if (lang.startsWith('en')) s += 8;
+  if (!v.localService) s += 10;
+  return s;
+}
+
+/** Prefer Samantha / Google US / premium device voices. Never the robotic default if a better English voice exists. */
 export function pickVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined {
   if (cachedVoice && voices.some((v) => v.voiceURI === cachedVoice?.voiceURI)) return cachedVoice;
-  const preferred =
-    voices.find((v) => v.lang.toLowerCase().startsWith('en-gb') && /daniel|male|google uk/i.test(v.name)) ??
-    voices.find((v) => v.lang.toLowerCase().startsWith('en-gb')) ??
-    voices.find((v) => /daniel|google uk english male|uk english/i.test(v.name)) ??
-    voices.find((v) => v.lang.toLowerCase().startsWith('en') && !v.localService) ??
-    voices.find((v) => v.lang.toLowerCase().startsWith('en'));
-  cachedVoice = preferred ?? null;
-  return preferred;
+  const en = voices.filter((v) => v.lang.toLowerCase().startsWith('en'));
+  const ranked = (en.length ? en : voices).slice().sort((a, b) => voiceScore(b) - voiceScore(a));
+  cachedVoice = ranked[0] ?? null;
+  return ranked[0];
 }
 
 export function prefetchVoices() {

@@ -241,10 +241,14 @@ export interface ChatDealFields {
   other_costs?: number;
 }
 
+export type ChatModel = 'claude' | 'grok';
+
 export interface ChatRequest {
   message: string;
   wants_draft?: boolean;
   deal?: ChatDealFields;
+  /** Only send 'grok' when Brain reports xai. Never fake a Grok reply. */
+  model?: ChatModel;
 }
 
 export interface ChatResponse {
@@ -343,6 +347,9 @@ export interface HealthResponse {
   status: string;
   service: string;
   command?: string;
+  /** True when Brain has XAI_API_KEY. Absent on older brains. */
+  xai?: boolean;
+  models?: string[];
 }
 
 export interface InboxRadarItem {
@@ -456,15 +463,26 @@ async function fetchJsonOrConnect<T extends { status?: string; sources?: string[
   return res.json() as Promise<T>;
 }
 
-async function postJson<T>(path: string, body: unknown, timeoutMs?: number): Promise<T> {
+const CHAT_TIMEOUT_MS = 90_000;
+
+async function postJson<T>(
+  path: string,
+  body: unknown,
+  timeoutMs: number = CHAT_TIMEOUT_MS,
+  external?: AbortSignal,
+): Promise<T> {
   const ctrl = new AbortController();
-  const timer = timeoutMs ? globalThis.setTimeout(() => ctrl.abort(), timeoutMs) : 0;
+  const timer = globalThis.setTimeout(() => ctrl.abort(), timeoutMs);
+  const onParent = () => ctrl.abort();
+  external?.addEventListener('abort', onParent);
   try {
     const res = await fetch(`${getBase()}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       signal: ctrl.signal,
+      cache: 'no-store',
+      keepalive: true,
     });
     if (!res.ok) {
       const detail = await res.text().catch(() => '');
@@ -481,7 +499,8 @@ async function postJson<T>(path: string, body: unknown, timeoutMs?: number): Pro
     }
     throw e;
   } finally {
-    if (timer) globalThis.clearTimeout(timer);
+    globalThis.clearTimeout(timer);
+    external?.removeEventListener('abort', onParent);
   }
 }
 
@@ -522,15 +541,17 @@ export const brain = {
   validationShadowBatch: (deals: Record<string, unknown>[]) =>
     postJson<ShadowValidationResult>('/validation/shadow', { deals }),
   /** Human-seat chat. POST /chat { message }. Never auto-sends. Never fakes a reply. */
-  chat: (req: ChatRequest) =>
+  chat: (req: ChatRequest, signal?: AbortSignal) =>
     postJson<ChatResponse>(
       '/chat',
       {
         message: req.message,
         ...(req.wants_draft ? { wants_draft: true } : {}),
         ...(req.deal ? { deal: req.deal } : {}),
+        ...(req.model === 'grok' ? { model: 'grok' } : {}),
       },
-      40000,
+      CHAT_TIMEOUT_MS,
+      signal,
     ),
   connectorsStatus: () => fetchJson<ConnectorsStatusResponse>('/connectors/status'),
   googleOAuthStatus: () => fetchJson<GoogleOAuthStatusResponse>('/connect/google/status'),

@@ -41,10 +41,11 @@ function queryFlag(name: string): boolean {
 
 interface CockpitProps {
   brainOnline: boolean;
+  xaiReady?: boolean;
   onConnect: (source?: string) => void;
 }
 
-export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
+export function Cockpit({ brainOnline, xaiReady = false, onConnect }: CockpitProps) {
   const talkOpen = useMemo(() => queryFlag('talk'), []);
   const idleShot = useMemo(() => queryFlag('idle'), []);
   const speakDemo = useMemo(() => queryFlag('speak'), []);
@@ -181,6 +182,9 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         apply({ type: 'disable' });
         setCaption(WISPR_CAPTION.disabled);
       }
+      if (state === 'idle') {
+        apply({ type: 'end' });
+      }
     },
     [apply, locked],
   );
@@ -316,6 +320,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
 
       <CommandDock
         brainOnline={brainOnline}
+        xaiReady={xaiReady}
         talking={mode === 'talk'}
         listening={wispr === 'listening'}
         seed={seed}

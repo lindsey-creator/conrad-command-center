@@ -3224,6 +3224,13 @@
   opacity: 0.55;
   font-style: normal;
 }
+.j-top__year {
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--j-cyan);
+  opacity: 1;
+}
 
 .j-top__mark {
   display: flex;
@@ -3526,18 +3533,115 @@
 
 .board__voice { grid-area: cap; }
 
-@media (max-width: 900px) {
-  .rhino.mode-idle .board,
-  .rhino.mode-talk .board {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'core'
-      'idle'
-      'agents'
-      'diags'
-      'type1'
-      'cap';
+.wispr__models {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+.wispr__model {
+  min-height: 48px;
+  min-width: 88px;
+  padding: 0 14px;
+  border: 1px solid rgba(0, 207, 255, 0.28);
+  background: transparent;
+  color: var(--j-cyan);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+.wispr__model.is-on {
+  border-color: var(--j-teal);
+  box-shadow: 0 0 16px rgba(0, 255, 247, 0.28);
+  color: #fff;
+}
+.wispr__model.is-off:not(.is-on) { opacity: 0.55; }
+.wispr__banner.is-think {
+  color: var(--j-cyan);
+  letter-spacing: 0.16em;
+}
+.rhino.wispr-thinking .caption,
+.rhino[data-wispr='thinking'] .caption {
+  color: var(--j-cyan);
+}
+
+@media (max-width: 900px), (orientation: portrait) and (max-width: 1100px) {
+  .rhino {
+    grid-template-rows: 52px minmax(0, 1fr) auto;
+    overflow: hidden;
   }
-  .agent-panel, .system-panel { max-height: 28vh; overflow: auto; }
+  .rhino.mode-talk .job-rail,
+  .rhino.mode-talk .holo-rail,
+  .rhino.mode-talk .agent-panel,
+  .rhino.mode-talk .system-panel,
+  .rhino.mode-talk .t1glass,
+  .rhino.mode-talk .board__voice,
+  .rhino.mode-talk .arc-bay__floor,
+  .rhino.mode-talk .hud-wave,
+  .rhino.mode-talk .wispr__state,
+  .rhino.mode-talk .wispr__lanes,
+  .rhino.mode-talk .wispr__chips {
+    display: none !important;
+  }
+  .rhino.mode-talk .board,
+  .rhino.mode-idle .board {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'core';
+    min-height: 0;
+  }
+  .rhino.mode-talk .arc-bay {
+    min-height: 0;
+    height: auto;
+    max-height: 46vh;
+  }
+  .j-top {
+    grid-template-columns: 1fr auto;
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  .j-top__right em,
+  .j-top__mark u { display: none; }
+  .j-top__clock { min-width: 0; }
+  .j-top__clock b { font-size: 15px; }
+  .j-top__year {
+    display: inline;
+    font-size: 12px;
+  }
+  .wispr {
+    padding: 8px 12px max(12px, env(safe-area-inset-bottom));
+    background: rgba(6, 12, 24, 0.88);
+  }
+  .wispr__bar {
+    display: grid;
+    grid-template-columns: minmax(48px, auto) 1fr minmax(96px, auto);
+    gap: 8px;
+    align-items: stretch;
+  }
+  .wispr__speak,
+  .wispr__go,
+  .wispr__end,
+  .wispr__hear,
+  .wispr__model,
+  .wispr__line {
+    min-height: 48px;
+  }
+  .wispr__end,
+  .wispr__hear {
+    grid-column: 1 / -1;
+  }
+  .wispr__banner {
+    font-size: 13px;
+    margin: 0 0 8px;
+  }
+  .wispr__reply {
+    max-height: 18vh;
+    overflow: auto;
+    font-size: 15px;
+    margin: 0 0 8px;
+  }
+  .rhino button {
+    min-height: 48px;
+    min-width: 48px;
+  }
 }
 

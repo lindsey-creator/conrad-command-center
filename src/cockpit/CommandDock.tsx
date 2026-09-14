@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { brain } from '../api/brain';
+import { brain, type ChatModel } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState, type VoiceError } from '../hooks/useEchoVoice';
 import { warmSpeech } from '../hooks/speechEngine';
 import { ApprovalQueuePanel } from '../components/ApprovalQueuePanel';
 import { COMMANDS, needsConfirm } from './commands';
 import { BRAIN_SILENT, jarvisSpokenLine } from './talkReply';
+
+const GROK_OFF =
+  'GROK STANDBY — add XAI_API_KEY in Settings / Railway. Claude still answers.';
 
 const ERR_COPY: Record<Exclude<VoiceError, null>, string> = {
   'mic-denied': 'MIC BLOCKED — allow the microphone in Chrome, then click TALK again.',
@@ -18,6 +21,7 @@ const ERR_COPY: Record<Exclude<VoiceError, null>, string> = {
 
 interface CommandDockProps {
   brainOnline: boolean;
+  xaiReady?: boolean;
   talking: boolean;
   listening: boolean;
   seed?: string;
@@ -34,6 +38,7 @@ interface CommandDockProps {
 
 export function CommandDock({
   brainOnline,
+  xaiReady = false,
   talking,
   listening,
   seed,
@@ -60,8 +65,12 @@ export function CommandDock({
   const [pending, setPending] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [thinking, setThinking] = useState(false);
+  const [waitSec, setWaitSec] = useState(0);
+  const [lane, setLane] = useState<ChatModel>('claude');
   const ref = useRef<HTMLInputElement>(null);
   const askRef = useRef<(q?: string) => Promise<void>>(async () => {});
+  const chatAbort = useRef<AbortController | null>(null);
+  const askGen = useRef(0);
 
   const handleTranscript = useCallback((line: string) => setText(line), []);
   const handleFinal = useCallback((line: string) => {
@@ -91,6 +100,22 @@ export function CommandDock({
     if (!thinking) return;
     return warmSpeech();
   }, [thinking]);
+
+  useEffect(() => {
+    if (!thinking) {
+      setWaitSec(0);
+      return;
+    }
+    const t0 = Date.now();
+    const id = window.setInterval(() => setWaitSec(Math.floor((Date.now() - t0) / 1000)), 250);
+    return () => window.clearInterval(id);
+  }, [thinking]);
+
+  useEffect(() => {
+    if (!thinking) return;
+    const who = lane === 'grok' && xaiReady ? 'GROK' : 'CLAUDE';
+    setBanner(`THINKING — ${who} · ${waitSec}s`);
+  }, [thinking, waitSec, lane, xaiReady]);
 
   const hear = async (line: string, sink = false) => {
     voice.unlock();
@@ -123,20 +148,34 @@ export function CommandDock({
       setBanner('CONFIRM on glass — nothing executes yet.');
       return;
     }
+    const useGrok = lane === 'grok' && xaiReady;
+    if (lane === 'grok' && !xaiReady) {
+      setBanner(GROK_OFF);
+    }
     setPending(null);
     voice.stopSpeaking();
     setText(query);
     setReply('');
     setThinking(true);
-    setBanner(brainOnline ? 'THINKING — CLAUDE' : 'THINKING — CLAUDE (health standby)');
+    const who = useGrok ? 'GROK' : 'CLAUDE';
+    setBanner(brainOnline ? `THINKING — ${who} · 0s` : `THINKING — ${who} · health standby`);
     voice.setThinking(true);
     onSubmit(query);
     setApprovalId(null);
     setDraftEdit(null);
     setOriginalDraft('');
 
+    chatAbort.current?.abort();
+    const ac = new AbortController();
+    chatAbort.current = ac;
+    const gen = ++askGen.current;
+
     try {
-      const res = await brain.chat({ message: query });
+      const res = await brain.chat(
+        { message: query, ...(useGrok ? { model: 'grok' as const } : {}) },
+        ac.signal,
+      );
+      if (gen !== askGen.current) return;
       if (res.draft) {
         setDraftEdit(res.draft);
         setOriginalDraft(res.draft);
@@ -144,17 +183,31 @@ export function CommandDock({
       if (res.approval_id) setApprovalId(res.approval_id);
       const { line, fallback } = jarvisSpokenLine(res);
       const connected = res.mode !== 'connect_source';
+      const provenWho = res.mode === 'grok' ? 'GROK' : 'CLAUDE';
       await deliver(
         line,
         fallback || !connected,
         !connected
-          ? 'CONNECT — no API key. Add it in Settings (Phase 2).'
+          ? 'CONNECT — no API key. Add it in Settings / Railway.'
           : fallback
-            ? 'CLAIMED — Claude fallback.'
-            : 'PROVEN — CLAUDE',
+            ? `CLAIMED — ${provenWho} fallback.`
+            : `PROVEN — ${provenWho}`,
       );
-    } catch {
-      await deliver(BRAIN_SILENT, true, 'CLAIMED — Brain /chat did not respond.');
+    } catch (err) {
+      if (gen !== askGen.current) return;
+      const timed = err instanceof Error && /timed out/i.test(err.message);
+      await deliver(
+        BRAIN_SILENT,
+        true,
+        timed
+          ? 'CLAIMED — Brain /chat timed out. Try again, or a shorter question.'
+          : 'CLAIMED — Brain /chat did not respond.',
+      );
+    } finally {
+      if (gen === askGen.current) {
+        voice.setThinking(false);
+        setThinking(false);
+      }
     }
   };
   askRef.current = handleAsk;
@@ -280,25 +333,36 @@ export function CommandDock({
         </p>
       ) : null}
       {banner ? (
-        <p className={`wispr__banner${voice.voiceError || thinking ? ' is-warn' : ''}`} role="status">
+        <p className={`wispr__banner${voice.voiceError ? ' is-warn' : ''}${thinking ? ' is-think' : ''}`} role="status">
           {banner}
         </p>
       ) : null}
-      <p className="wispr__brain" aria-label="Live brain">
-        CLAUDE
-      </p>
+      <div className="wispr__models" role="radiogroup" aria-label="Model">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={lane === 'claude'}
+          className={`wispr__model${lane === 'claude' ? ' is-on' : ''}`}
+          onClick={() => setLane('claude')}
+        >
+          CLAUDE
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={lane === 'grok'}
+          className={`wispr__model${lane === 'grok' ? ' is-on' : ''}${xaiReady ? '' : ' is-off'}`}
+          onClick={() => {
+            setLane('grok');
+            if (!xaiReady) setBanner(GROK_OFF);
+          }}
+        >
+          GROK
+        </button>
+      </div>
       {reply ? (
         <p className="wispr__reply" data-testid="jarvis-reply" aria-live="polite">
           {reply}
-        </p>
-      ) : thinking ? (
-        <p className="wispr__reply wispr__reply--think" data-testid="jarvis-thinking">
-          <span className="wispr__orbit" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          THINKING
         </p>
       ) : null}
       {draftEdit ? (

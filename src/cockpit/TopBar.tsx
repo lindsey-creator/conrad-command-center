@@ -6,8 +6,18 @@ function pad(n: number, w = 2) {
   return String(n).padStart(w, '0');
 }
 
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
 function formatClock(d: Date) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+}
+
+/** Local calendar date — year is its own node so 2026 cannot clip into “2024”. */
+function formatLocalDate(d: Date) {
+  return {
+    day: `${pad(d.getDate())} ${MONTHS[d.getMonth()]}`,
+    year: String(d.getFullYear()),
+  };
 }
 
 function formatUptime(ms: number) {
@@ -33,7 +43,7 @@ export function TopBar({ brainOnline, mode, alert = false, onStack }: TopBarProp
     return () => window.clearInterval(id);
   }, []);
 
-  const date = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())}`;
+  const local = formatLocalDate(now);
 
   return (
     <header className="rhino-top j-top">
@@ -41,7 +51,11 @@ export function TopBar({ brainOnline, mode, alert = false, onStack }: TopBarProp
         <span>SYS.CLOCK</span>
         <b>{formatClock(now)}</b>
         <em>
-          {date} — UPTIME {formatUptime(Date.now() - BOOT)}
+          <time dateTime={now.toISOString()}>
+            {local.day} <strong className="j-top__year">{local.year}</strong>
+          </time>
+          {' — UPTIME '}
+          {formatUptime(Date.now() - BOOT)}
         </em>
       </div>
       <div className="j-top__mark">

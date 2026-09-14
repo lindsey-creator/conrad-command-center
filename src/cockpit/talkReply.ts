@@ -13,7 +13,7 @@ export const BRAIN_SILENT = 'Sir, the brain did not respond.';
  */
 export function isChatFallback(res: ChatResponse | null | undefined): boolean {
   if (!res) return true;
-  if (res.mode === 'fallback') return true;
+  if (res.mode === 'fallback' || res.mode === 'error') return true;
   return !res.answer?.trim();
 }
 
