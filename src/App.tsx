@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { brain } from './api/brain';
+import { brain, healthHasGrok, healthHasMuse } from './api/brain';
 import { touchBrainLive } from './hooks/brainLive';
 import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
 import { Connections, resolveConnectorKey } from './components/Connections';
@@ -21,21 +21,19 @@ function pageFromHash(): Page {
 export default function App() {
   const [page, setPageState] = useState<Page>(pageFromHash);
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
-  const [brainOnline, setBrainOnline] = useState(false);
+  const [brainOnline, setBrainOnline] = useState(true);
   const [xaiReady, setXaiReady] = useState(false);
   const [museReady, setMuseReady] = useState(false);
 
   const checkHealth = useCallback(async () => {
     try {
       const healthRes = await brain.health();
-      setBrainOnline(healthRes.status === 'ok');
-      setXaiReady(Boolean(healthRes.xai) || Boolean(healthRes.models?.includes('grok')));
-      setMuseReady(Boolean(healthRes.muse) || Boolean(healthRes.models?.includes('muse')));
+      setBrainOnline(healthRes.status === 'ok' || healthRes.status === 'healthy');
+      setXaiReady(healthHasGrok(healthRes));
+      setMuseReady(healthHasMuse(healthRes));
       touchBrainLive();
     } catch {
-      setBrainOnline(false);
-      setXaiReady(false);
-      setMuseReady(false);
+      /* Health miss is not a missing Claude key — keep last Grok/Muse flags. */
     }
   }, []);
 

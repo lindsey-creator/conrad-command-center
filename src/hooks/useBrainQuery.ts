@@ -7,6 +7,8 @@ export interface BrainQueryOptions {
   /** Delay first fetch to stagger parallel module loads. */
   staggerMs?: number;
   refetchOnFocus?: boolean;
+  /** When false, do not fetch or poll (Talk Mode must not starve /chat). */
+  enabled?: boolean;
 }
 
 interface QueryState<T> {
@@ -22,12 +24,13 @@ function resolveOptions(
   options: number | BrainQueryOptions | undefined,
 ): Required<BrainQueryOptions> {
   if (typeof options === 'number') {
-    return { refreshMs: options, staggerMs: 0, refetchOnFocus: true };
+    return { refreshMs: options, staggerMs: 0, refetchOnFocus: true, enabled: true };
   }
   return {
     refreshMs: options?.refreshMs ?? POLL_MODULE_MS,
     staggerMs: options?.staggerMs ?? 0,
     refetchOnFocus: options?.refetchOnFocus ?? true,
+    enabled: options?.enabled ?? true,
   };
 }
 
@@ -36,7 +39,7 @@ export function useBrainQuery<T>(
   fetcher: () => Promise<T>,
   options?: number | BrainQueryOptions,
 ): QueryState<T> & { refresh: () => void } {
-  const { refreshMs, staggerMs, refetchOnFocus } = resolveOptions(options);
+  const { refreshMs, staggerMs, refetchOnFocus, enabled } = resolveOptions(options);
   const [offline, setOffline] = useState(
     () => typeof navigator !== 'undefined' && !navigator.onLine,
   );
@@ -95,6 +98,7 @@ export function useBrainQuery<T>(
   );
 
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     let interval: ReturnType<typeof setInterval> | undefined;
 
@@ -113,18 +117,19 @@ export function useBrainQuery<T>(
       clearTimeout(staggerTimer);
       if (interval) clearInterval(interval);
     };
-  }, [key, load, refreshMs, staggerMs]);
+  }, [enabled, key, load, refreshMs, staggerMs]);
 
   useEffect(() => {
-    if (!refetchOnFocus) return;
+    if (!enabled || !refetchOnFocus) return;
     const onVisibility = () => {
       if (document.visibilityState === 'visible') void load(true);
     };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [load, refetchOnFocus]);
+  }, [enabled, load, refetchOnFocus]);
 
   useEffect(() => {
+    if (!enabled) return;
     const onOnline = () => {
       setOffline(false);
       void load(true);
@@ -136,7 +141,7 @@ export function useBrainQuery<T>(
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
     };
-  }, [load]);
+  }, [enabled, load]);
 
   return { ...state, offline, refresh: () => void load() };
 }

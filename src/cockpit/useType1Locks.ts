@@ -15,24 +15,27 @@ export interface Type1Lock {
 }
 
 /** Three Type-1 locks only — one-line verdicts, never a table. */
-export function useType1Locks(brainOnline: boolean): Type1Lock[] {
+export function useType1Locks(brainOnline: boolean, poll = true): Type1Lock[] {
   const fetchWatch = useCallback(() => brain.watchlist(), []);
   const fetchMoves = useCallback(() => brain.topMoves(3), []);
   const fetchPulse = useCallback(() => brain.teamPulse(), []);
   const fetchBlind = useCallback(() => brain.blindspots(), []);
 
-  const watchlist = useBrainQuery('hud-watch', fetchWatch, { refreshMs: POLL_FAST_MS });
+  const watchlist = useBrainQuery('hud-watch', fetchWatch, { refreshMs: POLL_FAST_MS, enabled: poll });
   const topMoves = useBrainQuery('hud-moves', fetchMoves, {
     refreshMs: POLL_FAST_MS,
     staggerMs: POLL_STAGGER_MS,
+    enabled: poll,
   });
   const pulse = useBrainQuery('hud-pulse', fetchPulse, {
     refreshMs: POLL_FAST_MS,
     staggerMs: POLL_STAGGER_MS * 2,
+    enabled: poll,
   });
   const blinds = useBrainQuery('hud-blind', fetchBlind, {
     refreshMs: POLL_FAST_MS,
     staggerMs: POLL_STAGGER_MS * 3,
+    enabled: poll,
   });
 
   return useMemo<Type1Lock[]>(() => {

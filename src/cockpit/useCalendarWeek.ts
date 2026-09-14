@@ -43,9 +43,9 @@ export function parseCalendarWeek(data: ConnectSourceResponse | null | undefined
   return { status, proven, events: events.slice(0, 6) };
 }
 
-export function useCalendarWeek(brainOnline: boolean): CalendarWeek {
+export function useCalendarWeek(brainOnline: boolean, poll = true): CalendarWeek {
   const fetchWeek = useCallback(() => brain.weekAhead(), []);
-  const week = useBrainQuery('calendar-week', fetchWeek, { refreshMs: POLL_MODULE_MS });
+  const week = useBrainQuery('calendar-week', fetchWeek, { refreshMs: POLL_MODULE_MS, enabled: poll });
   return useMemo(() => {
     if (!brainOnline) return emptyCalendar('offline');
     return parseCalendarWeek(week.data);

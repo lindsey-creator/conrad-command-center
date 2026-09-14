@@ -15,11 +15,11 @@ function previewWhoop(): WhoopDay | null {
 }
 
 /** Brain `/health/metrics` first; `/whoop` if the health payload has no WHOOP fields. */
-export function useWhoopDay(brainOnline: boolean): WhoopDay {
+export function useWhoopDay(brainOnline: boolean, poll = true): WhoopDay {
   const fetchHealth = useCallback(() => brain.healthMetrics(), []);
   const fetchWhoop = useCallback(() => brain.whoopDay(), []);
-  const health = useBrainQuery('whoop-health', fetchHealth, { refreshMs: POLL_MODULE_MS });
-  const feed = useBrainQuery('whoop-day', fetchWhoop, { refreshMs: POLL_MODULE_MS, staggerMs: 350 });
+  const health = useBrainQuery('whoop-health', fetchHealth, { refreshMs: POLL_MODULE_MS, enabled: poll });
+  const feed = useBrainQuery('whoop-day', fetchWhoop, { refreshMs: POLL_MODULE_MS, staggerMs: 350, enabled: poll });
 
   return useMemo(() => {
     const preview = previewWhoop();

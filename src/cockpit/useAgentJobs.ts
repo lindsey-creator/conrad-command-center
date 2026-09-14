@@ -14,7 +14,7 @@ export interface JobChip {
 }
 
 /** Live PROVEN/CLAIMED for the top-7 jobs. Never invent a live chip. */
-export function useAgentJobs(brainOnline: boolean, locks: Type1Lock[]): JobChip[] {
+export function useAgentJobs(brainOnline: boolean, locks: Type1Lock[], poll = true): JobChip[] {
   const fetchBrief = useCallback(() => brain.dailyBrief(), []);
   const fetchGhl = useCallback(() => brain.ghlCrm(), []);
   const fetchWatch = useCallback(() => brain.watchlist(), []);
@@ -22,12 +22,12 @@ export function useAgentJobs(brainOnline: boolean, locks: Type1Lock[]): JobChip[
   const fetchWeek = useCallback(() => brain.weekAhead(), []);
   const fetchPlaud = useCallback(() => brain.audioRecent(8), []);
 
-  const brief = useBrainQuery('job-brief', fetchBrief, { refreshMs: POLL_MODULE_MS });
-  const ghl = useBrainQuery('job-ghl', fetchGhl, { refreshMs: POLL_FAST_MS, staggerMs: 120 });
-  const watch = useBrainQuery('job-watch', fetchWatch, { refreshMs: POLL_FAST_MS, staggerMs: 180 });
-  const pulse = useBrainQuery('job-pulse', fetchPulse, { refreshMs: POLL_FAST_MS, staggerMs: 240 });
-  const week = useBrainQuery('job-week', fetchWeek, { refreshMs: POLL_MODULE_MS, staggerMs: 280 });
-  const plaud = useBrainQuery('job-plaud', fetchPlaud, { refreshMs: POLL_MODULE_MS, staggerMs: 320 });
+  const brief = useBrainQuery('job-brief', fetchBrief, { refreshMs: POLL_MODULE_MS, enabled: poll });
+  const ghl = useBrainQuery('job-ghl', fetchGhl, { refreshMs: POLL_FAST_MS, staggerMs: 120, enabled: poll });
+  const watch = useBrainQuery('job-watch', fetchWatch, { refreshMs: POLL_FAST_MS, staggerMs: 180, enabled: poll });
+  const pulse = useBrainQuery('job-pulse', fetchPulse, { refreshMs: POLL_FAST_MS, staggerMs: 240, enabled: poll });
+  const week = useBrainQuery('job-week', fetchWeek, { refreshMs: POLL_MODULE_MS, staggerMs: 280, enabled: poll });
+  const plaud = useBrainQuery('job-plaud', fetchPlaud, { refreshMs: POLL_MODULE_MS, staggerMs: 320, enabled: poll });
 
   return useMemo(() => {
     const sched = hasLiveData(brief.data?.today_schedule) && (brief.data?.today_schedule.items?.length ?? 0) > 0;

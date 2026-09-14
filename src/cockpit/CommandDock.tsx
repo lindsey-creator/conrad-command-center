@@ -7,7 +7,7 @@ import { ApprovalQueuePanel } from '../components/ApprovalQueuePanel';
 import { COMMANDS, needsConfirm } from './commands';
 import { BRAIN_SILENT, jarvisSpokenLine } from './talkReply';
 
-const GROK_OFF = 'GROK STANDBY — add XAI_API_KEY in Settings / Railway.';
+const GROK_OFF = 'GROK STANDBY — Brain has no xAI route yet.';
 const MUSE_OFF = 'Muse link not connected — add Muse webhook/API on Brain.';
 const ERR_TIMEOUT = 'Brain timed out.';
 const ERR_NETWORK = 'Network error.';
@@ -201,16 +201,13 @@ export function CommandDock({
       }
       if (res.approval_id) setApprovalId(res.approval_id);
       const { line, fallback } = jarvisSpokenLine(res);
-      const connected = res.mode !== 'connect_source';
       const provenWho = res.mode === 'grok' ? 'GROK' : res.mode === 'muse' ? 'MUSE' : 'CLAUDE';
       paintAnswer(
         line,
-        fallback || !connected,
-        !connected
-          ? 'CONNECT — no API key. Add it in Settings / Railway.'
-          : fallback
-            ? `CLAIMED — ${provenWho} fallback.`
-            : `PROVEN — ${provenWho}`,
+        fallback,
+        fallback
+          ? `CLAIMED — ${provenWho} empty or fallback.`
+          : `PROVEN — ${provenWho}`,
       );
     } catch (err) {
       if (gen !== askGen.current) return;
@@ -370,6 +367,7 @@ export function CommandDock({
           onClick={() => setLane('claude')}
         >
           CLAUDE
+          <i>LIVE</i>
         </button>
         <button
           type="button"
@@ -382,6 +380,7 @@ export function CommandDock({
           }}
         >
           GROK
+          <i>{xaiReady ? 'LIVE' : 'STANDBY'}</i>
         </button>
         <button
           type="button"
@@ -394,6 +393,7 @@ export function CommandDock({
           }}
         >
           MUSE
+          <i>{museReady ? 'LIVE' : 'STANDBY'}</i>
         </button>
       </div>
       {reply ? (

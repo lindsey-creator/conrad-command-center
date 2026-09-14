@@ -3552,19 +3552,32 @@
 
 .wispr__models {
   display: flex;
-  gap: 8px;
-  margin: 0 0 8px;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 0 2px;
 }
 .wispr__model {
-  min-height: 48px;
-  min-width: 88px;
-  padding: 0 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 52px;
+  min-width: 0;
+  padding: 8px 10px;
   border: 1px solid rgba(0, 207, 255, 0.28);
   background: transparent;
   color: var(--j-cyan);
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.2em;
+}
+.wispr__model i {
+  font-style: normal;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  opacity: 0.7;
 }
 .wispr__model.is-on {
   border-color: var(--j-teal);
@@ -3605,16 +3618,18 @@
     grid-template-rows: minmax(0, 1fr);
     grid-template-areas: 'core';
     min-height: 0;
+    padding: 0 12px;
   }
   .rhino.mode-talk .arc-bay {
     min-height: 0;
     height: auto;
-    max-height: 46vh;
+    max-height: 34vh;
+    margin-bottom: 12px;
   }
   .j-top {
     grid-template-columns: 1fr auto;
-    padding: 6px 12px;
-    gap: 8px;
+    padding: 8px 14px;
+    gap: 10px;
   }
   .j-top__right em,
   .j-top__mark u { display: none; }
@@ -3625,14 +3640,28 @@
     font-size: 12px;
   }
   .wispr {
-    padding: 8px 12px max(12px, env(safe-area-inset-bottom));
-    background: rgba(6, 12, 24, 0.88);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    background: rgba(6, 12, 24, 0.92);
+  }
+  .j-comm__head { margin: 0; }
+  .wispr__banner {
+    font-size: 13px;
+    margin: 0;
+  }
+  .wispr__models {
+    gap: 12px;
+    margin: 0;
+    padding: 0;
   }
   .wispr__bar {
     display: grid;
-    grid-template-columns: minmax(48px, auto) 1fr minmax(96px, auto);
-    gap: 8px;
+    grid-template-columns: minmax(72px, auto) 1fr minmax(108px, auto);
+    gap: 12px;
     align-items: stretch;
+    margin: 0;
   }
   .wispr__speak,
   .wispr__go,
@@ -3642,21 +3671,23 @@
   .wispr__line {
     min-height: 48px;
   }
+  .wispr__line {
+    font-size: 16px;
+    padding: 0 10px;
+  }
   .wispr__end,
   .wispr__hear {
     grid-column: 1 / -1;
-  }
-  .wispr__banner {
-    font-size: 13px;
-    margin: 0 0 8px;
+    margin-top: 4px;
   }
   .wispr__reply,
   .wispr__answer p {
     font-size: 18px;
   }
   .wispr__answer {
-    max-height: 22vh;
-    margin: 0 0 8px;
+    max-height: 20vh;
+    margin: 0;
+    padding: 12px 14px;
   }
   .rhino button {
     min-height: 48px;

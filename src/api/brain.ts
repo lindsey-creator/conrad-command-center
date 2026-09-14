@@ -351,6 +351,27 @@ export interface HealthResponse {
   xai?: boolean;
   muse?: boolean;
   models?: string[];
+  keys?: Record<string, unknown>;
+}
+
+function truthyFlag(v: unknown): boolean {
+  return v === true || v === 1 || v === 'true' || v === '1';
+}
+
+export function healthHasGrok(h: HealthResponse | null | undefined): boolean {
+  if (!h) return false;
+  if (truthyFlag(h.xai)) return true;
+  if (h.models?.some((m) => /grok/i.test(m))) return true;
+  const keys = h.keys ?? {};
+  return truthyFlag(keys.xai) || truthyFlag(keys.XAI_API_KEY) || truthyFlag(keys.grok);
+}
+
+export function healthHasMuse(h: HealthResponse | null | undefined): boolean {
+  if (!h) return false;
+  if (truthyFlag(h.muse)) return true;
+  if (h.models?.some((m) => /muse|rhino/i.test(m))) return true;
+  const keys = h.keys ?? {};
+  return truthyFlag(keys.muse) || truthyFlag(keys.MUSE_API_KEY) || truthyFlag(keys.rhino);
 }
 
 export interface InboxRadarItem {
