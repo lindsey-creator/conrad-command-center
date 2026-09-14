@@ -1,5 +1,6 @@
 import {
   brain,
+  type ChatModel,
   type ChatResponse,
   type ConnectSourceResponse,
   type GhlCrmResponse,
@@ -102,6 +103,9 @@ function chatPayload(partial: Partial<ChatResponse> & { answer: string }): ChatR
 export async function runCommandIntent(
   text: string,
   wantsDraft = false,
+  /** Brain lane for the free-form paths. Type-1 chips are live Brain reads
+   *  and never touch a model, so the lane is irrelevant to them. */
+  model?: ChatModel,
 ): Promise<ChatResponse> {
   const intent = resolveCommandIntent(text, wantsDraft);
 
@@ -246,6 +250,7 @@ export async function runCommandIntent(
           const res = await brain.chat({
             message: text,
             wants_draft: true,
+            model,
           });
           return {
             ...res,
@@ -284,6 +289,7 @@ export async function runCommandIntent(
         return await brain.chat({
           message: text,
           wants_draft: wantsDraft,
+          model,
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Chat lane timed out';

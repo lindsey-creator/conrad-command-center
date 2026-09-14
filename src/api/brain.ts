@@ -241,10 +241,16 @@ export interface ChatDealFields {
   other_costs?: number;
 }
 
+/** Lanes the Brain's /chat router accepts. Claude is the default. */
+export const CHAT_MODELS = ['claude', 'chatgpt', 'gemini', 'grok', 'muse'] as const;
+export type ChatModel = (typeof CHAT_MODELS)[number];
+
 export interface ChatRequest {
   message: string;
   wants_draft?: boolean;
   deal?: ChatDealFields;
+  /** Omit to let the Brain default to Claude. */
+  model?: ChatModel;
 }
 
 export interface ChatResponse {
@@ -344,6 +350,9 @@ export interface HealthResponse {
   service: string;
   command?: string;
   glass?: string;
+  /** Per-lane key presence. Booleans only — the Brain never returns key values. */
+  engines?: Partial<Record<ChatModel, boolean>>;
+  models?: string[];
 }
 
 export interface HealthMetricsResponse {

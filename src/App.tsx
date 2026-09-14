@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { brain } from './api/brain';
+import { brain, type ChatModel } from './api/brain';
 import { touchBrainLive } from './hooks/brainLive';
 import { POLL_CONNECTORS_MS } from './hooks/brainPoll';
 import { CommandHeader } from './components/CommandHeader';
@@ -34,6 +34,8 @@ export default function App() {
   const [page, setPageState] = useState<Page>(pageFromHash);
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
+  // Per-lane key presence from /health — booleans only, never key values.
+  const [engines, setEngines] = useState<Partial<Record<ChatModel, boolean>>>();
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
   const { mode: hudMode, setMode: setHudMode } = useHudMode();
   const [clickupConnected, setClickupConnected] = useState(false);
@@ -49,6 +51,7 @@ export default function App() {
         brain.connectorsStatus().catch(() => null),
       ]);
       setBrainOnline(healthRes.status === 'ok');
+      setEngines(healthRes.engines);
       setClickupConnected(connectorsRes?.connectors?.clickup?.connected ?? false);
       setGmailConnected(connectorsRes?.connectors?.gmail?.connected ?? false);
       setGhlConnected(connectorsRes?.connectors?.ghl?.connected ?? false);
@@ -57,6 +60,7 @@ export default function App() {
       touchBrainLive();
     } catch {
       setBrainOnline(false);
+      setEngines(undefined);
     }
   }, []);
 
@@ -110,6 +114,7 @@ export default function App() {
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
           <EchoCommand
             brainOnline={brainOnline}
+            engines={engines}
             onVoiceStateChange={setVoiceState}
             onHudMode={setHudMode}
           />

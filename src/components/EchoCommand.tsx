@@ -1,16 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
+import {
+  brain,
+  type ChatDealFields,
+  type ChatModel,
+  type ChatResponse,
+} from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
 import { hudModeFromCommand, type HudMode } from '../hooks/useHudMode';
 import { useMicLevel } from '../hooks/useMicLevel';
 import { COMMAND_CHIPS, runCommandIntent } from '../utils/commandIntents';
 import { ApprovalQueuePanel } from './ApprovalQueuePanel';
 import { HudIcon } from './HudIcon';
+import { ModelChips } from './ModelChips';
 import { ReactorCore } from './ReactorCore';
 import './echo-command.css';
 
 interface EchoCommandProps {
   brainOnline?: boolean;
+  /** Per-lane key presence from GET /health — lights the brain chips. */
+  engines?: Partial<Record<ChatModel, boolean>>;
   onVoiceStateChange?: (state: EchoVoiceState) => void;
   /** Flip the deck's theme posture from a typed HUD command. */
   onHudMode?: (mode: HudMode) => void;
@@ -29,11 +37,33 @@ function voiceStatusLabel(state: EchoVoiceState): string | null {
   }
 }
 
+const MODEL_STORE = 'jarvis:chat-model';
+
 export function EchoCommand({
   brainOnline = false,
+  engines,
   onVoiceStateChange,
   onHudMode,
 }: EchoCommandProps) {
+  // Lane survives reloads so the deck reopens on the brain you last used.
+  const [model, setModel] = useState<ChatModel>(() => {
+    try {
+      const saved = localStorage.getItem(MODEL_STORE);
+      return (saved as ChatModel) || 'claude';
+    } catch {
+      return 'claude';
+    }
+  });
+
+  const selectModel = useCallback((next: ChatModel) => {
+    setModel(next);
+    try {
+      localStorage.setItem(MODEL_STORE, next);
+    } catch {
+      /* private mode — the in-memory choice still applies for this session */
+    }
+  }, []);
+
   const [message, setMessage] = useState('');
   const [wantsDraft, setWantsDraft] = useState(false);
   const [wantsTask, setWantsTask] = useState(false);
@@ -167,8 +197,9 @@ export function EchoCommand({
             message: query,
             wants_draft: wantsDraft,
             deal,
+            model,
           })
-        : await runCommandIntent(query, wantsDraft);
+        : await runCommandIntent(query, wantsDraft, model);
       setResponse(res);
       if (res.draft) setDraftEdit(res.draft);
       if (res.approval_id) setApprovalId(res.approval_id);
@@ -364,6 +395,13 @@ export function EchoCommand({
               </button>
             </div>
           </div>
+
+          <ModelChips
+            selected={model}
+            onSelect={selectModel}
+            engines={engines}
+            disabled={loading}
+          />
 
           <div className="echo-command__chips" role="group" aria-label="Command intents">
             {COMMAND_CHIPS.map((chip) => (

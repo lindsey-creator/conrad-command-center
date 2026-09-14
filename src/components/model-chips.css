@@ -1,0 +1,86 @@
+.model-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.model-chips__kicker {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-right: 4px;
+}
+
+.model-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  min-width: 0;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(var(--cyan-rgb), 0.2);
+  background: transparent;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.model-chip:hover:not(:disabled) {
+  color: var(--cyan);
+  border-color: rgba(var(--cyan-rgb), 0.45);
+  background: rgba(var(--cyan-rgb), 0.06);
+}
+
+.model-chip.is-active {
+  color: var(--teal);
+  border-color: rgba(var(--teal-rgb), 0.55);
+  background: rgba(var(--teal-rgb), 0.09);
+  text-shadow: 0 0 10px var(--teal-glow);
+}
+
+/* Selected lane keeps a running underline so the deck never sits still. */
+.model-chip.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 40%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  animation: nav-scan 2.4s linear infinite;
+}
+
+.model-chip__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--faint);
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+/* Key present. */
+.model-chip.is-live .model-chip__dot {
+  background: var(--teal);
+  box-shadow: 0 0 8px var(--teal-glow);
+  animation: status-pulse 2.6s ease-in-out infinite;
+}
+
+/* Confirmed keyless — dimmed, but still selectable so the Brain can say why. */
+.model-chip.is-dark { opacity: 0.55; }
+.model-chip.is-dark .model-chip__dot { background: var(--faint); box-shadow: none; }
+
+.model-chip:disabled { opacity: 0.35; cursor: not-allowed; }
+
+@media (max-width: 520px) {
+  .model-chip { font-size: 8.5px; letter-spacing: 0.1em; padding: 5px 8px; }
+  .model-chips__kicker { width: 100%; margin-bottom: 2px; }
+}
