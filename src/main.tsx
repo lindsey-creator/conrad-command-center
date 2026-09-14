@@ -7,3 +7,12 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+// Fade out the pre-bundle boot frame once React has painted.
+const boot = document.getElementById('boot');
+if (boot) {
+  requestAnimationFrame(() => {
+    boot.classList.add('is-done');
+    setTimeout(() => boot.remove(), 500);
+  });
+}

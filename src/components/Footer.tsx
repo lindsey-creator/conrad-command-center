@@ -9,15 +9,15 @@ export function Footer() {
       </div>
       <div className="legend">
         <span>
-          <i className="sw" style={{ background: 'var(--go)' }} />
+          <i className="sw" style={{ background: 'var(--go)', color: 'var(--go)' }} />
           on track
         </span>
         <span>
-          <i className="sw" style={{ background: 'var(--warn)' }} />
+          <i className="sw" style={{ background: 'var(--warn)', color: 'var(--warn)' }} />
           watch
         </span>
         <span>
-          <i className="sw" style={{ background: 'var(--crit)' }} />
+          <i className="sw" style={{ background: 'var(--crit)', color: 'var(--crit)' }} />
           critical
         </span>
       </div>

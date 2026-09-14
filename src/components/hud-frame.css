@@ -1,0 +1,185 @@
+/* Full-viewport Iron Man HUD chrome. Every layer here is decorative and
+   pointer-transparent — content lives above it inside #root > .wrap. */
+.hud-frame {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  color: rgba(0, 207, 255, 0.5);
+  contain: strict;
+}
+
+/* ── Holographic lab floor grid ───────────────────────────────────────── */
+.hud-frame__grid {
+  position: absolute;
+  inset: -40px;
+  background-image:
+    linear-gradient(rgba(0, 207, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 207, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(rgba(0, 255, 247, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 247, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 200px 200px, 200px 200px;
+  animation: hud-grid-drift 24s linear infinite;
+}
+
+@keyframes hud-grid-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(40px, 40px, 0); }
+}
+
+/* ── Radial vignette — pulls focus to the centre of the deck ──────────── */
+.hud-frame__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 85% 65% at 50% 42%,
+    transparent 28%,
+    rgba(4, 10, 24, 0.62) 78%,
+    rgba(3, 7, 16, 0.92) 100%
+  );
+}
+
+/* ── Travelling scan sweep ────────────────────────────────────────────── */
+.hud-frame__sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 140px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 207, 255, 0.035) 62%,
+    rgba(0, 255, 247, 0.16) 97%,
+    rgba(0, 255, 247, 0.5) 100%
+  );
+  animation: hud-sweep-down 7s linear infinite;
+  will-change: transform;
+}
+
+@keyframes hud-sweep-down {
+  0% { transform: translate3d(0, -140px, 0); opacity: 0; }
+  6% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { transform: translate3d(0, 100vh, 0); opacity: 0; }
+}
+
+/* ── Edge tick rails ──────────────────────────────────────────────────── */
+.hud-frame__rail {
+  position: absolute;
+  top: 14%;
+  bottom: 14%;
+  width: 5px;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(0, 207, 255, 0.45) 0 1px,
+    transparent 1px 14px
+  );
+  opacity: 0.5;
+  animation: hud-rail-pulse 4s ease-in-out infinite;
+}
+
+.hud-frame__rail--left { left: calc(4px + var(--safe-l)); }
+.hud-frame__rail--right { right: calc(4px + var(--safe-r)); }
+
+@keyframes hud-rail-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.2; }
+}
+
+/* ── Corner brackets ──────────────────────────────────────────────────── */
+.hud-frame__bracket {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  color: rgba(0, 207, 255, 0.55);
+  animation: hud-bracket-breathe 3.6s ease-in-out infinite;
+}
+
+.hud-frame--online .hud-frame__bracket { color: rgba(0, 255, 247, 0.7); }
+
+.hud-frame__bracket--tl { top: calc(6px + var(--safe-t)); left: calc(6px + var(--safe-l)); }
+.hud-frame__bracket--tr { top: calc(6px + var(--safe-t)); right: calc(6px + var(--safe-r)); transform: scaleX(-1); }
+.hud-frame__bracket--bl { bottom: calc(6px + var(--safe-b)); left: calc(6px + var(--safe-l)); transform: scaleY(-1); }
+.hud-frame__bracket--br { bottom: calc(6px + var(--safe-b)); right: calc(6px + var(--safe-r)); transform: scale(-1, -1); }
+
+@keyframes hud-bracket-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* ── Corner telemetry readouts ────────────────────────────────────────── */
+.hud-frame__readout {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.hud-frame__readout--tl { top: calc(12px + var(--safe-t)); left: calc(58px + var(--safe-l)); }
+.hud-frame__readout--tr { top: calc(12px + var(--safe-t)); right: calc(58px + var(--safe-r)); text-align: right; align-items: flex-end; }
+.hud-frame__readout--bl { bottom: calc(14px + var(--safe-b)); left: calc(58px + var(--safe-l)); }
+.hud-frame__readout--br { bottom: calc(14px + var(--safe-b)); right: calc(58px + var(--safe-r)); text-align: right; align-items: flex-end; }
+
+.hud-frame__code { color: rgba(0, 207, 255, 0.4); }
+
+.hud-frame__val {
+  color: rgba(0, 207, 255, 0.72);
+  text-shadow: 0 0 10px rgba(0, 207, 255, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-frame__val--live {
+  color: var(--teal);
+  text-shadow: 0 0 12px var(--teal-glow);
+  animation: echo-breathe 2.6s ease-in-out infinite;
+}
+
+/* ── CRT scanlines — sits above the frame but below all content ───────── */
+.hud-frame__scanlines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0 2px,
+    rgba(0, 0, 0, 0.28) 2px 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* Phones: drop the side rails and inner readouts so the deck keeps its
+   gutters, keep brackets + clock so it still reads as a HUD. */
+@media (max-width: 720px) {
+  .hud-frame__rail { display: none; }
+  .hud-frame__readout--bl,
+  .hud-frame__readout--br { display: none; }
+  .hud-frame__readout { font-size: 8px; letter-spacing: 0.16em; }
+  .hud-frame__readout--tl { left: calc(46px + var(--safe-l)); }
+  .hud-frame__readout--tr { right: calc(46px + var(--safe-r)); }
+  .hud-frame__bracket { width: 32px; height: 32px; }
+  .hud-frame__grid { background-size: 28px 28px, 28px 28px, 140px 140px, 140px 140px; }
+}
+
+/* Short landscape decks (Cybertruck, phone landscape): thin the chrome so
+   vertical space goes to content. */
+@media (max-height: 560px) and (orientation: landscape) {
+  .hud-frame__readout--bl,
+  .hud-frame__readout--br { display: none; }
+  .hud-frame__rail { top: 8%; bottom: 8%; }
+  .hud-frame__bracket { width: 30px; height: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-frame__sweep { display: none; }
+  .hud-frame__grid,
+  .hud-frame__rail,
+  .hud-frame__bracket,
+  .hud-frame__val--live { animation: none !important; }
+}

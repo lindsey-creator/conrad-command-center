@@ -1,9 +1,14 @@
-/* Full viewport command deck */
+/* Full viewport command deck.
+   Top/side padding clears the fixed HudFrame corner readouts and edge rails,
+   and every gutter respects the device safe area (notch, Cybertruck bezel). */
 .wrap {
   position: relative;
-  max-width: 1440px;
+  max-width: 1520px;
   margin: 0 auto;
-  padding: 12px 12px 48px;
+  padding-top: calc(52px + var(--safe-t));
+  padding-right: calc(20px + var(--safe-r));
+  padding-bottom: calc(64px + var(--safe-b));
+  padding-left: calc(20px + var(--safe-l));
 }
 
 .command-deck {
@@ -23,7 +28,10 @@
 
 @media (min-width: 820px) {
   .wrap {
-    padding: 14px 20px 56px;
+    padding-top: calc(56px + var(--safe-t));
+    padding-right: calc(30px + var(--safe-r));
+    padding-bottom: calc(72px + var(--safe-b));
+    padding-left: calc(30px + var(--safe-l));
   }
 
   .grid {
@@ -38,7 +46,10 @@
 
 @media (max-width: 520px) {
   .wrap {
-    padding: 10px 10px 40px;
+    padding-top: calc(44px + var(--safe-t));
+    padding-right: calc(14px + var(--safe-r));
+    padding-bottom: calc(48px + var(--safe-b));
+    padding-left: calc(14px + var(--safe-l));
   }
 
   .grid {
@@ -57,6 +68,7 @@
   padding: 20px;
   box-shadow: var(--shadow);
   min-height: 124px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -134,20 +146,23 @@
 
 .pill.crit {
   color: var(--crit);
-  border-color: rgba(232, 93, 4, 0.4);
-  background: rgba(232, 93, 4, 0.1);
+  border-color: rgba(255, 60, 60, 0.45);
+  background: rgba(255, 60, 60, 0.1);
+  text-shadow: 0 0 10px var(--ember-glow);
 }
 
 .pill.go {
   color: var(--go);
-  border-color: rgba(45, 184, 122, 0.4);
-  background: rgba(45, 184, 122, 0.1);
+  border-color: rgba(0, 255, 178, 0.4);
+  background: rgba(0, 255, 178, 0.08);
+  text-shadow: 0 0 10px var(--go-glow);
 }
 
 .pill.warn {
   color: var(--warn);
-  border-color: rgba(224, 184, 58, 0.4);
-  background: rgba(224, 184, 58, 0.1);
+  border-color: rgba(255, 181, 71, 0.42);
+  background: rgba(255, 181, 71, 0.08);
+  text-shadow: 0 0 10px rgba(255, 181, 71, 0.35);
 }
 
 .pill.stale {
@@ -169,11 +184,12 @@
 }
 
 .metric .n {
-  font-family: var(--font-sans);
-  font-size: 28px;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
   color: var(--ink);
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 16px rgba(0, 207, 255, 0.3);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
@@ -216,12 +232,13 @@
 }
 
 .move-item .dollars {
-  font-family: var(--font-sans);
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--gold-2);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--teal);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 16px var(--teal-glow);
 }
 
 .move-item .why {
@@ -232,7 +249,7 @@
 
 .approve-btn {
   background: transparent;
-  border: 1px solid rgba(45, 184, 122, 0.35);
+  border: 1px solid rgba(0, 255, 178, 0.35);
   color: var(--go);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
@@ -246,9 +263,9 @@
 }
 
 .approve-btn:hover:not(:disabled) {
-  background: rgba(45, 184, 122, 0.08);
-  border-color: rgba(45, 184, 122, 0.5);
-  box-shadow: 0 0 16px rgba(45, 184, 122, 0.1);
+  background: rgba(0, 255, 178, 0.1);
+  border-color: rgba(0, 255, 178, 0.55);
+  box-shadow: 0 0 20px rgba(0, 255, 178, 0.18);
 }
 
 .approve-btn:disabled {
@@ -261,7 +278,7 @@
   background: linear-gradient(
     90deg,
     var(--panel-solid) 20%,
-    rgba(212, 175, 55, 0.08) 50%,
+    rgba(0, 207, 255, 0.14) 50%,
     var(--panel-solid) 80%
   );
   background-size: 300% 100%;
@@ -300,8 +317,71 @@
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--cyan);
+  opacity: 0.75;
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Every section kicker trails a live rule that fades into the deck. */
+.section-kicker::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(0, 207, 255, 0.34), transparent);
+}
+
+
+/* ── HUD card chrome ──────────────────────────────────────────────────── */
+
+/* Corner brackets on every module card. */
+.card::before,
+.card::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-color: var(--cyan);
+  border-style: solid;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity var(--transition), border-color var(--transition);
+}
+
+.card::before { top: 4px; left: 4px; border-width: 1px 0 0 1px; }
+.card::after { bottom: 4px; right: 4px; border-width: 0 1px 1px 0; }
+
+.card:hover::before,
+.card:hover::after { opacity: 1; border-color: var(--teal); }
+
+.module-kicker {
+  color: var(--cyan);
+  opacity: 0.7;
+  letter-spacing: 0.24em;
+}
+
+.card .t { font-family: var(--font-display); letter-spacing: 0.1em; text-transform: uppercase; }
+
+.card .t .dot { animation: status-pulse 2.6s ease-in-out infinite; }
+
+.pill {
+  border-radius: 2px;
+  letter-spacing: 0.18em;
+}
+
+/* Short landscape decks (Cybertruck, phone landscape): tighten vertical
+   rhythm so more of the deck fits above the fold. */
+@media (max-height: 620px) and (orientation: landscape) {
+  .wrap { padding-top: calc(40px + var(--safe-t)); padding-bottom: calc(36px + var(--safe-b)); }
+  .card { min-height: 96px; padding: 14px; gap: 8px; }
+  .metric .n { font-size: 24px; }
+}
+
+/* Wide cockpit glass (Cybertruck 17in, desktop ultrawide): four columns. */
+@media (min-width: 1500px) {
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
 }

@@ -1,57 +1,76 @@
 :root {
-  /* JARVIS Command Center — BRAND.md: dark glass, restrained gold */
-  --bg: #0a0c10;
-  --bg-elevated: #12161d;
-  --panel: rgba(18, 22, 29, 0.72);
-  --panel-solid: #161b23;
-  --panel-2: #12161d;
-  --line: #232a34;
-  --line-strong: rgba(200, 162, 74, 0.28);
-  --ink: #eef2f7;
-  --muted: #8a95a5;
-  --faint: #5b6675;
+  /* ── JARVIS HUD — deep navy ground, electric cyan, teal ─────────────── */
+  --navy: #060c18;
+  --bg: #060c18;
+  --bg-elevated: #08142a;
+  --panel: rgba(4, 16, 36, 0.82);
+  --panel-solid: #07142c;
+  --panel-2: #050f22;
+  --line: rgba(0, 207, 255, 0.18);
+  --line-strong: rgba(0, 255, 247, 0.42);
+  --ink: #d5f2ff;
+  --muted: #7fb3cc;
+  --faint: #4a7d99;
 
-  --cyan: #5aa9ff;
-  --cyan-2: #7ab8ff;
-  --cyan-glow: rgba(90, 169, 255, 0.22);
-  --cyan-dim: rgba(90, 169, 255, 0.06);
+  /* Primary HUD light */
+  --cyan: #00cfff;
+  --cyan-2: #6fe4ff;
+  --cyan-glow: rgba(0, 207, 255, 0.5);
+  --cyan-dim: rgba(0, 207, 255, 0.12);
 
-  --gold: #c8a24a;
-  --gold-2: #d4b35a;
-  --gold-3: #e7c877;
-  --gold-glow: rgba(200, 162, 74, 0.22);
-  --gold-dim: rgba(200, 162, 74, 0.06);
-  --ivory: #eef2f7;
-  --ember: #ff5d5d;
-  --ember-glow: rgba(255, 93, 93, 0.28);
+  /* Teal is the second accent. The legacy --gold* names are kept as
+     aliases so every existing panel repaints without a rename sweep. */
+  --teal: #00fff7;
+  --teal-2: #7ffffb;
+  --teal-glow: rgba(0, 255, 247, 0.45);
+  --teal-dim: rgba(0, 255, 247, 0.1);
+  --gold: var(--teal);
+  --gold-2: var(--teal);
+  --gold-3: var(--teal-2);
+  --gold-glow: var(--teal-glow);
+  --gold-dim: var(--teal-dim);
 
-  --go: #3ecf8e;
-  --go-glow: rgba(62, 207, 142, 0.28);
-  --warn: #f5b53d;
-  --crit: #ff5d5d;
-  --info: #5aa9ff;
+  --ivory: #eaf9ff;
+  --ember: #ff3c3c;
+  --ember-glow: rgba(255, 60, 60, 0.45);
 
-  --radius: 8px;
-  --radius-sm: 4px;
+  --go: #00ffb2;
+  --go-glow: rgba(0, 255, 178, 0.4);
+  --warn: #ffb547;
+  --crit: #ff3c3c;
+  --info: var(--cyan);
+
+  --radius: 2px;
+  --radius-sm: 2px;
   --chamfer: 0px;
   --chamfer-lg: 0px;
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 16px 48px rgba(15, 25, 40, 0.45);
-  --shadow-hover: 0 0 24px var(--cyan-dim), 0 20px 56px rgba(15, 25, 40, 0.5);
-  --glass-blur: blur(16px);
+  --shadow:
+    0 0 22px rgba(0, 207, 255, 0.07),
+    inset 0 0 40px rgba(0, 207, 255, 0.035);
+  --shadow-hover:
+    0 0 32px rgba(0, 207, 255, 0.18),
+    inset 0 0 48px rgba(0, 207, 255, 0.06);
+  --glass-blur: blur(14px);
 
-  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: var(--font-sans);
-  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  --font-kicker: var(--font-sans);
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: 'Rajdhani', 'Oswald', 'Segoe UI', system-ui, sans-serif;
+  --font-sans: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: var(--font-display);
+  --font-kicker: var(--font-mono);
+  --font-mono: 'Share Tech Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --transition: 200ms var(--ease);
+  --transition: 180ms var(--ease);
 
   --hud-accent: var(--cyan);
   --hud-bracket: var(--cyan);
-  --hud-bracket-size: 0px;
-  --hud-bracket-weight: 0px;
+  --hud-bracket-size: 10px;
+  --hud-bracket-weight: 1px;
+
+  /* Safe-area aware gutters — iPhone notch, iPad, Cybertruck landscape */
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
 }
 
 * { box-sizing: border-box; }
@@ -62,11 +81,15 @@ html, body {
   background-color: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
 
+/* Ambient reactor bloom + holographic depth. The full HUD frame (grid,
+   vignette, scanlines, brackets, sweep) is painted by <HudFrame />. */
 body::before {
   content: '';
   position: fixed;
@@ -74,58 +97,107 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(0, 212, 255, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 12% 18%, rgba(200, 162, 74, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(8, 14, 22, 0.95) 0%, transparent 50%);
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.07;
-  background: repeating-linear-gradient(
-    180deg,
-    transparent 0,
-    transparent 3px,
-    rgba(0, 212, 255, 0.35) 3px,
-    rgba(0, 212, 255, 0.35) 4px
-  );
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(0, 207, 255, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 8% 22%, rgba(0, 255, 247, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 100% 105%, rgba(0, 207, 255, 0.08) 0%, transparent 55%);
+  animation: hud-bloom 9s ease-in-out infinite;
 }
 
 #root { position: relative; z-index: 1; }
 a { color: inherit; text-decoration: none; }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
 button {
   font: inherit;
+  font-family: var(--font-display);
   cursor: pointer;
   min-height: 44px;
   min-width: 44px;
-  transition: border-color var(--transition), color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
+  letter-spacing: 0.08em;
+  transition:
+    border-color var(--transition), color var(--transition),
+    background var(--transition), box-shadow var(--transition),
+    transform var(--transition);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 1px solid var(--teal);
+  outline-offset: 2px;
 }
 
 code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.92em;
   padding: 2px 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  background: rgba(0, 207, 255, 0.07);
   border: 1px solid var(--line);
   color: var(--cyan);
 }
 
-.wordmark-gold { color: var(--ink); font-weight: 600; letter-spacing: -0.01em; }
-.hud-corners, .rhino-chamfer { border-radius: var(--radius); }
-.hud-corners::before, .hud-corners::after { display: none; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(0, 207, 255, 0.04); }
+::-webkit-scrollbar-thumb { background: rgba(0, 207, 255, 0.28); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 207, 255, 0.55); }
+
+.wordmark-gold {
+  color: var(--cyan);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-shadow: 0 0 10px var(--cyan-glow), 0 0 24px rgba(0, 207, 255, 0.28);
+}
+
+/* ── HUD chrome primitives ──────────────────────────────────────────── */
+
+/* Corner brackets — the signature Iron Man panel tell. */
+.hud-corners, .rhino-chamfer {
+  position: relative;
+  border-radius: var(--radius);
+}
+
+.hud-corners::before,
+.hud-corners::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: var(--hud-bracket-size);
+  height: var(--hud-bracket-size);
+  border-color: var(--hud-bracket);
+  border-style: solid;
+  opacity: 0.75;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hud-corners::before {
+  top: -1px;
+  left: -1px;
+  border-width: var(--hud-bracket-weight) 0 0 var(--hud-bracket-weight);
+}
+
+.hud-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 var(--hud-bracket-weight) var(--hud-bracket-weight) 0;
+}
 
 .rhino-metal, .jarvis-glass {
+  position: relative;
   background: var(--panel);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid rgba(0, 212, 255, 0.16);
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 207, 255, 0.25);
+  box-shadow: var(--shadow);
   border-radius: var(--radius);
   transition: border-color var(--transition), box-shadow var(--transition);
 }
@@ -136,22 +208,63 @@ code {
 }
 
 .font-serif-name {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-style: italic;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Text glows */
+.hud-glow { color: var(--cyan); text-shadow: 0 0 8px var(--cyan-glow), 0 0 20px rgba(0, 207, 255, 0.3); }
+.hud-glow-teal { color: var(--teal); text-shadow: 0 0 8px var(--teal-glow), 0 0 20px rgba(0, 255, 247, 0.28); }
+
+/* Data readouts flicker like a live telemetry feed. */
+.hud-flicker { animation: hud-flicker 7s steps(1, end) infinite; }
+.hud-blink { animation: hud-blink 1.2s step-end infinite; }
+
+/* A light sweeps across the top edge of any panel carrying this class. */
+.hud-sweep::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  animation: hud-edge-sweep 5.5s var(--ease) infinite;
+  z-index: 2;
+}
+
+@keyframes hud-edge-sweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  12% { opacity: 0.9; }
+  70% { opacity: 0.9; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes hud-bloom {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.78; }
+}
+
+@keyframes hud-flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.45; }
+  98% { opacity: 1; }
+  99% { opacity: 0.7; }
+}
+
+@keyframes hud-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
 }
 
 @keyframes status-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 0.55; transform: scale(0.86); }
 }
 
 @keyframes slide-down {
@@ -160,13 +273,21 @@ code {
 }
 
 @keyframes tile-flash {
-  0% { box-shadow: 0 0 0 0 var(--cyan-glow); border-color: var(--cyan); }
-  100% { box-shadow: 0 0 24px var(--cyan-dim); border-color: var(--line); }
+  0% { box-shadow: 0 0 0 0 var(--cyan-glow); border-color: var(--teal); }
+  100% { box-shadow: var(--shadow); border-color: var(--line); }
 }
 
 .scan-tile--flash { animation: tile-flash 0.9s ease-out; }
 
 @keyframes echo-breathe {
   0%, 100% { opacity: 1; text-shadow: 0 0 12px var(--cyan-glow); }
-  50% { opacity: 0.75; text-shadow: 0 0 20px var(--cyan-glow); }
+  50% { opacity: 0.72; text-shadow: 0 0 22px var(--cyan-glow); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

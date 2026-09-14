@@ -11,11 +11,13 @@ import { EchoCommand } from './components/EchoCommand';
 import { FeedTheBrain } from './components/FeedTheBrain';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
+import { HudFrame } from './components/HudFrame';
 import { ModuleGrid } from './components/ModuleGrid';
 import { Nav, type Page } from './components/Nav';
 import { PendingApprovals } from './components/PendingApprovals';
 import { QuickRunStrip } from './components/QuickRunStrip';
 import type { EchoVoiceState } from './hooks/useEchoVoice';
+import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/layout.css';
 import './styles/feed.css';
@@ -95,6 +97,7 @@ export default function App() {
 
   return (
     <div className="wrap command-deck">
+      <HudFrame online={brainOnline} />
       <Header brainOnline={brainOnline} />
       <Nav page={page} onChange={setPage} />
       {page === 'dashboard' && (

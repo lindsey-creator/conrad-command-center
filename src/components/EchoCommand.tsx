@@ -3,7 +3,7 @@ import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
 import { COMMAND_CHIPS, runCommandIntent } from '../utils/commandIntents';
 import { ApprovalQueuePanel } from './ApprovalQueuePanel';
-import { LiveCore } from './LiveCore';
+import { ReactorCore } from './ReactorCore';
 import './echo-command.css';
 
 interface EchoCommandProps {
@@ -191,13 +191,24 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
       <div className="echo-command__mesh" aria-hidden="true" />
       <div className="echo-command__hero">
         <div className="echo-command__core-col">
-          <LiveCore
+          <ReactorCore
             state={displayState}
-            size="hero"
-            showParticles
+            size={200}
+            load={brainOnline ? 1 : 0}
             online={brainOnline}
             label={statusLabel ?? (brainOnline ? 'JARVIS live' : 'JARVIS standby')}
           />
+          <span className={`echo-command__core-label${brainOnline ? ' is-live' : ''}`}>
+            {displayState === 'listening'
+              ? 'LISTENING'
+              : displayState === 'speaking'
+                ? 'SPEAKING'
+                : displayState === 'thinking'
+                  ? 'PROCESSING'
+                  : brainOnline
+                    ? 'JARVIS LIVE'
+                    : 'STANDBY'}
+          </span>
         </div>
 
         <div className="echo-command__main-col">

@@ -1,32 +1,65 @@
 footer {
-  margin-top: 28px;
+  position: relative;
+  margin-top: 30px;
+  padding-top: 16px;
   text-align: center;
   color: var(--faint);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 
+/* Horizon rule with a light running along it. */
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 207, 255, 0.4), transparent);
+}
+
+footer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  width: 16%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  box-shadow: 0 0 10px var(--teal-glow);
+  animation: footer-run 7s linear infinite;
+}
+
+@keyframes footer-run {
+  from { transform: translateX(0); }
+  to { transform: translateX(500%); }
+}
+
 .footer__primary {
-  color: var(--muted);
+  color: var(--cyan);
+  opacity: 0.7;
 }
 
 .footer__cadence {
   margin-top: 6px;
-  font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   text-transform: none;
-  color: var(--gold);
-  opacity: 0.85;
+  color: var(--muted);
+  opacity: 0.7;
 }
 
 .legend {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 10px;
+  margin-top: 12px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
 }
 
 .legend span {
@@ -36,8 +69,10 @@ footer {
 }
 
 .sw {
-  width: 9px;
-  height: 9px;
-  border-radius: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
   display: inline-block;
+  box-shadow: 0 0 8px currentColor;
+  animation: status-pulse 3s ease-in-out infinite;
 }

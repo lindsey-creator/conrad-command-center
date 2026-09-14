@@ -3,7 +3,7 @@ import { brain } from '../api/brain';
 import { POLL_CONNECTORS_MS } from '../hooks/brainPoll';
 import { useBrainQuery } from '../hooks/useBrainQuery';
 import type { EchoVoiceState } from '../hooks/useEchoVoice';
-import { LiveCore } from './LiveCore';
+import { ReactorCore } from './ReactorCore';
 import './command-header.css';
 
 interface CommandHeaderProps {
@@ -61,7 +61,7 @@ export function CommandHeader({
     (voiceState === 'listening' || voiceState === 'speaking' || voiceState === 'thinking');
 
   return (
-    <section className="command-header hud-corners jarvis-glass" aria-label="Command status">
+    <section className="command-header hud-corners hud-sweep jarvis-glass" aria-label="Command status">
       <div className="command-header__mesh" aria-hidden="true" />
 
       <div className="command-strip">
@@ -86,7 +86,13 @@ export function CommandHeader({
       <div className="command-header__inner">
         <div className="command-header__identity">
           <div className="command-header__core-wrap">
-            <LiveCore state={voiceState} online={brainOnline} size="lg" label={statusLabel} />
+            <ReactorCore
+              state={voiceState}
+              online={brainOnline}
+              load={total > 0 ? connected / total : 0}
+              size={168}
+              label={statusLabel}
+            />
           </div>
           <div className="command-header__status-block">
             <span className="command-header__label">{statusLabel}</span>

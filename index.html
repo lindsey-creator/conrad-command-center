@@ -2,18 +2,83 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>JARVIS · Command Center</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a2332'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%2300d4ff' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%2300d4ff'/%3E%3C/svg%3E" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap"
-      rel="stylesheet"
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
+    <title>JARVIS · Command Center</title>
+    <meta
+      name="description"
+      content="JARVIS Command Center — Goldfront OS heads-up display for Conrad Mortgage."
+    />
+
+    <!-- Installable PWA: fullscreen, no browser chrome, same origin as the Brain -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#060C18" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="JARVIS" />
+    <meta name="application-name" content="JARVIS" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <link rel="icon" type="image/svg+xml" href="./icons/reactor.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+
+    <!-- Fonts are self-hosted (see src/styles/fonts.css) — no third-party
+         request, so the deck renders identically offline and in the PWA. -->
+    <link rel="preload" as="font" type="font/woff2" href="./fonts/rajdhani-700.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="./fonts/share-tech-mono-400.woff2" crossorigin />
+
+    <style>
+      /* Painted before the bundle parses so the boot frame is never white. */
+      html, body { background: #060c18; }
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        gap: 14px;
+        background: #060c18;
+        color: #00cfff;
+        font: 600 11px/1.6 'Share Tech Mono', ui-monospace, monospace;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        z-index: 999;
+        transition: opacity 420ms ease;
+      }
+      #boot[hidden] { display: none; }
+      #boot.is-done { opacity: 0; pointer-events: none; }
+      #boot .ring {
+        width: 74px;
+        height: 74px;
+        border: 1px solid rgba(0, 207, 255, 0.25);
+        border-top-color: #00fff7;
+        border-radius: 50%;
+        animation: boot-spin 1.1s linear infinite;
+        box-shadow: 0 0 26px rgba(0, 207, 255, 0.3);
+      }
+      @keyframes boot-spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
   <body>
+    <div id="boot">
+      <div class="ring"></div>
+      <div>Initialising JARVIS</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Service worker gives the deck offline shell + Chrome installability.
+      // Secure contexts only (Railway https, and localhost for local preview);
+      // `vite dev` serves no /sw.js, so the register simply no-ops there.
+      if ('serviceWorker' in navigator && window.isSecureContext) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('./sw.js').catch(function () {
+            /* PWA install is a bonus — never block the deck on it. */
+          });
+        });
+      }
+    </script>
   </body>
 </html>

@@ -1,63 +1,142 @@
 .top {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 4px 16px;
-  border-bottom: 1px solid var(--line);
-  position: relative;
+  padding: 10px 14px 14px;
+  margin-bottom: 12px;
+  background: linear-gradient(180deg, rgba(0, 207, 255, 0.05), transparent 70%);
+  border: 1px solid rgba(0, 207, 255, 0.16);
+  border-bottom-color: rgba(0, 207, 255, 0.34);
 }
 
+/* Live scan travelling along the header's bottom edge. */
 .top::after {
   content: '';
   position: absolute;
   bottom: -1px;
   left: 0;
-  width: 120px;
+  width: 34%;
   height: 1px;
-  background: linear-gradient(90deg, var(--gold), transparent);
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  box-shadow: 0 0 10px var(--teal-glow);
+  animation: top-edge-run 6s linear infinite;
 }
 
-.brand { display: flex; align-items: center; gap: 16px; }
-.brand h1 {
-  font-size: clamp(18px, 3vw, 22px);
-  letter-spacing: 0.04em;
-  margin: 0;
-  font-weight: 700;
-  text-transform: uppercase;
+@keyframes top-edge-run {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(calc(100vw)); }
 }
+
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand__type { min-width: 0; }
+
+.brand__wordmark {
+  display: flex;
+  gap: 1px;
+  font-size: clamp(15px, 2.6vw, 21px);
+  margin: 0;
+  line-height: 1;
+}
+
+.brand__char {
+  display: inline-block;
+  animation: brand-drop 480ms var(--ease) both;
+}
+
+@keyframes brand-drop {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.brand__underline {
+  position: relative;
+  height: 1px;
+  margin-top: 5px;
+  overflow: hidden;
+  background: rgba(0, 207, 255, 0.24);
+}
+
+.brand__underline-run {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 28%;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  animation: brand-underline-run 2.6s linear infinite;
+}
+
+@keyframes brand-underline-run {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(400%); }
+}
+
 .brand .sub {
   font-family: var(--font-mono);
-  font-size: 8px;
-  color: var(--muted);
-  letter-spacing: 0.12em;
+  font-size: 8.5px;
+  color: var(--faint);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-top: 5px;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sync { text-align: right; line-height: 1.5; }
+.sync { text-align: right; line-height: 1.5; flex-shrink: 0; }
+
 .sync-version {
   display: block;
   font-family: var(--font-mono);
   font-size: 9px;
-  font-weight: 600;
-  color: var(--gold-3);
-  letter-spacing: 0.18em;
+  color: var(--faint);
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+}
+
+.sync-version--live {
+  color: var(--teal);
+  text-shadow: 0 0 12px var(--teal-glow);
+  animation: echo-breathe 2.6s ease-in-out infinite;
 }
 
 .sync-dot {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  margin-right: 5px;
+  margin-right: 6px;
   vertical-align: middle;
 }
-.sync-dot--online { background: var(--go); box-shadow: 0 0 10px var(--go-glow); animation: status-pulse 2.4s ease-in-out infinite; }
-.sync-dot--offline { background: var(--ember); box-shadow: 0 0 12px var(--ember-glow); }
-.sync-label { color: var(--muted); font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; }
-.sync-label--online { color: var(--go); }
-.sync-time { color: var(--faint); font-size: 8.5px; }
+
+.sync-dot--online {
+  background: var(--teal);
+  box-shadow: 0 0 12px var(--teal-glow);
+  animation: status-pulse 2.2s ease-in-out infinite;
+}
+
+.sync-dot--offline {
+  background: var(--ember);
+  box-shadow: 0 0 12px var(--ember-glow);
+  animation: status-pulse 1.4s ease-in-out infinite;
+}
+
+.sync-label {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sync-label--online { color: var(--teal); }
+.sync-time { color: var(--faint); font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.1em; }
 .live-indicator { display: inline-block; line-height: 1.5; }
+
+@media (max-width: 560px) {
+  .top { padding: 8px 10px 12px; }
+  .brand { gap: 10px; }
+  .brand .sub { font-size: 7.5px; letter-spacing: 0.14em; }
+  .sync-version { font-size: 8px; letter-spacing: 0.16em; }
+}

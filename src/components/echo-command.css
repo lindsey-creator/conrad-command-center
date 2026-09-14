@@ -1,8 +1,8 @@
 .echo-command--hero {
-  border-top: 2px solid rgba(200, 162, 74, 0.45);
+  border-top: 2px solid rgba(0, 255, 247, 0.45);
   box-shadow:
     var(--shadow),
-    inset 0 1px 0 rgba(200, 162, 74, 0.1);
+    inset 0 1px 0 rgba(0, 255, 247, 0.1);
 }
 
 .echo-command {
@@ -17,8 +17,8 @@
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 80% at 0% 30%, rgba(0, 212, 255, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 60% at 100% 70%, rgba(78, 205, 196, 0.06) 0%, transparent 50%);
+    radial-gradient(ellipse 70% 80% at 0% 30%, rgba(0, 207, 255, 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 100% 70%, rgba(0, 255, 247, 0.06) 0%, transparent 50%);
   animation: mesh-drift 12s ease-in-out infinite alternate;
 }
 
@@ -118,7 +118,7 @@
 
 .echo-command__toggle--speaker.echo-command__toggle--on {
   color: var(--gold-2);
-  border-color: rgba(201, 162, 39, 0.45);
+  border-color: rgba(0, 255, 247, 0.45);
   background: var(--gold-dim);
 }
 
@@ -143,20 +143,20 @@
 
 .echo-command__voice-status--listening {
   color: var(--cyan);
-  border-color: rgba(0, 212, 255, 0.35);
+  border-color: rgba(0, 207, 255, 0.35);
   background: var(--cyan-dim);
 }
 
 .echo-command__voice-status--speaking {
   color: var(--gold-2);
-  border-color: rgba(201, 162, 39, 0.35);
+  border-color: rgba(0, 255, 247, 0.35);
   background: var(--gold-dim);
 }
 
 .echo-command__voice-status--thinking {
   color: var(--cyan-2);
-  border-color: rgba(78, 205, 196, 0.35);
-  background: rgba(78, 205, 196, 0.08);
+  border-color: rgba(0, 255, 247, 0.35);
+  background: rgba(0, 255, 247, 0.08);
 }
 
 .echo-command__btn-icon {
@@ -165,8 +165,8 @@
 }
 
 .echo-command__btn--mic.echo-command__btn--active {
-  border-color: rgba(0, 212, 255, 0.55);
-  background: rgba(0, 212, 255, 0.14);
+  border-color: rgba(0, 207, 255, 0.55);
+  background: rgba(0, 207, 255, 0.14);
   color: var(--cyan);
   box-shadow: 0 0 20px var(--cyan-dim);
 }
@@ -188,7 +188,7 @@
 
 .echo-command__toggle--on {
   color: var(--cyan);
-  border-color: rgba(0, 212, 255, 0.35);
+  border-color: rgba(0, 207, 255, 0.35);
   background: var(--cyan-dim);
 }
 
@@ -196,8 +196,8 @@
   margin: 0 24px 8px;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 93, 93, 0.25);
-  background: rgba(255, 93, 93, 0.06);
+  border: 1px solid rgba(255, 60, 60, 0.25);
+  background: rgba(255, 60, 60, 0.06);
   font-size: 13px;
   color: var(--muted);
   line-height: 1.45;
@@ -220,8 +220,8 @@
 .echo-command__chip {
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid rgba(0, 212, 255, 0.28);
-  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 207, 255, 0.28);
+  background: rgba(0, 207, 255, 0.06);
   color: var(--cyan-2);
   font-family: var(--font-mono);
   font-size: 10px;
@@ -232,8 +232,8 @@
 }
 
 .echo-command__chip:hover:not(:disabled) {
-  border-color: rgba(0, 212, 255, 0.55);
-  box-shadow: 0 0 16px rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 207, 255, 0.55);
+  box-shadow: 0 0 16px rgba(0, 207, 255, 0.15);
 }
 
 .echo-command__chip:disabled {
@@ -259,8 +259,8 @@
   min-height: 88px;
   padding: 12px 10px;
   border-radius: var(--radius);
-  border: 1px solid rgba(200, 162, 74, 0.35);
-  background: rgba(200, 162, 74, 0.08);
+  border: 1px solid rgba(0, 255, 247, 0.35);
+  background: rgba(0, 255, 247, 0.08);
   color: var(--gold-2);
   flex-shrink: 0;
   touch-action: manipulation;
@@ -269,14 +269,14 @@
 
 .echo-command__speak-target:hover,
 .echo-command__speak-target:focus-visible {
-  border-color: rgba(200, 162, 74, 0.55);
+  border-color: rgba(0, 255, 247, 0.55);
   box-shadow: 0 0 28px var(--gold-glow);
   outline: none;
 }
 
 .echo-command__speak-target--armed {
   border-color: var(--gold);
-  background: rgba(200, 162, 74, 0.14);
+  background: rgba(0, 255, 247, 0.14);
   box-shadow: 0 0 32px var(--gold-glow);
 }
 
@@ -284,7 +284,7 @@
   position: absolute;
   inset: 6px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(200, 162, 74, 0.2);
+  border: 1px solid rgba(0, 255, 247, 0.2);
   pointer-events: none;
 }
 
@@ -346,7 +346,7 @@
 
 .echo-command__input:focus {
   outline: none;
-  border-color: rgba(0, 212, 255, 0.4);
+  border-color: rgba(0, 207, 255, 0.4);
 }
 
 .echo-command__input::placeholder {
@@ -384,7 +384,7 @@
 }
 
 .echo-command__btn--primary {
-  border-color: rgba(0, 212, 255, 0.4);
+  border-color: rgba(0, 207, 255, 0.4);
   background: var(--cyan-dim);
   color: var(--cyan);
   font-family: var(--font-sans);
@@ -395,13 +395,13 @@
 }
 
 .echo-command__btn--primary:hover:not(:disabled) {
-  border-color: rgba(0, 212, 255, 0.55);
-  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 207, 255, 0.55);
+  background: rgba(0, 207, 255, 0.1);
 }
 
 .echo-command__btn--mic.echo-command__btn--active {
-  border-color: rgba(0, 212, 255, 0.55);
-  background: rgba(0, 212, 255, 0.14);
+  border-color: rgba(0, 207, 255, 0.55);
+  background: rgba(0, 207, 255, 0.14);
   color: var(--cyan);
   box-shadow: 0 0 20px var(--cyan-dim);
 }
@@ -458,8 +458,8 @@
 .echo-command__response {
   padding: 16px 18px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(0, 212, 255, 0.12);
-  border-left: 3px solid rgba(0, 212, 255, 0.45);
+  border: 1px solid rgba(0, 207, 255, 0.12);
+  border-left: 3px solid rgba(0, 207, 255, 0.45);
   background: rgba(255, 255, 255, 0.04);
   font-family: var(--font-sans);
   font-size: 14px;
@@ -558,4 +558,25 @@
   .echo-command__panel--slide {
     animation: none;
   }
+}
+
+
+/* Hero reactor column — the command line's anchor. */
+.echo-command__core-col .reactor-core { --reactor-size: clamp(132px, 20vw, 200px); }
+
+.echo-command__core-label {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--faint);
+}
+
+.echo-command__core-label.is-live {
+  color: var(--teal);
+  text-shadow: 0 0 12px var(--teal-glow);
+  animation: echo-breathe 2.8s ease-in-out infinite;
 }

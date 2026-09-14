@@ -3,7 +3,7 @@
   margin-bottom: 12px;
   padding: 16px 18px 18px;
   overflow: hidden;
-  border-top: 1px solid rgba(200, 162, 74, 0.22);
+  border-top: 1px solid rgba(0, 255, 247, 0.22);
 }
 
 .town-inbox__mesh {
@@ -11,8 +11,8 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 80% at 100% 0%, rgba(90, 169, 255, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 70% at 0% 100%, rgba(200, 162, 74, 0.05) 0%, transparent 50%);
+    radial-gradient(ellipse 60% 80% at 100% 0%, rgba(0, 207, 255, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 70% at 0% 100%, rgba(0, 255, 247, 0.05) 0%, transparent 50%);
 }
 
 .town-inbox__head {
@@ -64,8 +64,8 @@
 
 .town-inbox__pill--live {
   color: var(--go);
-  border-color: rgba(62, 207, 142, 0.35);
-  background: rgba(62, 207, 142, 0.08);
+  border-color: rgba(0, 255, 178, 0.35);
+  background: rgba(0, 255, 178, 0.08);
 }
 
 .town-inbox__grid {
@@ -91,11 +91,11 @@
 }
 
 .town-inbox__panel--town {
-  border-color: rgba(200, 162, 74, 0.2);
+  border-color: rgba(0, 255, 247, 0.2);
 }
 
 .town-inbox__panel--gmail {
-  border-color: rgba(90, 169, 255, 0.18);
+  border-color: rgba(0, 207, 255, 0.18);
 }
 
 .town-inbox__panel-head {

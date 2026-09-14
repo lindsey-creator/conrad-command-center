@@ -7,7 +7,7 @@
   margin-bottom: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(8, 12, 18, 0.55);
+  background: rgba(5, 11, 24, 0.55);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
 }
@@ -49,7 +49,7 @@
 
 .quick-run-btn--gold {
   color: var(--gold-2);
-  border-color: rgba(201, 162, 39, 0.35);
+  border-color: rgba(0, 255, 247, 0.35);
   background: var(--gold-dim);
 }
 
@@ -68,7 +68,7 @@
 
 .quick-run-flash--err {
   color: var(--crit);
-  background: rgba(196, 60, 60, 0.12);
+  background: rgba(255, 60, 60, 0.12);
 }
 
 .quick-run-strip__rule {
