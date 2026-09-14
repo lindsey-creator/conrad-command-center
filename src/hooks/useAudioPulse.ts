@@ -3,12 +3,14 @@ import type { OrbMotion } from '../cockpit/machine';
 
 /**
  * Envelope for the reactor. Never opens getUserMedia — a held mic track
- * blocks Chrome webkitSpeechRecognition (audio-capture). That is why Speak
- * died on /?talk=1 (page loaded in listening and grabbed the mic).
+ * from this hook blocked Chrome SpeechRecognition on /?talk=1.
+ * While the Speak click owns the mic, drive the reactor from live RMS.
  */
-export function useAudioPulse(motion: OrbMotion, _liveMic: boolean) {
+export function useAudioPulse(motion: OrbMotion, liveMic: boolean, liveLevel = 0) {
   const [level, setLevel] = useState(0.12);
   const raf = useRef(0);
+  const liveLevelRef = useRef(liveLevel);
+  liveLevelRef.current = liveLevel;
 
   useEffect(() => {
     let cancelled = false;
@@ -17,8 +19,11 @@ export function useAudioPulse(motion: OrbMotion, _liveMic: boolean) {
       if (cancelled) return;
       const t = (now - t0) / 1000;
       let next = 0.12;
-      if (motion === 'listen-ripple') {
-        next = 0.38 + Math.abs(Math.sin(t * 5.4)) * 0.42;
+      const mic = liveLevelRef.current;
+      if (liveMic) {
+        next = 0.16 + Math.min(1, Math.max(0, mic)) * 0.84;
+      } else if (motion === 'listen-ripple') {
+        next = 0.16 + Math.abs(Math.sin(t * 5.4)) * 0.12;
       } else if (motion === 'speak-wave') {
         const syl = Math.abs(Math.sin(t * 9.4)) * Math.abs(Math.sin(t * 3.05 + 0.4));
         next = 0.28 + syl * 0.72;
@@ -41,7 +46,7 @@ export function useAudioPulse(motion: OrbMotion, _liveMic: boolean) {
       cancelled = true;
       cancelAnimationFrame(raf.current);
     };
-  }, [motion]);
+  }, [liveMic, motion]);
 
   return level;
 }

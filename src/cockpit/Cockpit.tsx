@@ -29,6 +29,7 @@ import { useHudPack } from './useHudPack';
 import { useType1Locks } from './useType1Locks';
 import { JobRail } from './JobRail';
 import { nextLoopPhase, resolveAutonomy } from './readyAgent';
+import { BRAIN_SILENT, KEY_OFFLINE } from './talkReply';
 import { useAgentJobs } from './useAgentJobs';
 import { useWhoopDay } from './useWhoopDay';
 import { useCalendarWeek } from './useCalendarWeek';
@@ -64,12 +65,13 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const [caption, setCaption] = useState(
     forcedWispr
       ? WISPR_CAPTION[forcedWispr]
-      : speakDemo
+      : speakDemo || talkOpen
         ? 'CLICK TALK — microphone opens on this click.'
         : '',
   );
   const [seed, setSeed] = useState<string | undefined>();
   const [armMic, setArmMic] = useState(0);
+  const [micLevel, setMicLevel] = useState(0);
   const [intents, setIntents] = useState<IntentId[]>([]);
   const locked = shotLock;
   const scene = speakDemo
@@ -80,7 +82,8 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         ? 'cybertruck-ultrawide'
         : 'idle-whoop';
   const motion = motionForWispr(wispr, armed || defense);
-  const level = useAudioPulse(motion, wispr === 'listening');
+  const liveMic = wispr === 'listening' || wispr === 'connecting';
+  const level = useAudioPulse(motion, liveMic, micLevel);
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -118,10 +121,8 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
   const enterListen = useCallback(() => {
     if (locked) return;
     setMode('talk');
-    apply({ type: 'listen' });
-    setCaption(WISPR_CAPTION.listening);
     setIntents((cur) => (cur.length ? cur : ['type1']));
-  }, [apply, locked]);
+  }, [locked]);
 
   const requestListen = useCallback(() => {
     enterListen();
@@ -196,7 +197,7 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         id: 'brain',
         label: 'BRAIN',
         status: brainOnline ? ('LIVE' as const) : ('STANDBY' as const),
-        detail: brainOnline ? 'CLAUDE · /chat' : 'NO KEY — SETTINGS LATER',
+        detail: brainOnline ? 'CLAUDE · /chat' : 'HEALTH STANDBY — /chat still tried',
       },
       {
         id: 'whoop',
@@ -323,10 +324,18 @@ export function Cockpit({ brainOnline, onConnect }: CockpitProps) {
         onWispr={enterListen}
         onSubmit={runTalk}
         onVoiceState={onVoiceState}
+        onLevel={setMicLevel}
         onAnswer={(spoken, claimed) => {
           if (!spoken) return;
-          apply({ type: 'reply' });
-          setCaption(claimed ? 'CLAIMED — Brain key offline.' : spoken);
+          if (claimed && spoken === KEY_OFFLINE) {
+            setCaption('CLAIMED — Brain key offline.');
+            return;
+          }
+          if (claimed && spoken === BRAIN_SILENT) {
+            setCaption('CLAIMED — Brain /chat did not respond.');
+            return;
+          }
+          setCaption(spoken);
         }}
         onSpeakEnd={() => apply({ type: 'spoke' })}
         onEnd={sinkThenIdle}

@@ -29,6 +29,7 @@ interface CommandDockProps {
   onSpeakEnd: () => void;
   onEnd: () => void;
   onVoiceState?: (state: EchoVoiceState) => void;
+  onLevel?: (level: number) => void;
 }
 
 export function CommandDock({
@@ -44,6 +45,7 @@ export function CommandDock({
   onSpeakEnd,
   onEnd,
   onVoiceState,
+  onLevel,
 }: CommandDockProps) {
   const [text, setText] = useState('');
   const [lastSaid, setLastSaid] = useState('');
@@ -51,7 +53,9 @@ export function CommandDock({
   const [draftEdit, setDraftEdit] = useState<string | null>(null);
   const [originalDraft, setOriginalDraft] = useState('');
   const [banner, setBanner] = useState(
-    demoSpeak ? 'CLICK TALK — microphone opens in this click. Speak, then I send it to Claude.' : '',
+    demoSpeak || talking
+      ? 'CLICK TALK — microphone opens in this click. Speak, then I send it to Claude.'
+      : '',
   );
   const [pending, setPending] = useState<string | null>(null);
   const [reply, setReply] = useState('');
@@ -70,6 +74,7 @@ export function CommandDock({
     onTranscript: handleTranscript,
     onFinalTranscript: handleFinal,
     onState: onVoiceState,
+    onLevel,
   });
 
   useEffect(() => {
@@ -107,7 +112,11 @@ export function CommandDock({
 
   const handleAsk = async (raw?: string, trusted = false) => {
     const query = (raw ?? text).trim();
-    if (!query) return;
+    if (!query) {
+      setBanner('TYPE OR SPEAK A COMMAND — nothing sent.');
+      ref.current?.focus();
+      return;
+    }
     voice.unlock();
     if (!trusted && needsConfirm(query)) {
       setPending(query);
@@ -155,27 +164,19 @@ export function CommandDock({
     if (voice.voiceState === 'listening' || voice.voiceState === 'connecting') return;
     if (voice.voiceState === 'speaking') voice.stopSpeaking();
     onWispr();
-    setBanner('LISTENING — speak now. End of phrase sends to Claude.');
+    setBanner('ALLOW THE MICROPHONE — Chrome will prompt. Then speak.');
     const result = await voice.startListening();
-    if (result === 'denied') {
-      setBanner(ERR_COPY['mic-denied']);
-      const line = 'Microphone blocked. Type the command, sir.';
-      setLastSaid(line);
-      onAnswer(line, true);
-      onVoiceState?.('error');
-      await hear(line, false);
+    if (result === 'listening') {
+      setBanner('LISTENING — speak now. End of phrase sends to Claude.');
       return;
     }
-    if (result === 'missing') {
-      const code = voice.voiceError && voice.voiceError !== 'rec-failed' ? voice.voiceError : 'mic-missing';
-      setBanner(ERR_COPY[code]);
-      ref.current?.focus();
-      const line = 'I cannot hear you. Type the command, sir.';
-      setLastSaid(line);
-      onAnswer(line, true);
-      onVoiceState?.('error');
-      await hear(line, false);
+    if (result === 'denied') {
+      setBanner(ERR_COPY['mic-denied']);
+      return;
     }
+    const code = voice.voiceError && voice.voiceError !== 'rec-failed' ? voice.voiceError : 'mic-missing';
+    setBanner(ERR_COPY[code]);
+    ref.current?.focus();
   };
 
   const onSpeakClick = async () => {

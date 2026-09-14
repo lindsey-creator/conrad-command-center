@@ -27,6 +27,26 @@ export type SpeechDiagnosis =
   | { ok: true }
   | { ok: false; code: 'insecure' | 'mic-missing'; message: string };
 
+export type MicRequest = MediaStream | 'denied' | 'missing' | 'insecure';
+
+/** Must run from a click. This is what makes Chrome show the permission prompt. */
+export async function requestMic(): Promise<MicRequest> {
+  if (typeof window === 'undefined') return 'missing';
+  if (!window.isSecureContext) return 'insecure';
+  if (!navigator.mediaDevices?.getUserMedia) return 'missing';
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true },
+    });
+  } catch (err) {
+    const name = err instanceof DOMException ? err.name : '';
+    if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
+      return 'denied';
+    }
+    return 'missing';
+  }
+}
+
 /** Honest preflight — never silent. Chrome STT needs HTTPS + webkitSpeechRecognition. */
 export function diagnoseSpeech(): SpeechDiagnosis {
   if (typeof window === 'undefined') {

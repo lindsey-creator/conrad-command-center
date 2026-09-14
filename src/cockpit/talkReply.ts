@@ -6,12 +6,14 @@ export const KEY_OFFLINE = 'Sir, the brain key is offline — I cannot think yet
 /** Spoken when /chat times out or errors. */
 export const BRAIN_SILENT = 'Sir, the brain did not respond.';
 
-/** Goldfront-os /chat: mode=fallback and engine=null when ANTHROPIC_API_KEY is unset. */
+/**
+ * Offline only when /chat actually failed.
+ * Live Claude returns { answer, mode: 'claude', engine: null } — that is PROVEN.
+ * Do not treat a null engine as a missing key.
+ */
 export function isChatFallback(res: ChatResponse | null | undefined): boolean {
   if (!res) return true;
   if (res.mode === 'fallback') return true;
-  if (res.engine == null && !res.answer?.trim()) return true;
-  if (res.mode === 'fallback' && res.engine == null) return true;
   return !res.answer?.trim();
 }
 
