@@ -489,7 +489,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         >
             <LaneModule
               title="GoHighLevel CRM"
-              icon="📞"
+              icon="phone"
               pill={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'Live' : 'CRM'}
               pillVariant={ghlCrm.data && hasLiveData(ghlCrm.data) ? 'go' : 'default'}
               loading={ghlCrm.loading && !ghlCrm.data}
@@ -537,7 +537,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Money Moves"
-              icon="💰"
+              icon="money"
               pill="Top-3"
               pillVariant="go"
               loading={topMoves.loading && !topMoves.data}
@@ -564,7 +564,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Meta Ads → GHL"
-              icon="📈"
+              icon="chart"
               pill={metaLive ? 'Live' : 'Meta'}
               pillVariant={metaLive ? 'go' : 'warn'}
               defaultOpen={false}
@@ -633,7 +633,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         >
             <LaneModule
               title="Today's Watch List (CRITICAL)"
-              icon="🚨"
+              icon="alert"
               pill={watchTotal > 0 ? `${watchTotal} open` : 'Clear'}
               pillVariant={watchTotal > 0 ? 'warn' : 'go'}
               loading={watchlist.loading && !watchlist.data}
@@ -664,7 +664,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Team Pulse"
-              icon="👥"
+              icon="people"
               pill={overdueCount > 0 ? `${overdueCount} overdue` : 'Accountability'}
               pillVariant={overdueCount > 0 ? 'warn' : 'default'}
               loading={teamPulse.loading && !teamPulse.data}
@@ -711,7 +711,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Blind Spots"
-              icon="🔍"
+              icon="search"
               pill="Scan"
               pillVariant="crit"
               defaultOpen={false}
@@ -734,7 +734,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               )}
             </LaneModule>
 
-            <LaneModule title="Issue a Task" icon="📋" pill="JARVIS route" defaultOpen={false}>
+            <LaneModule title="Issue a Task" icon="clipboard" pill="JARVIS route" defaultOpen={false}>
               <p>Voice or text → routed via JARVIS to ClickUp with context.</p>
               <IssueTaskForm sources={[...STATIC_SOURCES.issueTask]} onConnect={onConnect} />
             </LaneModule>
@@ -748,7 +748,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         >
             <LaneModule
               title="Fieldy · ClickUp Transcripts"
-              icon="🎙️"
+              icon="mic"
               pill={
                 audioRecent.data && hasLiveData(audioRecent.data)
                   ? `${audioRecent.data.items?.length ?? 0} recent`
@@ -784,7 +784,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Daily Fieldy Brief"
-              icon="🎧"
+              icon="headphones"
               pill="Auto"
               pillVariant="go"
               loading={dailyBrief.loading && !dailyBrief.data}
@@ -874,7 +874,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Meetings log"
-              icon="🤖"
+              icon="agent"
               pill="ClickUp"
               defaultOpen={false}
             >
@@ -887,7 +887,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Health & Performance"
-              icon="❤️"
+              icon="pulse"
               pill="Tracks only"
               defaultOpen={false}
               loading={healthMetrics.loading && !healthMetrics.data}
@@ -919,7 +919,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               )}
             </LaneModule>
 
-            <LaneModule title="Wellbeing Check-in" icon="🧠" defaultOpen={false}>
+            <LaneModule title="Wellbeing Check-in" icon="brain" defaultOpen={false}>
               <p>Daily check-in — support, not therapy.</p>
               <ConnectSource sources={[...STATIC_SOURCES.wellbeing]} onConnect={onConnect} />
             </LaneModule>
@@ -933,7 +933,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
         >
             <LaneModule
               title="Today's Schedule"
-              icon="📅"
+              icon="calendar"
               loading={dailyBrief.loading && !dailyBrief.data}
             >
               {dailyBrief.data?.today_schedule &&
@@ -955,7 +955,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Week Ahead"
-              icon="🗓️"
+              icon="calendar-week"
               defaultOpen={false}
               loading={weekAhead.loading && !weekAhead.data}
             >
@@ -976,7 +976,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
               )}
             </LaneModule>
 
-            <LaneModule title="Calendar Protection" icon="🛡️" defaultOpen={false}>
+            <LaneModule title="Calendar Protection" icon="shield" defaultOpen={false}>
               <p>Training, recovery, and family blocks defended.</p>
               <ConnectSource
                 sources={[...STATIC_SOURCES.calendarProtection]}
@@ -986,7 +986,7 @@ export function ModuleGrid({ onConnect }: ModuleGridProps) {
 
             <LaneModule
               title="Weather · Cleveland"
-              icon="🌤️"
+              icon="weather"
               pill={weatherLive ? 'Live' : 'CLE'}
               pillVariant={weatherLive ? 'go' : 'default'}
               defaultOpen={false}

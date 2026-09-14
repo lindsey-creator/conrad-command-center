@@ -3,27 +3,33 @@
   --navy: #060c18;
   --bg: #060c18;
   --bg-elevated: #08142a;
-  --panel: rgba(4, 16, 36, 0.82);
+  --panel: rgba(var(--ground-rgb), 0.82);
   --panel-solid: #07142c;
   --panel-2: #050f22;
-  --line: rgba(0, 207, 255, 0.18);
-  --line-strong: rgba(0, 255, 247, 0.42);
+  --line: rgba(var(--cyan-rgb), 0.18);
+  --line-strong: rgba(var(--teal-rgb), 0.42);
   --ink: #d5f2ff;
   --muted: #7fb3cc;
   --faint: #4a7d99;
 
+  /* Channel triples. Every rgba() in the app is written against these, so
+     re-pointing them (see alert mode below) repaints the entire deck. */
+  --cyan-rgb: 0, 207, 255;
+  --teal-rgb: 0, 255, 247;
+  --ground-rgb: 4, 16, 36;
+
   /* Primary HUD light */
   --cyan: #00cfff;
   --cyan-2: #6fe4ff;
-  --cyan-glow: rgba(0, 207, 255, 0.5);
-  --cyan-dim: rgba(0, 207, 255, 0.12);
+  --cyan-glow: rgba(var(--cyan-rgb), 0.5);
+  --cyan-dim: rgba(var(--cyan-rgb), 0.12);
 
   /* Teal is the second accent. The legacy --gold* names are kept as
      aliases so every existing panel repaints without a rename sweep. */
   --teal: #00fff7;
   --teal-2: #7ffffb;
-  --teal-glow: rgba(0, 255, 247, 0.45);
-  --teal-dim: rgba(0, 255, 247, 0.1);
+  --teal-glow: rgba(var(--teal-rgb), 0.45);
+  --teal-dim: rgba(var(--teal-rgb), 0.1);
   --gold: var(--teal);
   --gold-2: var(--teal);
   --gold-3: var(--teal-2);
@@ -45,11 +51,11 @@
   --chamfer: 0px;
   --chamfer-lg: 0px;
   --shadow:
-    0 0 22px rgba(0, 207, 255, 0.07),
-    inset 0 0 40px rgba(0, 207, 255, 0.035);
+    0 0 22px rgba(var(--cyan-rgb), 0.07),
+    inset 0 0 40px rgba(var(--cyan-rgb), 0.035);
   --shadow-hover:
-    0 0 32px rgba(0, 207, 255, 0.18),
-    inset 0 0 48px rgba(0, 207, 255, 0.06);
+    0 0 32px rgba(var(--cyan-rgb), 0.18),
+    inset 0 0 48px rgba(var(--cyan-rgb), 0.06);
   --glass-blur: blur(14px);
 
   --font-display: 'Rajdhani', 'Oswald', 'Segoe UI', system-ui, sans-serif;
@@ -71,6 +77,58 @@
   --safe-r: env(safe-area-inset-right, 0px);
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── ALERT MODE ───────────────────────────────────────────────────────────
+   Defense protocol. Re-points the palette tokens only, so the entire deck —
+   panels, brackets, chips, glows, canvases — turns crimson at once without
+   any component knowing alert state exists. Red is reserved for exactly this
+   and for genuine crit badges; it is never decorative. */
+:root[data-hud-mode='alert'] {
+  --bg: #16060a;
+  --bg-elevated: #24080e;
+  --panel: rgba(36, 8, 14, 0.84);
+  --panel-solid: #1d0710;
+  --panel-2: #14050a;
+  --line: rgba(255, 60, 60, 0.24);
+  --line-strong: rgba(255, 120, 120, 0.5);
+  --ink: #ffdede;
+  --muted: #d69a9a;
+  --faint: #9c6060;
+
+  --cyan-rgb: 255, 60, 60;
+  --teal-rgb: 255, 138, 92;
+  --ground-rgb: 36, 8, 14;
+
+  --cyan: #ff3c3c;
+  --cyan-2: #ff8a8a;
+  --cyan-glow: rgba(255, 60, 60, 0.55);
+  --cyan-dim: rgba(255, 60, 60, 0.14);
+
+  --teal: #ff8a5c;
+  --teal-2: #ffb49a;
+  --teal-glow: rgba(255, 138, 92, 0.5);
+  --teal-dim: rgba(255, 138, 92, 0.12);
+
+  --ivory: #fff0f0;
+  --go: #ffb547;
+  --go-glow: rgba(255, 181, 71, 0.4);
+  --info: #ff3c3c;
+
+  --shadow:
+    0 0 26px rgba(255, 60, 60, 0.12),
+    inset 0 0 44px rgba(255, 60, 60, 0.05);
+  --shadow-hover:
+    0 0 36px rgba(255, 60, 60, 0.26),
+    inset 0 0 52px rgba(255, 60, 60, 0.09);
+}
+
+/* The whole deck breathes harder under alert. */
+:root[data-hud-mode='alert'] body::before {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(255, 60, 60, 0.2) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 105%, rgba(255, 60, 60, 0.12) 0%, transparent 55%);
+  animation: hud-bloom 2.6s ease-in-out infinite;
 }
 
 * { box-sizing: border-box; }
@@ -97,9 +155,9 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(0, 207, 255, 0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 8% 22%, rgba(0, 255, 247, 0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 100% 105%, rgba(0, 207, 255, 0.08) 0%, transparent 55%);
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(var(--cyan-rgb), 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 8% 22%, rgba(var(--teal-rgb), 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 100% 105%, rgba(var(--cyan-rgb), 0.08) 0%, transparent 55%);
   animation: hud-bloom 9s ease-in-out infinite;
 }
 
@@ -139,22 +197,22 @@ code {
   font-size: 0.92em;
   padding: 2px 6px;
   border-radius: 2px;
-  background: rgba(0, 207, 255, 0.07);
+  background: rgba(var(--cyan-rgb), 0.07);
   border: 1px solid var(--line);
   color: var(--cyan);
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: rgba(0, 207, 255, 0.04); }
-::-webkit-scrollbar-thumb { background: rgba(0, 207, 255, 0.28); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0, 207, 255, 0.55); }
+::-webkit-scrollbar-track { background: rgba(var(--cyan-rgb), 0.04); }
+::-webkit-scrollbar-thumb { background: rgba(var(--cyan-rgb), 0.28); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--cyan-rgb), 0.55); }
 
 .wordmark-gold {
   color: var(--cyan);
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: 0.22em;
-  text-shadow: 0 0 10px var(--cyan-glow), 0 0 24px rgba(0, 207, 255, 0.28);
+  text-shadow: 0 0 10px var(--cyan-glow), 0 0 24px rgba(var(--cyan-rgb), 0.28);
 }
 
 /* ── HUD chrome primitives ──────────────────────────────────────────── */
@@ -196,7 +254,7 @@ code {
   background: var(--panel);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid rgba(0, 207, 255, 0.25);
+  border: 1px solid rgba(var(--cyan-rgb), 0.25);
   box-shadow: var(--shadow);
   border-radius: var(--radius);
   transition: border-color var(--transition), box-shadow var(--transition);
@@ -216,8 +274,8 @@ code {
 }
 
 /* Text glows */
-.hud-glow { color: var(--cyan); text-shadow: 0 0 8px var(--cyan-glow), 0 0 20px rgba(0, 207, 255, 0.3); }
-.hud-glow-teal { color: var(--teal); text-shadow: 0 0 8px var(--teal-glow), 0 0 20px rgba(0, 255, 247, 0.28); }
+.hud-glow { color: var(--cyan); text-shadow: 0 0 8px var(--cyan-glow), 0 0 20px rgba(var(--cyan-rgb), 0.3); }
+.hud-glow-teal { color: var(--teal); text-shadow: 0 0 8px var(--teal-glow), 0 0 20px rgba(var(--teal-rgb), 0.28); }
 
 /* Data readouts flicker like a live telemetry feed. */
 .hud-flicker { animation: hud-flicker 7s steps(1, end) infinite; }

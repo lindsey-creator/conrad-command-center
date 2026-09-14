@@ -1,0 +1,8 @@
+.hud-icon {
+  display: inline-block;
+  vertical-align: -0.16em;
+  flex-shrink: 0;
+  color: var(--cyan);
+  opacity: 0.85;
+  filter: drop-shadow(0 0 6px rgba(var(--cyan-rgb), 0.35));
+}

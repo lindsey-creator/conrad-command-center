@@ -1,3 +1,4 @@
+import { HudIcon, isHudIcon } from './HudIcon';
 import type { ReactNode } from 'react';
 
 type PillVariant = 'crit' | 'warn' | 'go' | 'default' | 'stale';
@@ -38,7 +39,11 @@ export function ModuleCard({
             {dotColor && (
               <span className="dot" style={{ background: dotColor }} />
             )}
-            {icon && !dotColor && <span className="module-icon">{icon}</span>}
+            {icon && !dotColor && (
+              <span className="module-icon">
+                {isHudIcon(icon) ? <HudIcon name={icon} /> : icon}
+              </span>
+            )}
             {title}
           </span>
         </div>

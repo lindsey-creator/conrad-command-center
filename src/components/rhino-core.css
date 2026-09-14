@@ -49,7 +49,7 @@
   position: absolute;
   inset: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  border: 1.5px solid rgba(0, 255, 247, 0.38);
+  border: 1.5px solid rgba(var(--teal-rgb), 0.38);
   background: linear-gradient(
     155deg,
     rgba(10, 28, 58, 0.95) 0%,
@@ -60,20 +60,20 @@
 
 .rhino-core__hex--outer {
   animation: hex-rotate 14s linear infinite;
-  box-shadow: 0 0 24px rgba(0, 255, 247, 0.08);
+  box-shadow: 0 0 24px rgba(var(--teal-rgb), 0.08);
 }
 
 .rhino-core__hex--mid {
   inset: 7px;
-  border-color: rgba(0, 255, 247, 0.24);
+  border-color: rgba(var(--teal-rgb), 0.24);
   animation: hex-rotate 9s linear infinite reverse;
 }
 
 .rhino-core__hex--inner {
   inset: 16px;
-  border-color: rgba(0, 255, 247, 0.5);
-  background: radial-gradient(circle at 40% 35%, rgba(0, 255, 247, 0.22) 0%, transparent 65%);
-  box-shadow: inset 0 0 20px rgba(0, 255, 247, 0.15);
+  border-color: rgba(var(--teal-rgb), 0.5);
+  background: radial-gradient(circle at 40% 35%, rgba(var(--teal-rgb), 0.22) 0%, transparent 65%);
+  box-shadow: inset 0 0 20px rgba(var(--teal-rgb), 0.15);
 }
 
 .rhino-core--hero .rhino-core__hex--inner {
@@ -110,7 +110,7 @@
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 255, 247, 0.12);
+  border: 1px solid rgba(var(--teal-rgb), 0.12);
   animation: ring-expand 3s ease-in-out infinite;
   pointer-events: none;
 }
@@ -123,7 +123,7 @@
   position: absolute;
   inset: 20px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 255, 247, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--teal-rgb), 0.3) 0%, transparent 70%);
   opacity: 0;
 }
 
@@ -150,8 +150,8 @@
 
 .rhino-core--speaking .rhino-core__hex--outer {
   animation-duration: 4s;
-  border-color: rgba(0, 255, 247, 0.65);
-  box-shadow: 0 0 32px rgba(0, 255, 247, 0.15);
+  border-color: rgba(var(--teal-rgb), 0.65);
+  box-shadow: 0 0 32px rgba(var(--teal-rgb), 0.15);
 }
 
 .rhino-core--speaking .rhino-core__horn {

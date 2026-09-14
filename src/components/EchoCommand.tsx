@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { brain, type ChatDealFields, type ChatResponse } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState } from '../hooks/useEchoVoice';
+import { hudModeFromCommand, type HudMode } from '../hooks/useHudMode';
+import { useMicLevel } from '../hooks/useMicLevel';
 import { COMMAND_CHIPS, runCommandIntent } from '../utils/commandIntents';
 import { ApprovalQueuePanel } from './ApprovalQueuePanel';
+import { HudIcon } from './HudIcon';
 import { ReactorCore } from './ReactorCore';
 import './echo-command.css';
 
 interface EchoCommandProps {
   brainOnline?: boolean;
   onVoiceStateChange?: (state: EchoVoiceState) => void;
+  /** Flip the deck's theme posture from a typed HUD command. */
+  onHudMode?: (mode: HudMode) => void;
 }
 
 function voiceStatusLabel(state: EchoVoiceState): string | null {
@@ -24,7 +29,11 @@ function voiceStatusLabel(state: EchoVoiceState): string | null {
   }
 }
 
-export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCommandProps) {
+export function EchoCommand({
+  brainOnline = false,
+  onVoiceStateChange,
+  onHudMode,
+}: EchoCommandProps) {
   const [message, setMessage] = useState('');
   const [wantsDraft, setWantsDraft] = useState(false);
   const [wantsTask, setWantsTask] = useState(false);
@@ -74,6 +83,9 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
 
   const displayState: EchoVoiceState = loading ? 'thinking' : voiceState;
   const statusLabel = voiceStatusLabel(displayState);
+  // Real mic amplitude while listening — feeds the reactor so the core
+  // reacts to the room instead of animating on a timer.
+  const micLevel = useMicLevel(voiceState === 'listening');
 
   useEffect(() => {
     onVoiceStateChange?.(displayState);
@@ -82,6 +94,23 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
   const handleAsk = async (text?: string) => {
     const query = (text ?? message).trim();
     if (!query) return;
+
+    // Deck commands are ours, not the brain's: handle locally and say so
+    // plainly rather than spending a round-trip or faking a model reply.
+    const hud = hudModeFromCommand(query);
+    if (hud && onHudMode) {
+      onHudMode(hud);
+      const ack =
+        hud === 'alert'
+          ? 'Defense protocol engaged.'
+          : 'Standing down. Normal posture restored.';
+      setError(null);
+      setTaskResult(ack);
+      setMessage('');
+      speak(ack);
+      return;
+    }
+
     if (!brainOnline) {
       setError('Brain offline — connect Stack in Connections.');
       return;
@@ -196,6 +225,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
             size={200}
             load={brainOnline ? 1 : 0}
             online={brainOnline}
+            amplitude={micLevel}
             label={statusLabel ?? (brainOnline ? 'JARVIS live' : 'JARVIS standby')}
           />
           <span className={`echo-command__core-label${brainOnline ? ' is-live' : ''}`}>
@@ -233,7 +263,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
                   title={speakEnabled ? 'Mute JARVIS voice' : 'Enable JARVIS voice'}
                 >
                   <span className="echo-command__toggle-icon" aria-hidden="true">
-                    {speakEnabled ? '🔊' : '🔇'}
+                    <HudIcon name={speakEnabled ? 'speaker-on' : 'speaker-off'} size={14} />
                   </span>
                   {speakEnabled ? 'Speak on' : 'Speak off'}
                 </button>
@@ -320,7 +350,7 @@ export function EchoCommand({ brainOnline = false, onVoiceStateChange }: EchoCom
                   aria-pressed={voiceState === 'listening'}
                   title={voiceState === 'listening' ? 'Release to stop' : 'Hold for browser mic'}
                 >
-                  <span className="echo-command__btn-icon" aria-hidden="true">🎙</span>
+                  <span className="echo-command__btn-icon" aria-hidden="true"><HudIcon name="mic" size={18} /></span>
                   Hold
                 </button>
               )}

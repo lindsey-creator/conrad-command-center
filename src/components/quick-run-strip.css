@@ -49,7 +49,7 @@
 
 .quick-run-btn--gold {
   color: var(--gold-2);
-  border-color: rgba(0, 255, 247, 0.35);
+  border-color: rgba(var(--teal-rgb), 0.35);
   background: var(--gold-dim);
 }
 

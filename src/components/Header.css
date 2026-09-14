@@ -6,9 +6,9 @@
   gap: 12px;
   padding: 10px 14px 14px;
   margin-bottom: 12px;
-  background: linear-gradient(180deg, rgba(0, 207, 255, 0.05), transparent 70%);
-  border: 1px solid rgba(0, 207, 255, 0.16);
-  border-bottom-color: rgba(0, 207, 255, 0.34);
+  background: linear-gradient(180deg, rgba(var(--cyan-rgb), 0.05), transparent 70%);
+  border: 1px solid rgba(var(--cyan-rgb), 0.16);
+  border-bottom-color: rgba(var(--cyan-rgb), 0.34);
 }
 
 /* Live scan travelling along the header's bottom edge. */
@@ -55,7 +55,7 @@
   height: 1px;
   margin-top: 5px;
   overflow: hidden;
-  background: rgba(0, 207, 255, 0.24);
+  background: rgba(var(--cyan-rgb), 0.24);
 }
 
 .brand__underline-run {

@@ -189,7 +189,7 @@
   font-weight: 700;
   color: var(--ink);
   letter-spacing: 0.02em;
-  text-shadow: 0 0 16px rgba(0, 207, 255, 0.3);
+  text-shadow: 0 0 16px rgba(var(--cyan-rgb), 0.3);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
@@ -278,7 +278,7 @@
   background: linear-gradient(
     90deg,
     var(--panel-solid) 20%,
-    rgba(0, 207, 255, 0.14) 50%,
+    rgba(var(--cyan-rgb), 0.14) 50%,
     var(--panel-solid) 80%
   );
   background-size: 300% 100%;
@@ -332,7 +332,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, rgba(0, 207, 255, 0.34), transparent);
+  background: linear-gradient(90deg, rgba(var(--cyan-rgb), 0.34), transparent);
 }
 
 

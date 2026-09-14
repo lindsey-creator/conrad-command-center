@@ -12,12 +12,43 @@ interface ReactorCoreProps {
   /** Rendered edge length in px. */
   size?: number;
   label?: string;
+  /** Live mic amplitude 0..1 (a ref, read per frame). Drives the core pulse
+   *  and the waveform bars so the reactor reacts to the room, not a timer. */
+  amplitude?: { current: number };
 }
 
 const TAU = Math.PI * 2;
-const CYAN = { r: 0, g: 207, b: 255 };
-const TEAL = { r: 0, g: 255, b: 247 };
-const DIM = { r: 74, g: 125, b: 153 };
+type RGB = { r: number; g: number; b: number };
+
+const CYAN: RGB = { r: 0, g: 207, b: 255 };
+const TEAL: RGB = { r: 0, g: 255, b: 247 };
+const DIM: RGB = { r: 74, g: 125, b: 153 };
+
+/** #rgb / #rrggbb / rgb(...) -> channels, falling back to the token default. */
+function parseColor(raw: string, fallback: RGB): RGB {
+  const v = raw.trim();
+  const hex = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (hex) {
+    const h = hex[1].length === 3 ? hex[1].replace(/./g, (c) => c + c) : hex[1];
+    return {
+      r: parseInt(h.slice(0, 2), 16),
+      g: parseInt(h.slice(2, 4), 16),
+      b: parseInt(h.slice(4, 6), 16),
+    };
+  }
+  const fn = v.match(/^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i);
+  if (fn) return { r: +fn[1], g: +fn[2], b: +fn[3] };
+  return fallback;
+}
+
+/** Palette straight from the CSS tokens, so alert mode repaints the canvas. */
+function readPalette(el: Element): { key: RGB; hot: RGB } {
+  const cs = getComputedStyle(el);
+  return {
+    key: parseColor(cs.getPropertyValue('--cyan'), CYAN),
+    hot: parseColor(cs.getPropertyValue('--teal'), TEAL),
+  };
+}
 
 /**
  * Animated arc reactor: concentric counter-rotating rings, a segmented data
@@ -32,11 +63,12 @@ export function ReactorCore({
   load = 0,
   size = 176,
   label = 'JARVIS core',
+  amplitude,
 }: ReactorCoreProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // Live props read inside the animation loop, so the loop never restarts.
-  const propsRef = useRef({ online, state, load });
-  propsRef.current = { online, state, load };
+  const propsRef = useRef({ online, state, load, amplitude });
+  propsRef.current = { online, state, load, amplitude };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,6 +79,17 @@ export function ReactorCore({
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let frame = 0;
     let running = true;
+    let palette = readPalette(canvas);
+
+    // Alert mode swaps the CSS tokens; re-read them so the canvas follows.
+    const modeObserver = new MutationObserver(() => {
+      palette = readPalette(canvas);
+      if (reduced) draw(0);
+    });
+    modeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-hud-mode'],
+    });
 
     const fit = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -57,12 +100,12 @@ export function ReactorCore({
       return css;
     };
 
-    const rgba = (c: typeof CYAN, a: number) => `rgba(${c.r},${c.g},${c.b},${a})`;
+    const rgba = (c: RGB, a: number) => `rgba(${c.r},${c.g},${c.b},${a})`;
 
     const ring = (
       cx: number, cy: number, r: number,
       w: number, alpha: number, dash: number[] = [], rot = 0,
-      col = CYAN,
+      col: RGB = CYAN,
     ) => {
       ctx.save();
       ctx.translate(cx, cy);
@@ -78,7 +121,7 @@ export function ReactorCore({
 
     const arc = (
       cx: number, cy: number, r: number,
-      a0: number, a1: number, w: number, col: typeof CYAN, alpha: number, glow = 8,
+      a0: number, a1: number, w: number, col: RGB, alpha: number, glow = 8,
     ) => {
       ctx.save();
       ctx.beginPath();
@@ -91,9 +134,21 @@ export function ReactorCore({
       ctx.restore();
     };
 
+    const text = (
+      str: string, x: number, y: number, px: number, alpha: number, col: RGB = CYAN,
+    ) => {
+      ctx.save();
+      ctx.font = `${px}px 'Share Tech Mono', ui-monospace, monospace`;
+      ctx.fillStyle = rgba(col, alpha);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(str, x, y);
+      ctx.restore();
+    };
+
     const tick = (
       cx: number, cy: number, r1: number, r2: number,
-      angle: number, w: number, alpha: number, col = CYAN,
+      angle: number, w: number, alpha: number, col: RGB = CYAN,
     ) => {
       ctx.save();
       ctx.strokeStyle = rgba(col, alpha);
@@ -114,9 +169,10 @@ export function ReactorCore({
       const live = p.online;
       const active = live && (p.state === 'listening' || p.state === 'speaking' || p.state === 'thinking');
       const fill = Math.max(0, Math.min(1, p.load));
-      // Idle-but-offline reads dim slate; live reads full cyan.
-      const key = live ? CYAN : DIM;
-      const hot = live ? TEAL : DIM;
+      const amp = Math.max(0, Math.min(1, p.amplitude?.current ?? 0));
+      // Idle-but-offline reads dim slate; live reads the deck's accent pair.
+      const key = live ? palette.key : DIM;
+      const hot = live ? palette.hot : DIM;
       const lift = live ? 1 : 0.45;
 
       ctx.clearRect(0, 0, css, css);
@@ -141,6 +197,17 @@ export function ReactorCore({
         const major = i % 4 === 0;
         tick(cx, cy, base - (major ? base * 0.09 : base * 0.045), base, a,
           major ? 1.4 : 0.8, (major ? 0.7 : 0.32) * lift, key);
+      }
+
+      // 1b — cardinal bearings riding the outer orbit
+      if (css >= 120) {
+        const marks = ['N', 'E', 'S', 'W'];
+        const fs = Math.max(7, Math.round(css * 0.038));
+        for (let i = 0; i < 4; i++) {
+          const a = (TAU / 4) * i - Math.PI / 2 + t * 0.08;
+          text(marks[i], cx + Math.cos(a) * (base - fs * 1.5),
+            cy + Math.sin(a) * (base - fs * 1.5), fs, 0.5 * lift, key);
+        }
       }
 
       // 2 — segmented data ring, CCW. Lit segments track the live stack.
@@ -221,7 +288,10 @@ export function ReactorCore({
 
       // 7 — the reactor itself: six arcs, inner ring, incandescent core
       const r7 = base * 0.15;
-      const pulse = active ? 1 : 0.82 + Math.sin(t * 1.8) * 0.09;
+      // Audio-reactive: real amplitude wins whenever the mic is feeding us;
+      // otherwise the core falls back to its synthetic breathing pulse.
+      const breathe = 0.82 + Math.sin(t * 1.8) * 0.09;
+      const pulse = amp > 0.02 ? 0.85 + amp * 0.55 : active ? 1 : breathe;
       const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, r7 * 2.6);
       glow.addColorStop(0, rgba(key, (active ? 0.4 : 0.24) * pulse * lift));
       glow.addColorStop(0.5, rgba(key, 0.1 * lift));
@@ -233,7 +303,8 @@ export function ReactorCore({
 
       for (let i = 0; i < 6; i++) {
         const a0 = (TAU / 6) * i + t * (active ? 1.1 : 0.5);
-        arc(cx, cy, r7, a0, a0 + TAU / 12, Math.max(3, css * 0.023), key, (active ? 0.95 : 0.78) * lift, 10);
+        arc(cx, cy, r7, a0, a0 + TAU / 12, Math.max(3, css * 0.023), key,
+          Math.min(1, (active ? 0.95 : 0.78) + amp * 0.4) * lift, 10 + amp * 14);
       }
       ring(cx, cy, r7 * 0.55, 1.4, 0.6 * lift, [], t * 0.8, hot);
 
@@ -252,12 +323,16 @@ export function ReactorCore({
         const bars = 16;
         const wy = cy + base * 0.66;
         const ww = base * 0.6;
+        // Envelope from the live signal; the sine only shapes the bars so a
+        // steady tone still looks like a waveform rather than a flat block.
+        const env = amp > 0.02 ? 0.25 + amp * 1.5 : 0.35;
         for (let i = 0; i < bars; i++) {
-          const bh = (Math.sin(t * 8 + i * 0.6) * 0.5 + 0.5) * (base * 0.14) + base * 0.02;
+          const bh =
+            (Math.sin(t * 8 + i * 0.6) * 0.5 + 0.5) * (base * 0.14) * env + base * 0.02;
           const bx = cx - ww / 2 + (ww / bars) * (i + 0.5);
           ctx.save();
-          ctx.fillStyle = rgba(TEAL, 0.85);
-          ctx.shadowColor = rgba(TEAL, 0.9);
+          ctx.fillStyle = rgba(palette.hot, 0.85);
+          ctx.shadowColor = rgba(palette.hot, 0.9);
           ctx.shadowBlur = 6;
           ctx.fillRect(bx - 1.5, wy - bh / 2, 3, bh);
           ctx.restore();
@@ -296,6 +371,7 @@ export function ReactorCore({
     return () => {
       running = false;
       cancelAnimationFrame(frame);
+      modeObserver.disconnect();
       ro.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
     };

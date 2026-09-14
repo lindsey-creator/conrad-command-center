@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { HudIcon, isHudIcon } from './HudIcon';
 
 type PillVariant = 'crit' | 'warn' | 'go' | 'default';
 
@@ -43,7 +44,11 @@ export function LaneModule({
         aria-expanded={open}
       >
         <span className="lane-module__toggle-left">
-          {icon && <span className="lane-module__icon" aria-hidden="true">{icon}</span>}
+          {icon && (
+            <span className="lane-module__icon" aria-hidden="true">
+              {isHudIcon(icon) ? <HudIcon name={icon} /> : icon}
+            </span>
+          )}
           <span className="lane-module__name">{title}</span>
         </span>
         <span className="lane-module__meta">

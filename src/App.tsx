@@ -17,6 +17,7 @@ import { Nav, type Page } from './components/Nav';
 import { PendingApprovals } from './components/PendingApprovals';
 import { QuickRunStrip } from './components/QuickRunStrip';
 import type { EchoVoiceState } from './hooks/useEchoVoice';
+import { useHudMode } from './hooks/useHudMode';
 import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/layout.css';
@@ -34,6 +35,7 @@ export default function App() {
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
   const [voiceState, setVoiceState] = useState<EchoVoiceState>('idle');
+  const { mode: hudMode, setMode: setHudMode } = useHudMode();
   const [clickupConnected, setClickupConnected] = useState(false);
   const [gmailConnected, setGmailConnected] = useState(false);
   const [ghlConnected, setGhlConnected] = useState(false);
@@ -97,7 +99,7 @@ export default function App() {
 
   return (
     <div className="wrap command-deck">
-      <HudFrame online={brainOnline} />
+      <HudFrame online={brainOnline} alert={hudMode === 'alert'} />
       <Header brainOnline={brainOnline} />
       <Nav page={page} onChange={setPage} />
       {page === 'dashboard' && (
@@ -106,7 +108,11 @@ export default function App() {
       {page === 'dashboard' ? (
         <div className="command-deck__main">
           <CommandHeader voiceState={voiceState} brainOnline={brainOnline} />
-          <EchoCommand brainOnline={brainOnline} onVoiceStateChange={setVoiceState} />
+          <EchoCommand
+            brainOnline={brainOnline}
+            onVoiceStateChange={setVoiceState}
+            onHudMode={setHudMode}
+          />
           <Type1Decisions brainOnline={brainOnline} onConnect={openConnections} />
           <LiveFeeds
             brainOnline={brainOnline}

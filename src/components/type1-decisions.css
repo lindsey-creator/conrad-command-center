@@ -12,11 +12,11 @@
   width: 220px;
   height: 80px;
   transform: translateX(-50%);
-  border: 1px solid rgba(0, 207, 255, 0.28);
+  border: 1px solid rgba(var(--cyan-rgb), 0.28);
   border-bottom: 0;
   border-radius: 220px 220px 0 0;
   pointer-events: none;
-  box-shadow: 0 0 24px rgba(0, 207, 255, 0.12);
+  box-shadow: 0 0 24px rgba(var(--cyan-rgb), 0.12);
 }
 
 .type1__head {
@@ -95,7 +95,7 @@
   min-height: 48px;
   padding: 12px 20px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(0, 255, 247, 0.4);
+  border: 1px solid rgba(var(--teal-rgb), 0.4);
   background: var(--gold-dim);
   color: var(--gold-2);
   font-family: var(--font-mono);
@@ -109,9 +109,9 @@
 .type1__card {
   padding: 16px 16px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(0, 207, 255, 0.2);
+  border: 1px solid rgba(var(--cyan-rgb), 0.2);
   background:
-    linear-gradient(180deg, rgba(0, 207, 255, 0.07) 0%, rgba(5, 11, 24, 0.5) 42%),
+    linear-gradient(180deg, rgba(var(--cyan-rgb), 0.07) 0%, rgba(5, 11, 24, 0.5) 42%),
     rgba(0, 0, 0, 0.28);
   display: flex;
   flex-direction: column;
@@ -121,8 +121,8 @@
 }
 
 .type1__card:hover {
-  border-color: rgba(0, 207, 255, 0.45);
-  box-shadow: 0 0 22px rgba(0, 207, 255, 0.1);
+  border-color: rgba(var(--cyan-rgb), 0.45);
+  box-shadow: 0 0 22px rgba(var(--cyan-rgb), 0.1);
 }
 
 .type1__cat {
@@ -137,7 +137,7 @@
 .type1__card--money_now .type1__cat { color: var(--go); }
 .type1__card--leaking .type1__cat { color: var(--crit); }
 .type1__card--efficiency .type1__cat { color: var(--warn); }
-.type1__card--live { border-color: rgba(0, 207, 255, 0.38); }
+.type1__card--live { border-color: rgba(var(--cyan-rgb), 0.38); }
 .type1__card--connect_source { border-style: dashed; }
 
 .type1__card-title {

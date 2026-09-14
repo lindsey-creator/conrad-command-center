@@ -5,12 +5,12 @@
   width: var(--reactor-size, 176px);
   max-width: 100%;
   aspect-ratio: 1 / 1;
-  filter: drop-shadow(0 0 14px rgba(0, 207, 255, 0.18));
+  filter: drop-shadow(0 0 14px rgba(var(--cyan-rgb), 0.18));
   transition: filter var(--transition);
 }
 
 .reactor-core--online {
-  filter: drop-shadow(0 0 22px rgba(0, 207, 255, 0.34));
+  filter: drop-shadow(0 0 22px rgba(var(--cyan-rgb), 0.34));
 }
 
 .reactor-core__canvas {

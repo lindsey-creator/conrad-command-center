@@ -18,7 +18,7 @@ footer::before {
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 207, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--cyan-rgb), 0.4), transparent);
 }
 
 footer::after {
