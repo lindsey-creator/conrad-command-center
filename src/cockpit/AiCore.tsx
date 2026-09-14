@@ -150,8 +150,8 @@ export function AiCore({
 
       {
         const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, base * 0.9);
-        g.addColorStop(0, rgba(C, hot ? 0.12 + pulse * 0.1 : 0.06));
-        g.addColorStop(0.5, rgba(C, 0.03));
+        g.addColorStop(0, rgba(C, hot ? 0.28 + pulse * 0.18 : 0.14));
+        g.addColorStop(0.5, rgba(C, 0.06));
         g.addColorStop(1, 'transparent');
         ctx.fillStyle = g;
         ctx.beginPath();
@@ -159,7 +159,7 @@ export function AiCore({
         ctx.fill();
       }
 
-      drawRing(cx, cy, base, 1, 0.18, [4, 8], t * 0.08);
+      drawRing(cx, cy, base, 1.2, 0.32, [4, 8], t * 0.12);
       for (let i = 0; i < 16; i++) {
         const a = (TAU / 16) * i + t * 0.08;
         const major = i % 4 === 0;
@@ -173,7 +173,7 @@ export function AiCore({
           cx + Math.cos(a) * (base + 16),
           cy + Math.sin(a) * (base + 16),
           Math.round(w * 0.022),
-          0.45,
+          0.42 + 0.38 * Math.abs(Math.sin(t * 3.1 + i)),
         );
       }
 
@@ -189,7 +189,7 @@ export function AiCore({
       }
 
       const r3 = base * 0.68;
-      drawRing(cx, cy, r3, 1, 0.3, [2, 6], t * 0.22);
+      drawRing(cx, cy, r3, 1.2, 0.42, [2, 6], t * 0.28);
       for (let i = 0; i < 8; i++) {
         const a = (TAU / 8) * i + t * 0.22;
         drawTick(cx, cy, r3 - 10, r3 + 5, a, 1, 0.55);
@@ -213,8 +213,8 @@ export function AiCore({
 
       const r4 = base * 0.56;
       {
-        const sweepAngle = (t * 1.2) % TAU - Math.PI / 2;
-        const SWEEP_ARC = Math.PI * 0.45;
+        const sweepAngle = (t * 1.85) % TAU - Math.PI / 2;
+        const SWEEP_ARC = Math.PI * 0.5;
         ctx.save();
         for (let step = 0; step < 30; step++) {
           const frac = step / 30;
@@ -224,24 +224,24 @@ export function AiCore({
           ctx.moveTo(cx, cy);
           ctx.arc(cx, cy, r4, a0, a1);
           ctx.closePath();
-          ctx.fillStyle = rgba(C, frac * 0.12);
+          ctx.fillStyle = rgba(C, frac * 0.22);
           ctx.fill();
         }
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.lineTo(cx + Math.cos(sweepAngle) * r4, cy + Math.sin(sweepAngle) * r4);
-        ctx.strokeStyle = rgba(C, 0.85);
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = rgba(C, 1);
+        ctx.lineWidth = 1.8;
         ctx.shadowColor = rgba(C, 1);
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 14;
         ctx.stroke();
         ctx.restore();
-        drawRing(cx, cy, r4, 1, 0.4);
+        drawRing(cx, cy, r4, 1.2, 0.55);
         for (let i = 0; i < 4; i++) drawTick(cx, cy, r4 - 6, r4 + 4, (TAU / 4) * i, 1, 0.5);
       }
 
       const r5 = base * 0.4;
-      drawRing(cx, cy, r5, 1.5, 0.45, [3, 3], -t * 0.4);
+      drawRing(cx, cy, r5, 1.8, 0.58, [3, 3], -t * 0.55);
       {
         const pArc = (audio / 100) * TAU;
         drawArcFill(cx, cy, r5, -Math.PI / 2, -Math.PI / 2 + pArc, 3, T, 0.75);
@@ -277,11 +277,11 @@ export function AiCore({
       }
 
       const r7 = base * 0.14;
-      const breathe = 1 + Math.sin(t * 2.2) * 0.06 + pulse * 0.12;
+      const breathe = 1 + Math.sin(t * 2.8) * 0.08 + pulse * 0.16;
       {
         const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r7 * 2.5 * breathe);
-        g.addColorStop(0, rgba(C, hot ? 0.35 : 0.22));
-        g.addColorStop(0.5, rgba(C, hot ? 0.12 : 0.07));
+        g.addColorStop(0, rgba(C, hot ? 0.55 : 0.38));
+        g.addColorStop(0.5, rgba(C, hot ? 0.2 : 0.12));
         g.addColorStop(1, 'transparent');
         ctx.fillStyle = g;
         ctx.beginPath();

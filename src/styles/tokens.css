@@ -41,8 +41,8 @@
   --radius-sm: 1px;
   --chamfer: 0px;
   --chamfer-lg: 0px;
-  --shadow: 0 0 24px rgba(0, 229, 255, 0.08), inset 0 0 24px rgba(0, 229, 255, 0.03);
-  --shadow-hover: 0 0 36px rgba(0, 229, 255, 0.18);
+  --shadow: 0 0 24px rgba(0, 207, 255, 0.16), inset 0 0 24px rgba(0, 207, 255, 0.06);
+  --shadow-hover: 0 0 36px rgba(0, 255, 247, 0.28);
   --glass-blur: blur(14px);
 
   --font-sans: 'Rajdhani', sans-serif;
