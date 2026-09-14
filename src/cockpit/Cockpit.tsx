@@ -42,10 +42,11 @@ function queryFlag(name: string): boolean {
 interface CockpitProps {
   brainOnline: boolean;
   xaiReady?: boolean;
+  museReady?: boolean;
   onConnect: (source?: string) => void;
 }
 
-export function Cockpit({ brainOnline, xaiReady = false, onConnect }: CockpitProps) {
+export function Cockpit({ brainOnline, xaiReady = false, museReady = false, onConnect }: CockpitProps) {
   const talkOpen = useMemo(() => queryFlag('talk'), []);
   const idleShot = useMemo(() => queryFlag('idle'), []);
   const speakDemo = useMemo(() => queryFlag('speak'), []);
@@ -321,6 +322,7 @@ export function Cockpit({ brainOnline, xaiReady = false, onConnect }: CockpitPro
       <CommandDock
         brainOnline={brainOnline}
         xaiReady={xaiReady}
+        museReady={museReady}
         talking={mode === 'talk'}
         listening={wispr === 'listening'}
         seed={seed}

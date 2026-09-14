@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { brain, type ChatModel } from '../api/brain';
 import { useEchoVoice, type EchoVoiceState, type VoiceError } from '../hooks/useEchoVoice';
-import { warmSpeech } from '../hooks/speechEngine';
+import { describePickedVoice } from '../hooks/speechEngine';
 import { ApprovalQueuePanel } from '../components/ApprovalQueuePanel';
 import { COMMANDS, needsConfirm } from './commands';
 import { BRAIN_SILENT, jarvisSpokenLine } from './talkReply';
 
-const GROK_OFF =
-  'GROK STANDBY — add XAI_API_KEY in Settings / Railway. Claude still answers.';
+const GROK_OFF = 'GROK STANDBY — add XAI_API_KEY in Settings / Railway.';
+const MUSE_OFF = 'Muse link not connected — add Muse webhook/API on Brain.';
+const ERR_TIMEOUT = 'Brain timed out.';
+const ERR_NETWORK = 'Network error.';
 
 const ERR_COPY: Record<Exclude<VoiceError, null>, string> = {
   'mic-denied': 'MIC BLOCKED — allow the microphone in Chrome, then click TALK again.',
@@ -22,6 +25,7 @@ const ERR_COPY: Record<Exclude<VoiceError, null>, string> = {
 interface CommandDockProps {
   brainOnline: boolean;
   xaiReady?: boolean;
+  museReady?: boolean;
   talking: boolean;
   listening: boolean;
   seed?: string;
@@ -39,6 +43,7 @@ interface CommandDockProps {
 export function CommandDock({
   brainOnline,
   xaiReady = false,
+  museReady = false,
   talking,
   listening,
   seed,
@@ -67,6 +72,7 @@ export function CommandDock({
   const [thinking, setThinking] = useState(false);
   const [waitSec, setWaitSec] = useState(0);
   const [lane, setLane] = useState<ChatModel>('claude');
+  const [voiceName, setVoiceName] = useState('VOICE · JARVIS UK');
   const ref = useRef<HTMLInputElement>(null);
   const askRef = useRef<(q?: string) => Promise<void>>(async () => {});
   const chatAbort = useRef<AbortController | null>(null);
@@ -97,9 +103,11 @@ export function CommandDock({
   }, [voice.voiceError]);
 
   useEffect(() => {
-    if (!thinking) return;
-    return warmSpeech();
-  }, [thinking]);
+    const sync = () => setVoiceName(describePickedVoice());
+    sync();
+    window.speechSynthesis?.addEventListener('voiceschanged', sync);
+    return () => window.speechSynthesis?.removeEventListener('voiceschanged', sync);
+  }, []);
 
   useEffect(() => {
     if (!thinking) {
@@ -108,31 +116,41 @@ export function CommandDock({
     }
     const t0 = Date.now();
     const id = window.setInterval(() => setWaitSec(Math.floor((Date.now() - t0) / 1000)), 250);
-    return () => window.clearInterval(id);
+    const beat = window.setInterval(() => {
+      void brain.health().catch(() => {});
+    }, 3000);
+    return () => {
+      window.clearInterval(id);
+      window.clearInterval(beat);
+    };
   }, [thinking]);
 
-  useEffect(() => {
-    if (!thinking) return;
-    const who = lane === 'grok' && xaiReady ? 'GROK' : 'CLAUDE';
-    setBanner(`THINKING — ${who} · ${waitSec}s`);
-  }, [thinking, waitSec, lane, xaiReady]);
+  const laneLive =
+    lane === 'claude' || (lane === 'grok' && xaiReady) || (lane === 'muse' && museReady);
+  const who = lane === 'grok' && xaiReady ? 'GROK' : lane === 'muse' && museReady ? 'MUSE' : 'CLAUDE';
+  const statusLine = thinking
+    ? `THINKING — ${who} · ${waitSec}s${brainOnline ? '' : ' · health standby'}`
+    : banner;
 
-  const hear = async (line: string, sink = false) => {
+  const hear = (line: string, sink = false) => {
     voice.unlock();
-    const result = await voice.speak(line);
-    if (result === 'blocked') setBanner(ERR_COPY['tts-blocked']);
-    if (result === 'missing') setBanner(ERR_COPY['tts-missing']);
-    if (sink) onSpeakEnd();
+    void voice.speak(line).then((result) => {
+      if (result === 'blocked') setBanner(ERR_COPY['tts-blocked']);
+      if (result === 'missing') setBanner(ERR_COPY['tts-missing']);
+      if (sink) onSpeakEnd();
+    });
   };
 
-  const deliver = async (line: string, claimed: boolean, bannerLine: string) => {
-    setLastSaid(line);
-    setReply(line);
-    setBanner(bannerLine);
-    onAnswer(line, claimed);
-    voice.setThinking(false);
-    setThinking(false);
-    await hear(line, false);
+  const paintAnswer = (line: string, claimed: boolean, bannerLine: string) => {
+    flushSync(() => {
+      setLastSaid(line);
+      setReply(line);
+      setBanner(bannerLine);
+      setThinking(false);
+      voice.setThinking(false);
+      onAnswer(line, claimed);
+    });
+    window.setTimeout(() => hear(line, false), 40);
   };
 
   const handleAsk = async (raw?: string, trusted = false) => {
@@ -148,18 +166,19 @@ export function CommandDock({
       setBanner('CONFIRM on glass — nothing executes yet.');
       return;
     }
-    const useGrok = lane === 'grok' && xaiReady;
     if (lane === 'grok' && !xaiReady) {
-      setBanner(GROK_OFF);
+      paintAnswer(GROK_OFF, true, GROK_OFF);
+      return;
+    }
+    if (lane === 'muse' && !museReady) {
+      paintAnswer(MUSE_OFF, true, MUSE_OFF);
+      return;
     }
     setPending(null);
     voice.stopSpeaking();
     setText(query);
     setReply('');
     setThinking(true);
-    const who = useGrok ? 'GROK' : 'CLAUDE';
-    setBanner(brainOnline ? `THINKING — ${who} · 0s` : `THINKING — ${who} · health standby`);
-    voice.setThinking(true);
     onSubmit(query);
     setApprovalId(null);
     setDraftEdit(null);
@@ -172,7 +191,7 @@ export function CommandDock({
 
     try {
       const res = await brain.chat(
-        { message: query, ...(useGrok ? { model: 'grok' as const } : {}) },
+        { message: query, ...(laneLive && lane !== 'claude' ? { model: lane } : {}) },
         ac.signal,
       );
       if (gen !== askGen.current) return;
@@ -183,8 +202,8 @@ export function CommandDock({
       if (res.approval_id) setApprovalId(res.approval_id);
       const { line, fallback } = jarvisSpokenLine(res);
       const connected = res.mode !== 'connect_source';
-      const provenWho = res.mode === 'grok' ? 'GROK' : 'CLAUDE';
-      await deliver(
+      const provenWho = res.mode === 'grok' ? 'GROK' : res.mode === 'muse' ? 'MUSE' : 'CLAUDE';
+      paintAnswer(
         line,
         fallback || !connected,
         !connected
@@ -195,13 +214,18 @@ export function CommandDock({
       );
     } catch (err) {
       if (gen !== askGen.current) return;
-      const timed = err instanceof Error && /timed out/i.test(err.message);
-      await deliver(
-        BRAIN_SILENT,
+      const msg = err instanceof Error ? err.message : '';
+      const timed = /timed out/i.test(msg);
+      const net = /network/i.test(msg);
+      const spoken = timed ? ERR_TIMEOUT : net ? ERR_NETWORK : BRAIN_SILENT;
+      paintAnswer(
+        spoken,
         true,
         timed
-          ? 'CLAIMED — Brain /chat timed out. Try again, or a shorter question.'
-          : 'CLAIMED — Brain /chat did not respond.',
+          ? 'CLAIMED — Brain /chat timed out.'
+          : net
+            ? 'CLAIMED — Network error.'
+            : 'CLAIMED — Brain /chat did not respond.',
       );
     } finally {
       if (gen === askGen.current) {
@@ -269,7 +293,7 @@ export function CommandDock({
       <div className="j-comm__head">
         <i className={voice.voiceState === 'listening' ? 'is-live' : ''} />
         <span>COMM LINK — JARVIS v3.0</span>
-        <em>{voice.micSupported ? 'STT READY' : 'STT STANDBY'}</em>
+        <em>{voiceName}</em>
       </div>
       <p className={`wispr__state is-${voice.voiceState}`} aria-live="polite">
         {speakLabel === 'TALK' ? '' : speakLabel}
@@ -332,9 +356,9 @@ export function CommandDock({
           {ERR_COPY[voice.voiceError]}
         </p>
       ) : null}
-      {banner ? (
+      {statusLine ? (
         <p className={`wispr__banner${voice.voiceError ? ' is-warn' : ''}${thinking ? ' is-think' : ''}`} role="status">
-          {banner}
+          {statusLine}
         </p>
       ) : null}
       <div className="wispr__models" role="radiogroup" aria-label="Model">
@@ -359,11 +383,24 @@ export function CommandDock({
         >
           GROK
         </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={lane === 'muse'}
+          className={`wispr__model${lane === 'muse' ? ' is-on' : ''}${museReady ? '' : ' is-off'}`}
+          onClick={() => {
+            setLane('muse');
+            if (!museReady) setBanner(MUSE_OFF);
+          }}
+        >
+          MUSE
+        </button>
       </div>
       {reply ? (
-        <p className="wispr__reply" data-testid="jarvis-reply" aria-live="polite">
-          {reply}
-        </p>
+        <div className="wispr__answer" data-testid="jarvis-reply" aria-live="polite">
+          <span>JARVIS</span>
+          <p>{reply}</p>
+        </div>
       ) : null}
       {draftEdit ? (
         <div className="gate">

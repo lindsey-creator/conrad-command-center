@@ -135,31 +135,42 @@ export function waitForVoices(): Promise<SpeechSynthesisVoice[]> {
 
 const ROBOT_VOICE =
   /microsoft david|microsoft zira|alex\b|bad news|good news|bells|boing|bubbles|cellos|junior|kathy|organ|princess|ralph|trinoids|whisper|zarvox|dummy|reed|pipe/i;
-const NATURAL_VOICE =
-  /samantha|google us english|google english|enhanced|premium|neural|siri|nicky|allison|ava|zoe|susan|karen|moira|tessa|fiona|victoria|samantha/i;
 
+/** Movie JARVIS = calm British male RP. No licensed Bettany clone unless a real API voice is configured. */
 function voiceScore(v: SpeechSynthesisVoice): number {
   const n = v.name.toLowerCase();
   const lang = v.lang.toLowerCase();
-  if (ROBOT_VOICE.test(n)) return -50;
+  if (ROBOT_VOICE.test(n)) return -80;
   let s = 0;
-  if (/samantha/.test(n)) s += 100;
-  if (/google us english/.test(n)) s += 95;
-  if (/google/.test(n) && lang.startsWith('en-us')) s += 88;
-  if (NATURAL_VOICE.test(n)) s += 70;
-  if (lang.startsWith('en-us')) s += 22;
-  if (lang.startsWith('en')) s += 8;
-  if (!v.localService) s += 10;
+  if (/daniel/.test(n)) s += 120;
+  if (/google uk english male/.test(n)) s += 115;
+  if (/arthur|rishi/.test(n)) s += 108;
+  if (/(british|uk english|en-gb)/.test(n) && /male/.test(n)) s += 100;
+  if (lang.startsWith('en-gb') && /male/.test(n)) s += 90;
+  if (lang.startsWith('en-gb')) s += 70;
+  if (/(british|uk)\b/.test(n)) s += 40;
+  if (/(enhanced|premium|neural)/.test(n)) s += 25;
+  if (/samantha|google us english/.test(n)) s += 20;
+  if (lang.startsWith('en-us')) s += 8;
+  if (lang.startsWith('en')) s += 4;
   return s;
 }
 
-/** Prefer Samantha / Google US / premium device voices. Never the robotic default if a better English voice exists. */
 export function pickVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined {
   if (cachedVoice && voices.some((v) => v.voiceURI === cachedVoice?.voiceURI)) return cachedVoice;
   const en = voices.filter((v) => v.lang.toLowerCase().startsWith('en'));
   const ranked = (en.length ? en : voices).slice().sort((a, b) => voiceScore(b) - voiceScore(a));
   cachedVoice = ranked[0] ?? null;
   return ranked[0];
+}
+
+export function describePickedVoice(voices: SpeechSynthesisVoice[] = []): string {
+  const v = pickVoice(voices.length ? voices : speechReady() ? window.speechSynthesis.getVoices() : []);
+  if (!v) return 'VOICE · DEFAULT';
+  const uk = /en-gb|uk|british/i.test(`${v.lang} ${v.name}`);
+  const male = /male|daniel|arthur|rishi/i.test(v.name);
+  if (uk && male) return `VOICE · ${v.name}`;
+  return `VOICE · ${v.name} (no UK male on this device)`;
 }
 
 export function prefetchVoices() {
@@ -237,8 +248,8 @@ export function speakLine(
     }
     return new Promise<SpeakResult>((resolve) => {
       const utterance = new SpeechSynthesisUtterance(line);
-      utterance.rate = 1.02;
-      utterance.pitch = 0.95;
+      utterance.rate = 0.95;
+      utterance.pitch = 0.92;
       utterance.volume = 1;
       utterance.lang = 'en-GB';
       const preferred = pickVoice(voices.length ? voices : synth.getVoices());

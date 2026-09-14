@@ -23,16 +23,19 @@ export default function App() {
   const [connectFocus, setConnectFocus] = useState<string | null>(null);
   const [brainOnline, setBrainOnline] = useState(false);
   const [xaiReady, setXaiReady] = useState(false);
+  const [museReady, setMuseReady] = useState(false);
 
   const checkHealth = useCallback(async () => {
     try {
       const healthRes = await brain.health();
       setBrainOnline(healthRes.status === 'ok');
       setXaiReady(Boolean(healthRes.xai) || Boolean(healthRes.models?.includes('grok')));
+      setMuseReady(Boolean(healthRes.muse) || Boolean(healthRes.models?.includes('muse')));
       touchBrainLive();
     } catch {
       setBrainOnline(false);
       setXaiReady(false);
+      setMuseReady(false);
     }
   }, []);
 
@@ -74,7 +77,14 @@ export default function App() {
   }, [setPage]);
 
   if (page === 'dashboard') {
-    return <Cockpit brainOnline={brainOnline} xaiReady={xaiReady} onConnect={openConnections} />;
+    return (
+      <Cockpit
+        brainOnline={brainOnline}
+        xaiReady={xaiReady}
+        museReady={museReady}
+        onConnect={openConnections}
+      />
+    );
   }
 
   return (

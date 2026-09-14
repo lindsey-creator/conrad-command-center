@@ -241,13 +241,13 @@ export interface ChatDealFields {
   other_costs?: number;
 }
 
-export type ChatModel = 'claude' | 'grok';
+export type ChatModel = 'claude' | 'grok' | 'muse';
 
 export interface ChatRequest {
   message: string;
   wants_draft?: boolean;
   deal?: ChatDealFields;
-  /** Only send 'grok' when Brain reports xai. Never fake a Grok reply. */
+  /** Only send when that model is live on Brain. Never fake Grok/Muse as Claude. */
   model?: ChatModel;
 }
 
@@ -349,6 +349,7 @@ export interface HealthResponse {
   command?: string;
   /** True when Brain has XAI_API_KEY. Absent on older brains. */
   xai?: boolean;
+  muse?: boolean;
   models?: string[];
 }
 
@@ -463,18 +464,55 @@ async function fetchJsonOrConnect<T extends { status?: string; sources?: string[
   return res.json() as Promise<T>;
 }
 
-const CHAT_TIMEOUT_MS = 90_000;
+export const CHAT_TIMEOUT_MS = 90_000;
 
-async function postJson<T>(
-  path: string,
-  body: unknown,
-  timeoutMs: number = CHAT_TIMEOUT_MS,
-  external?: AbortSignal,
-): Promise<T> {
+/**
+ * XHR for /chat — iOS Safari fetch+keepalive often never delivers the JSON
+ * body even after the server 200s. xhr.timeout actually fires on iPhone.
+ */
+function postChat(body: unknown, timeoutMs: number, external?: AbortSignal): Promise<ChatResponse> {
+  const url = `${getBase()}/chat`;
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.timeout = timeoutMs;
+    xhr.responseType = 'text';
+    const onParent = () => xhr.abort();
+    external?.addEventListener('abort', onParent);
+    const done = () => external?.removeEventListener('abort', onParent);
+    xhr.onload = () => {
+      done();
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new Error(`Brain API /chat: ${xhr.status} — ${xhr.responseText || ''}`));
+        return;
+      }
+      try {
+        resolve(JSON.parse(xhr.responseText) as ChatResponse);
+      } catch {
+        reject(new Error('Brain API /chat: non-JSON response'));
+      }
+    };
+    xhr.onerror = () => {
+      done();
+      reject(new Error('Brain API /chat: network error'));
+    };
+    xhr.ontimeout = () => {
+      done();
+      reject(new Error('Brain API /chat: timed out'));
+    };
+    xhr.onabort = () => {
+      done();
+      reject(new Error('Brain API /chat: timed out'));
+    };
+    xhr.send(JSON.stringify(body));
+  });
+}
+
+async function postJson<T>(path: string, body: unknown, timeoutMs?: number): Promise<T> {
   const ctrl = new AbortController();
-  const timer = globalThis.setTimeout(() => ctrl.abort(), timeoutMs);
-  const onParent = () => ctrl.abort();
-  external?.addEventListener('abort', onParent);
+  const timer = timeoutMs ? globalThis.setTimeout(() => ctrl.abort(), timeoutMs) : 0;
   try {
     const res = await fetch(`${getBase()}${path}`, {
       method: 'POST',
@@ -482,7 +520,6 @@ async function postJson<T>(
       body: JSON.stringify(body),
       signal: ctrl.signal,
       cache: 'no-store',
-      keepalive: true,
     });
     if (!res.ok) {
       const detail = await res.text().catch(() => '');
@@ -499,8 +536,7 @@ async function postJson<T>(
     }
     throw e;
   } finally {
-    globalThis.clearTimeout(timer);
-    external?.removeEventListener('abort', onParent);
+    if (timer) globalThis.clearTimeout(timer);
   }
 }
 
@@ -542,13 +578,12 @@ export const brain = {
     postJson<ShadowValidationResult>('/validation/shadow', { deals }),
   /** Human-seat chat. POST /chat { message }. Never auto-sends. Never fakes a reply. */
   chat: (req: ChatRequest, signal?: AbortSignal) =>
-    postJson<ChatResponse>(
-      '/chat',
+    postChat(
       {
         message: req.message,
         ...(req.wants_draft ? { wants_draft: true } : {}),
         ...(req.deal ? { deal: req.deal } : {}),
-        ...(req.model === 'grok' ? { model: 'grok' } : {}),
+        ...(req.model && req.model !== 'claude' ? { model: req.model } : {}),
       },
       CHAT_TIMEOUT_MS,
       signal,
