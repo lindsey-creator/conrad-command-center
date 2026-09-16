@@ -1,6 +1,6 @@
 # Review reply drafts
 
-- Date: 2026-09-09
+- Date: 2026-09-16
 - Brand: Conrad Mortgage / Conrad Team
 - Phone in copy: 216-250-9078
 - Status: DRAFT — human posts in GBP
@@ -16,13 +16,13 @@ Human should paste new GBP reviews into the next Wednesday run.
 
 ---
 
-## Template A — 5-star praise (accountability / named contact)
+## Template A — 5-star praise (closing-week clarity / smooth finish)
 
-**When to use:** Reviewer highlights responsive team, a named point person, clear updates, plain-language explanations, or a smooth path to closing.
+**When to use:** Reviewer highlights a smooth closing, early list of conditions, honest fee talk, appraisal updates, or plain-language explanations in the last mile.
 
 **Draft reply:**
 
-Hi [NAME] — thank you for sharing this. [DETAIL THEY WROTE] is exactly the standard we hold ourselves to — one accountable contact, documented next steps, and plain answers across Greater Cleveland and Northeast Ohio.
+Hi [NAME] — thank you for sharing this. [DETAIL THEY WROTE] is exactly what we aim for in **Greater Cleveland and Northeast Ohio** — open conditions with owners, **cash-to-close reviewed before signing**, and updates when appraisal or timing shifts.
 
 If [LO FIRST NAME IF KNOWN] or anyone here can help again, message us on this profile or call **216-250-9078**.
 
@@ -30,13 +30,13 @@ If [LO FIRST NAME IF KNOWN] or anyone here can help again, message us on this pr
 
 ---
 
-## Template B — Mixed / 3–4 star (good outcome, process friction)
+## Template B — Mixed / 3–4 star (good outcome, closing-week friction)
 
-**When to use:** Reviewer is mostly positive but mentions delays, handoff confusion, a missed touchpoint, or a fee/timeline surprise.
+**When to use:** Reviewer is mostly positive but mentions last-minute conditions, appraisal silence, fee confusion, or unclear “clear to close” status.
 
 **Draft reply:**
 
-Hi [NAME] — thank you for the honest feedback. We are glad [DETAIL THEY PRAISED] worked for you, and we take [DETAIL THEY CRITICIZED] seriously — you deserved to know **who owns the next step** and **when to expect contact**.
+Hi [NAME] — thank you for the honest feedback. We are glad [DETAIL THEY PRAISED] worked for you, and we take [DETAIL THEY CRITICIZED] seriously — you deserved **a weekly view of open conditions**, **proactive appraisal updates**, and **fee conversations before signing** — not surprises in closing week.
 
 We would like to learn more and make it right. Please message us here or call **216-250-9078** and ask for [LO FIRST NAME IF KNOWN or "our office"]. We will follow up directly.
 
@@ -44,13 +44,13 @@ We would like to learn more and make it right. Please message us here or call **
 
 ---
 
-## Template C — 1–2 star (felt ignored / surprise / breakdown)
+## Template C — 1–2 star (surprises at signing / felt left in the dark)
 
-**When to use:** Reviewer reports ghosting, being passed between people, last-minute changes, rate confusion, or not knowing what happens next.
+**When to use:** Reviewer reports new requirements the week of closing, fees that changed at the table, weeks without appraisal news, or thinking they were clear to close when they were not.
 
 **Draft reply:**
 
-Hi [NAME] — I am sorry this fell short of what you expected. [REFLECT ONE SPECIFIC DETAIL THEY WROTE] matters, and you deserved clearer communication from start to finish — including **who owns your file**, **what triggers the next step**, and **how we reach you** when something changes.
+Hi [NAME] — I am sorry this fell short of what you expected. [REFLECT ONE SPECIFIC DETAIL THEY WROTE] matters, and you deserved **plain-language milestones** — what was still open, **when cash-to-close was final**, and **who would call if the timeline slipped**.
 
 We want to hear from you directly. Call **216-250-9078** or message us here with the best way to reach you — a lead team member will respond personally.
 
