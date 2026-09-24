@@ -1,4 +1,4 @@
-# GBP post drafts — week of 2026-09-17
+# GBP post drafts — week of 2026-09-24
 
 - Brand: Conrad Mortgage / Conrad Team
 - Market: Cleveland, OH / Northeast Ohio
@@ -7,26 +7,26 @@
 - Do not publish: 216-513-5139
 
 > Canonical Thursday output per `seo-system/prompts/weekly-gbp-posts.md`.  
-> Human-reviewed bundle also in [`content/seo-drafts/2026-09-17/gbp-posts.md`](../../content/seo-drafts/2026-09-17/gbp-posts.md).
+> Human-reviewed bundle also in [`content/seo-drafts/2026-09-24/gbp-posts.md`](../../content/seo-drafts/2026-09-24/gbp-posts.md).
 
 ---
 
-## Post 1 — Late September rhythm in Northeast Ohio
+## Post 1 — Steady fall planning in Greater Cleveland
 
 - Suggested day: Friday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-Late September in Greater Cleveland often feels **steady** — not the spring rush, not the holiday sprint.
+Late September in **Greater Cleveland** is often a **steady** season — not the spring rush, not the holiday sprint.
 
-Some buyers are touring with a clear budget. Some homeowners are finally ready to ask about a refinance. Both are normal.
+Some buyers are still touring with a clear budget. Some homeowners are finally ready to ask about a **refinance**. Both are normal.
 
 Useful questions we hear this time of year:
 
 - Does my timeline still match the home I want?  
-- What should I refresh before I apply or update my file?  
-- Who on my team answers the phone when something changes?
+- What should I refresh in my file before I apply or update documents?  
+- Who on my team answers when something changes?
 
 Conrad Mortgage / Conrad Team helps Northeast Ohio borrowers plan in **plain language** — without pressure or a rate billboard on this profile.
 
@@ -37,90 +37,80 @@ Planning a purchase or refinance this fall? Message us here.
 
 ---
 
-## Post 2 — Pre-approval vs. pre-qualification (what the words mean)
+## Post 2 — What “conditions” mean after you apply
 
 - Suggested day: Monday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-**Shopping for a home in Cleveland or Northeast Ohio?** You will hear “pre-qualified” and “pre-approved” — they are not interchangeable.
+After you apply for a **purchase or refinance**, you may hear about **conditions** — extra documents or clarifications underwriting needs before clear-to-close.
 
-**Pre-qualification** is often an early conversation: income, debts, and goals discussed at a high level.
+That is normal. It is not always a sign something went wrong.
 
-**Pre-approval** usually means a lender reviewed documents and credit within their process — so your budget picture is **more defined** before you write offers.
+Helpful habits:
 
-Every lender defines steps differently. Ask:
+- Read each condition in plain English — ask what it is for if unclear  
+- Upload or send items in one organized batch when you can  
+- Confirm **who** receives them and **when** you should expect a response  
 
-- What documents do you need for **your** pre-approval?  
-- How long is it valid?  
-- What would change my approval before closing?
+Conrad Mortgage / Conrad Team walks **Northeast Ohio** files through conditions with a **milestone map** — so you are not guessing what happens next.
 
-We explain the path in plain English — purchase or refinance.
+Questions about your file? Message us on this profile.
 
-Want that conversation? Call **216-250-9078** or message us on this profile.
-
-- CTA: Call 216-250-9078 or message on this profile
-- Compliance notes: Process education only — not a credit decision. No rate quotes. Phone appears once in this set.
+- CTA: Message us on this profile
+- Compliance notes: Process education only — not a credit decision. No guaranteed approval.
 
 ---
 
-## Post 3 — First call with a lender: what to bring
+## Post 3 — First purchase: earnest money and inspection timing
 
 - Suggested day: Wednesday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-**First home in Greater Cleveland?** Your first call with a mortgage team goes smoother when you know what to have nearby:
+**First home in Cleveland or Northeast Ohio?** Beyond pre-approval, two timeline topics confuse people early:
 
-- A rough idea of **monthly payment comfort** (not a rate — a budget)  
-- **Employment history** — where you work and how long  
-- **Assets for down payment and reserves** — accounts you may use at closing  
-- **Questions in writing** — timeline, documents, who updates you along the way  
+**Earnest money** — what it is, when it is due, and how it relates to your contract (not the same as your down payment).
 
-You do not need perfect credit or every document dialed in on day one. You **do** deserve clear next steps.
+**Inspection period** — how it fits your offer timeline and when your lender needs updates if repairs change the deal.
 
-Conrad Mortgage / Conrad Team walks first-time buyers through **what applies to your file** — not a generic script.
+You do not need every answer on day one — but you **do** deserve a lender team that explains how these dates connect to **your** loan file.
 
-Message us here to schedule a first conversation.
+Conrad Mortgage / Conrad Team helps first-time buyers ask the right questions **before** offer day — in plain English.
+
+Message us here to talk through your next step.
 
 - CTA: Message us on this profile
-- Compliance notes: FTB education only. No guaranteed approval. No rate quotes.
+- Compliance notes: FTB education only. Not legal or real estate advice. No rate quotes.
 
 ---
 
-## Post 4 — Five questions before you choose a lender
+## Post 4 — When your closing date moves
 
 - Suggested day: Thursday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-Comparing **Cleveland-area mortgage lenders or brokers?** Five questions that reveal how the file will actually feel:
+Closing dates slip sometimes — appraisal timing, document requests, or contract changes. That can feel stressful if nobody tells you **why** or **what changed**.
 
-1. **Who is my point person after I apply?**  
-2. **How will you update me on conditions and appraisal timing?**  
-3. **When do we review cash-to-close — before signing day?**  
-4. **What happens if my timeline slips?**  
-5. **How do I reach you if something urgent comes up?**
+Conrad Mortgage / Conrad Team aims for **proactive updates** on **Greater Cleveland** purchase and refinance files: what moved, what we need from you, and realistic next milestones — not radio silence.
 
-Good answers should be **specific**, not vague promises.
+Need to talk through your timeline? Call **216-250-9078** or message us on this profile.
 
-Conrad Mortgage / Conrad Team welcomes these questions — on this profile and on every Northeast Ohio file.
-
-**CTA:** Message us on this profile
-
-- Compliance notes: No “#1 lender,” star totals, competitor names, or rate quotes.
+- CTA: Call 216-250-9078 or message on this profile
+- Compliance notes: Phone appears once in this set (repo lock). Confirm listing phone before paste. No “on-time closing” guarantees.
 
 ---
 
 ## Human checklist
 
-- Publish in GBP (one post at a time; stagger with 2026-09-16 / 2026-09-15 / 2026-09-11 / 2026-09-10 if those sets are still in queue)
+- Publish in GBP (one post at a time; stagger with 2026-09-23 / 2026-09-22 / 2026-09-21 / 2026-09-18 / 2026-09-17 and prior approved sets)
 - Add photo per post (`Image: HUMAN_SUPPLIES`)
 - Confirm NAP, hours, website from verified GBP admin — do not paste an unverified street address
-- Confirm **216-250-9078** on the listing you control (site-watch 2026-09-16: theconradteam.com HTTP 200; public page has shown **216-279-2223** — resolve mismatch before paste)
+- Confirm **216-250-9078** on the listing you control (site-watch 2026-09-24: theconradteam.com HTTP 200; public page has shown **216-279-2223** — resolve mismatch before paste)
 - Do not mention **216-513-5139**
 - Do not promote DSCR, hard money, or Goldfront construction products on this listing
 - **NO_SNAPSHOT** persists for pack competitors — complete incognito observation before claiming pack alignment
