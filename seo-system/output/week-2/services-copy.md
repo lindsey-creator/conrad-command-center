@@ -1,6 +1,6 @@
 # GBP services copy
 
-- Date: 2026-10-16
+- Date: 2026-10-23
 - Brand: Conrad Mortgage / Conrad Team
 - Phone: 216-250-9078
 - Status: DRAFT — human pastes into GBP Services
@@ -11,7 +11,7 @@
 ## Service: Conventional purchase mortgages
 
 - Description:
-  Home purchase loans for **Greater Cleveland and Northeast Ohio** — from first conversation through clear-to-close, with a **milestone map** after you apply and clarity on **who owns each step** (loan advisor, processor, underwriting handoffs). When you are **under contract in Q4**, we help you line up **inspection and loan calendars** on parallel tracks — which contract dates affect **document deadlines**, when **inspection results** may update your file, and **who to contact in writing** when either timeline moves — plus **proactive updates** when **appraisal** or signing targets shift (not a black box).
+  Home purchase loans for **Greater Cleveland and Northeast Ohio** — from first conversation through clear-to-close, with a **milestone map** after you apply and clarity on **who owns each step** (loan advisor, processor, underwriting handoffs). In **late October**, files often run alongside **holiday plans** — we line up **document refresh**, **appraisal scheduling**, and **signing targets** on realistic tracks and send **written updates** when **appraisal or inspection timing** shifts (what changed on **your** file, who owns next steps, and the **next date** you should hear from us — not a black box).
 - Do not say:
   Rate quotes, “lowest rates,” guaranteed approval, guaranteed closing dates, legal or real estate advice on contingencies, or program promises you have not confirmed in GBP admin.
 
@@ -20,7 +20,7 @@
 ## Service: First-time homebuyer conversations
 
 - Description:
-  First home in Cleveland? After **offer acceptance**, the **first 72 hours** on your loan file matter — **earnest money**, inspection scheduling, and uploads often overlap. Start with a **first lender call** (before or right after contract) on **what pre-approval means (and what it does not)** for **your** file, which documents to upload **first** so underwriting is not waiting on you, and who confirms the file is **received and assigned** — not just “we got your app.” Plain English on **earnest money timing**, **inspection milestones**, and **gift-fund paperwork** basics — no jargon, no pressure.
+  **Shopping for a first home in Cleveland or Northeast Ohio this winter?** Start with a **pre-approval conversation** on what pre-approval **means and does not mean** for **your** file — which documents to upload **first**, and who confirms the file is **received and assigned** after **offer acceptance** so the process does not restart from zero. Plain English on **earnest money timing**, **inspection milestones**, and **gift-fund paperwork** basics — education only, no pressure, no neighborhood steering.
 - Do not say:
   OHFA or down-payment program guarantees, FHA/VA/USDA unless a human confirms those products on this listing, tax or legal advice on gifts or earnest money, or neighborhood steering (“best areas for first-time buyers”).
 
@@ -29,7 +29,7 @@
 ## Service: Refinance conversations
 
 - Description:
-  **Purchase or refinance** targeting a **year-end signing or move**? We review **your timeline and documents** first, then talk payment, term, and break-even honestly — including when **waiting** makes more sense than applying. Planning covers **loan conditions**, **title** milestones, and a realistic **holiday buffer** when a **condition** or document refresh adds days — with **fees and cash-to-close** walked through **before signing week** and proactive notice when dates shift (not jargon at the table).
+  **Refinance before year-end?** We start with **your calendar and documents**, then talk payment, term, and break-even honestly — including when **waiting** makes more sense than applying. Planning covers **loan conditions**, **title** milestones, a realistic **holiday buffer** when a **condition** or document refresh adds days, and **fees and cash-to-close** walked through **before signing week**, with proactive notice when dates shift (not jargon at the table).
 - Do not say:
   Rate quotes, “save $X per month,” guaranteed savings, guaranteed appraisal or title dates, or approval promises.
 
@@ -38,7 +38,7 @@
 ## Service: Cleveland & Northeast Ohio home loans
 
 - Description:
-  Local mortgage guidance for buyers and homeowners across Greater Cleveland, Strongsville, Westlake, Solon, Akron, Canton, and surrounding communities. Conrad Mortgage / Conrad Team emphasizes **open conditions with clear owners** — what you supply vs. what the team verifies, **named point people** for mid-file questions, and confirmation when items are received — so you are not wondering if something disappeared while **under contract** or in refi through year-end.
+  Local mortgage guidance for buyers and homeowners across Greater Cleveland, Strongsville, Westlake, Solon, Akron, Canton, and surrounding communities. Conrad Mortgage / Conrad Team emphasizes **open conditions with clear owners** — what you supply vs. what the team verifies — plus **named point people** for mid-file questions and **written mid-file updates** when appraisal or closing dates move through **late October** and into year-end.
 - Do not say:
   Invented street address (unless verified in GBP), “#1 lender in Cleveland,” review counts, or service-area claims that do not match your GBP service-area settings.
 
@@ -65,7 +65,7 @@ These were **not** written because they are unconfirmed for Conrad Mortgage GBP 
 
 ## Competitor themes note
 
-`seo-system/output/week-1/competitor-reviews.csv` (2026-10-06) carries **NO_SNAPSHOT** — no named pack competitors (**eleventh consecutive Monday** without SEEN pack rows through 2026-10-12). The **SUMMARY** row (generic, not pack-validated) suggests emphasizing: **loan-team role clarity** after apply; **open conditions with owners and due dates** (addresses “underwriting black box” complaint patterns); **cash-to-close before signing week**; **proactive outreach** when appraisal or closing dates shift; **named point person** when timeline moves mid-file. Descriptions above reflect those themes and align with **2026-10-15** Thursday GBP posts (under contract · inspection + loan overlap · first 72 hours after offer · title/move calendar) — without claiming competitor data or metrics.
+`seo-system/output/week-1/competitor-reviews.csv` (2026-10-20) carries **NO_SNAPSHOT** — no named pack competitors (**twelfth consecutive Monday** without SEEN pack rows through 2026-10-19). The **SUMMARY** row (generic, not pack-validated) suggests emphasizing: **written updates when appraisal or inspection timing shifts**; **pre-approval boundaries** before winter shopping; **calendar-first refi planning**; **open conditions with clear owners**; **named point person** when timelines compress. Descriptions above align with **2026-10-22** Thursday GBP posts and **2026-10-21** review-reply themes — without claiming competitor data or metrics.
 
 ---
 
@@ -76,5 +76,5 @@ These were **not** written because they are unconfirmed for Conrad Mortgage GBP 
 - [ ] Confirm service area vs. storefront address in GBP admin
 - [ ] Do not paste DSCR, hard money, physician, or Goldfront products unless this listing is confirmed to represent those units
 - [ ] Do not use **216-513-5139** anywhere
-- [ ] Keep GBP Services aligned with Thursday post themes (2026-10-15: under contract · open conditions · post-offer FTB · title/move buffer)
-- [ ] Stagger paste with 2026-10-15 Thu posts still in queue — avoid duplicating the same headline on the same publish day
+- [ ] Keep GBP Services aligned with Thursday post themes (2026-10-22: late-October rhythm · appraisal/inspection updates · pre-approval boundaries · calendar-first refi)
+- [ ] Stagger paste with 2026-10-22 Thu posts still in queue — avoid duplicating the same headline on the same publish day
