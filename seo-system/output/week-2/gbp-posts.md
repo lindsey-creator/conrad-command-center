@@ -1,29 +1,29 @@
-# GBP post drafts — week of 2026-10-29
+# GBP post drafts — week of 2026-11-05
 - Brand: Conrad Mortgage / Conrad Team
 - Market: Cleveland, OH / Northeast Ohio
 - Status: DRAFT — human publishes
 - Phone lock: 216-250-9078
 - Do not publish: 216-513-5139
 
-Human-readable bundle with full compliance notes: `content/seo-drafts/2026-10-29/gbp-posts.md`
+Human-readable bundle with full compliance notes: `content/seo-drafts/2026-11-05/gbp-posts.md`
 
 ---
 
-## Post 1 — Gift-fund paperwork: ask early, not at underwriting
+## Post 1 — Document refresh before Thanksgiving-week signing
 - Suggested day: Friday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-**First-time and move-up buyers** in **Greater Cleveland** often use **gift funds** for part of the down payment — and the paperwork is easier when it is lined up **before** you are under contract, not the week underwriting opens.
+**Greater Cleveland** purchase and refinance files often hit a quiet crunch in **early November**: pay stubs, insurance renewals, or employer letters need a quick refresh before **holiday-week signing** — not a full restart of your file.
 
-Worth clarifying on an early call:
+Worth a short check-in before calendars get tight:
 
-- What documentation your file needs for **gift funds** (education only — not tax or legal advice)  
-- How gift timing connects to **earnest money** and your upload rhythm  
-- Who confirms items are **received** on your file  
+- Which documents may need an **updated copy** before underwriting or clear-to-close  
+- How a **condition** list changes when a date slips into Thanksgiving week  
+- Who confirms uploads are **received** on your file  
 
-Conrad Mortgage / Conrad Team supports **Northeast Ohio** purchase plans with plain-English **first-time buyer conversations** — no pressure, no neighborhood steering on this profile.
+Conrad Mortgage / Conrad Team supports **Northeast Ohio** buyers and homeowners with plain-English **process updates** — no neighborhood steering on this profile.
 
 - CTA:
   Message us on this profile
@@ -32,63 +32,69 @@ Conrad Mortgage / Conrad Team supports **Northeast Ohio** purchase plans with pl
 
 ---
 
-## Post 2 — Under contract? Confirm your file is received and assigned
+## Post 2 — Open conditions: who supplies what, who verifies what
 - Suggested day: Monday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-The days right after **offer acceptance** set the tone: priority uploads, **earnest money** timing, and confirmation that your loan file is **received and assigned** — not restarting from zero with a new inbox.
+Mid-file stress often comes from **conditions** that feel vague — not from the number of items on the list.
 
-**Cleveland-area** buyers often tell us this handoff matters as much as clear-to-close. We aim for:
+On **Cleveland-area** purchase and refinance files, clarity helps:
 
-- A clear **first-milestone checklist** in plain English  
-- **Open conditions** with owners — what you supply vs. what we verify  
-- **Written updates** when inspection or **appraisal** dates move  
+- **Open conditions with clear owners** — what you upload vs. what the team verifies  
+- A realistic order for **priority items** after offer acceptance or refi application  
+- **Written notice** when a third-party milestone (appraisal, title, insurance) moves  
 
-Conrad Mortgage / Conrad Team keeps **post-offer file continuity** visible on **purchase and refinance** files through late fall.
+Conrad Mortgage / Conrad Team aims for that rhythm on **QM purchase and refinance** conversations through late fall — education only, not a credit decision in a post.
 
 - CTA:
   Message us on this profile · View our services
 - Compliance notes:
-  Process education only — not a credit decision. No guaranteed approval or closing dates.
+  Process education only. No guaranteed approval or closing dates.
 
 ---
 
-## Post 3 — Cash-to-close: walk fees before signing week
+## Post 3 — Year-end refi: calendar check before you commit
 - Suggested day: Wednesday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-Surprises at the closing table often start with **fees and credits** nobody walked through early enough.
+Thinking about a **refinance** before the year turns? Start with **timeline**, not a rate billboard.
 
-Before **signing week**, a useful conversation covers:
+A useful first conversation for **Northeast Ohio** homeowners covers:
 
-- **Cash-to-close** in plain language — what moves vs. what stays fixed on **your** file  
-- How **seller credits** or **lender credits** show up (education only)  
-- Realistic **holiday buffer** when a **condition** or document refresh adds days  
+- Whether **this season’s** goals still match a **QM refinance** on **your** file  
+- **Document refresh** and signing windows when holidays compress the calendar  
+- Honest guidance when **waiting** makes more sense than rushing  
 
-Conrad Mortgage / Conrad Team serves **Greater Cleveland and Northeast Ohio** with **fee clarity before signing** — calm updates, no rate billboard on this profile.
+Talk to the team about **today’s options** — we do not quote rates on this profile.
+
+Conrad Mortgage / Conrad Team serves **Greater Cleveland and surrounding communities** with **calendar-first refi planning**.
 
 - CTA:
   Message us here
 - Compliance notes:
-  Not legal advice on purchase contracts. No rate quotes. No “lowest fees” claims.
+  Not a commitment to lend. No rate quotes. No savings guarantees.
 
 ---
 
-## Post 4 — One accountable contact when timelines compress
+## Post 4 — When appraisal or inspection dates shift, you should hear it in writing
 - Suggested day: Thursday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
 
-Late fall files sometimes need a reset: **conditions** pile up, **title** milestones shift, or you simply need a human who knows **your** file.
+When **appraisal**, **inspection**, or signing targets move in **November**, borrowers deserve more than silence — a short **written update** on what changed and what happens next on **your** file.
 
-We aim for **one accountable contact** through busy weeks — not a rotating generic inbox — and **written notice** when dates move.
+We aim for:
 
-Questions about **purchase or refinance** in **Northeast Ohio**? Call **216-250-9078** or message us on this profile. We will tell you what fits your situation — every file is different.
+- **Written date-shift updates** when milestones move — not only verbal promises  
+- **One accountable contact** when timelines compress before the holidays  
+- Calm follow-up on **purchase or refinance** questions across **Northeast Ohio**  
+
+Questions? Call **216-250-9078** or message us on this profile. Every file is different.
 
 - CTA:
   Call **216-250-9078** · Message us
@@ -100,6 +106,6 @@ Questions about **purchase or refinance** in **Northeast Ohio**? Call **216-250-
 ## Human checklist
 
 - Publish in GBP manually; add photos supplied by human (`HUMAN_SUPPLIES`).
-- Confirm hours, NAP, and NMLS from a verified GBP admin view — do not paste an street address unless verified in `business.md`.
+- Confirm hours, NAP, and NMLS from a verified GBP admin view — do not paste a street address unless verified in `business.md`.
 - Confirm **216-250-9078** on the listing you control before scheduling.
-- Stagger with other draft bundles (2026-10-22 Thu, 2026-10-28 Tue companion posts, etc.).
+- Stagger with other draft bundles (2026-10-29 Thu, 2026-11-03 Tue, 2026-11-04 Wed, etc.).
