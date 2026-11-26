@@ -1,44 +1,44 @@
-# GBP post drafts — week of 2026-11-19
+# GBP post drafts — week of 2026-11-26
 - Brand: Conrad Mortgage / Conrad Team
 - Market: Cleveland, OH / Northeast Ohio
 - Status: DRAFT — human publishes
 - Phone lock: 216-250-9078
 - Do not publish: 216-513-5139
 
-## Post 1 — Greater Cleveland: last open signing window before Thanksgiving week
+## Post 1 — Greater Cleveland: Thanksgiving week vendor calendars
 
 - Suggested day: Friday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
-  **Late November** in **Greater Cleveland** often means one last stretch of **business-day signing** before **Thanksgiving week** — and files that still need **conditions cleared** on a realistic calendar.
+  **Thanksgiving week** in **Greater Cleveland** often means **title**, **appraisal**, and **insurance** schedules pause or compress — even when your loan file still has **open conditions**.
 
   Worth a calm check on purchase or refi files:
 
-  - Which **signing target** still fits **before** holiday closures — not wish dates on email threads  
-  - Whether **borrower uploads** are complete enough for underwriting to keep moving  
-  - Who gets **written updates** if a third-party step slips into the week after Thanksgiving  
+  - Which **items** still need **your upload** vs. what the team is **waiting on a third party** for  
+  - Whether **signing** realistically moves to **early December** — and whether you have that in **writing**  
+  - Who sends **updates** when a vendor reopens after the holiday  
 
-  Conrad Mortgage / Conrad Team shares **plain-language milestone maps** for **Northeast Ohio** QM conversations — no neighborhood steering on this profile.
+  Conrad Mortgage / Conrad Team shares **plain-language parallel calendars** for **Northeast Ohio** QM conversations — no neighborhood steering on this profile.
 
 - CTA:
   Message us on this profile
 - Compliance notes:
   Not market timing advice. No rates. No rank or review claims.
 
-## Post 2 — What to expect: condition list before holiday PTO
+## Post 2 — What to expect: loan files during holiday closures
 
-- Suggested day: Monday
+- Suggested day: Monday (following week)
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
-  A **purchase or refinance file** should not stall because **holiday PTO** stacks and nobody refreshed the **condition list**.
+  A **purchase or refinance file** should not feel frozen because **nobody refreshed the condition list** during holiday closures.
 
-  On **Cleveland-area** files heading into late November, clarity helps:
+  On **Cleveland-area** files moving through late November, clarity helps:
 
-  - **Open conditions** with **supply vs. verify** on each line — what you upload vs. what the team confirms  
-  - **Due dates** that still make sense if someone is out the week of Thanksgiving  
-  - A **named backup** who has read your file if your primary contact is unavailable  
+  - **Open conditions** labeled **supply vs. verify** — especially when a third party is backlogged after Thanksgiving  
+  - **Written vendor-slip notes** when **title**, **appraisal**, or **insurance** moves your target  
+  - A **backup contact** who has read your file if your primary loan officer is unavailable  
 
   Conrad Mortgage / Conrad Team aims for that rhythm — education only, not a credit decision in a post.
 
@@ -47,19 +47,19 @@
 - Compliance notes:
   Process education only. No guaranteed timelines.
 
-## Post 3 — First-time buyers: pre-approval does not pause for the holiday
+## Post 3 — First-time buyers: documents still matter through Thanksgiving week
 
 - Suggested day: Wednesday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
-  **First-time buyers** in **Greater Cleveland** sometimes assume **pre-approval** or **under contract** status means the file runs itself through **Thanksgiving week** — it does not.
+  **First-time buyers** in **Greater Cleveland** sometimes assume **under contract** means the file runs itself while offices are **closed for the holiday** — it does not.
 
   Education worth asking early:
 
-  - What **documents** may need a refresh if **pay dates** or **insurance renewals** land mid-file  
+  - What **documents** may need a refresh if **year-end pay** or **insurance renewals** land mid-file  
   - How **shopping** still fits inside **pre-approval boundaries** — education, not a promise here  
-  - Who explains **next milestones** if **signing** might move into early December  
+  - Who explains **next milestones** when **signing** shifts into **early December** after vendor reopen  
 
   Conrad Mortgage / Conrad Team serves **Northeast Ohio** with checklist-style FTB guidance — calm, local, no steering.
 
@@ -68,21 +68,21 @@
 - Compliance notes:
   FTB education only. Fair Housing — no neighborhood guidance.
 
-## Post 4 — One accountable contact through holiday week
+## Post 4 — Post-Thanksgiving reset: one accountable contact
 
 - Suggested day: Thursday
 - Type: update
 - Image: HUMAN_SUPPLIES
 - Body:
-  **Holiday week** should not mean borrowers chase three inboxes for **one update** on **your** loan file.
+  When vendors reopen after **Thanksgiving**, borrowers should not chase **three inboxes** for **one update** on **your** loan file.
 
   We aim for:
 
-  - **One accountable contact** who knows your **condition list** and **signing target**  
-  - **Written answers** on **cash-to-close** and **clear-to-close** while there is still time to ask  
-  - Realistic expectations when **vendor** or **title** schedules compress around Thanksgiving  
+  - **One accountable contact** who knows your **condition list** and **realistic signing target**  
+  - **Written answers** on **cash-to-close** and **clear-to-close** while there is still time to ask before travel or year-end plans  
+  - Honest expectations when **Black Friday week** stacks with **catch-up** on third-party steps  
 
-  Mid-file question before you travel? Call **216-250-9078** or message us on this profile. Every file is different.
+  Mid-file question as calendars reopen? Call **216-250-9078** or message us on this profile. Every file is different.
 
 - CTA:
   Call **216-250-9078** · Message us on this profile
@@ -92,9 +92,9 @@
 ## Human checklist
 
 - [ ] Confirm listing phone is **216-250-9078** before scheduling posts
-- [ ] Publish **one post per day**; stagger with 2026-11-18 (Wed review-replies), 2026-11-17 (Tue competitor), 2026-11-16 (Mon category), 2026-11-13 (Fri services), 2026-11-12 (prior Thu), and prior approved sets
+- [ ] Publish **one post per day**; stagger with 2026-11-25 (Wed review-replies), 2026-11-24 (Tue competitor), 2026-11-23 (Mon category), 2026-11-20 (Fri services), 2026-11-19 (prior Thu posts), and prior approved sets
 - [ ] Human supplies images — no stock implying rates, guarantees, or specific properties
-- [ ] Cross-check **2026-11-13** GBP Services rows before publishing process posts
+- [ ] Cross-check **2026-11-20** GBP Services rows before publishing process posts
 - [ ] Confirm NMLS disclosure on live site before linking apply URLs in CTAs
-- [ ] Complete incognito pack observation — **twenty-second consecutive Monday** without SEEN pack rows (through 2026-11-16)
+- [ ] Complete incognito pack observation — **twenty-second consecutive Monday** without SEEN pack rows (through 2026-11-23)
 - [ ] No Google login, no scheduling APIs, no email — drafts only
